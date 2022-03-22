@@ -1,98 +1,69 @@
 import React, { useState } from 'react';
 import styled from 'styled-components';
 import SystemUtil from './utils/systemUtil';
-import { sendQueryRequestToAPI } from './utils/dataBaseUtil';
-// import './App.css';
-
-type daigakuType = {
-    customid: string;
-    daigakunam: string;
-}
+import DaigakuTab from './daigakuTab';
 
 const MainFrame = () => {
-    // 大学名
-    const [daigakuList, setDaigakuList] = useState<daigakuType[]>([]);
+  // 画面遷移の管理(大学、案件)
+  type Mode = 'daigaku' | 'anken';
+  // 画面遷移の管理
+  const [mode, setMode] = useState<Mode>('daigaku');
 
-    const daigakuJsxList: JSX.Element[] = [];
+  // 画面の状態を管理する
+  let contentsJsx = <></>;
 
-    daigakuList.forEach((value, i) => {
-        const customId = daigakuList[i].customid;
-        const daigakuName = daigakuList[i].daigakunam;
-        daigakuJsxList.push(<_DaigakuLabel key = {i}><_Custom>[</_Custom><_CustomId>{customId}</_CustomId><_Custom>]: </_Custom><_DaigakuName>{daigakuName}</_DaigakuName></_DaigakuLabel>);
-    });
+  // 画面切り替え
+  switch (mode) {
+    case 'daigaku':
+      contentsJsx = <DaigakuTab></DaigakuTab>;
+    break;
+    case 'anken':
+      contentsJsx = <></>;
+    break;
+  }
 
-    return (
-        <>
-            <_Header><button onClick={() => {
-                DaigakuFind().then(value => {
-                    setDaigakuList(value);
-                });
-
-                // setDaigakuList(daigakuList.slice());
-            }}>大学</button></_Header>
-            <_Left>{daigakuJsxList}</_Left>
-            <_Right></_Right>
-        </>
-    );
+  return (
+    <>
+      <_Tab>
+        <_ModeItem isActive={mode === 'daigaku'} onClick={() => {
+          setMode('daigaku');
+        }} >大学</_ModeItem>
+        <_ModeItem isActive={mode === 'anken'} onClick={() => {
+          setMode('anken');
+        }} >案件</_ModeItem>
+      </_Tab>
+      <_Contents>{contentsJsx}</_Contents>
+    </>
+  );
 }
-
-// SQL(大学名)取得
-const DaigakuFind = async () => {
-    const response = await sendQueryRequestToAPI('select', `SELECT customid, daigakunam from daigaku`);
-    const results = await response.json();
-    return results as daigakuType[];
-};
 
 export default MainFrame;
 
-// ヘッダー
-const _Header = styled.div`
-  background-color: #c8e7ed;
+// タブのエリア
+const _Tab = styled.div`
+  background-color: #acdfe9;
   width: 100%;
-  height: ${SystemUtil.HEADER_HEIGTH}px;
+  height: ${SystemUtil.TAB_AREA_HEIGTH}px;
 `;
 
-// 画面左
-const _Left = styled.div`
-  background-color: #f0f0f0;
-  display: inline-block;
-  vertical-align: top;
-  text-align: left;
-  width: 50%;
-  height: calc(100% - ${SystemUtil.HEADER_HEIGTH}px);
-`;
-
-// 大学名ラベル
-const _DaigakuLabel = styled.div`
-  background-color: #ffcaca;
-  display: inline-block;
-  width: calc(100% - 10px);
-  height: ${SystemUtil.DAIGAKU_LABEL_HEIGTH}px;
+// 状態を示すラベル
+const _ModeItem = styled.div<{
+  isActive: boolean;
+}>`
+  cursor: pointer;
+  background-color: ${props => props.isActive ? '#58e85c' : '#9fe6a1'};
+  font-size: ${SystemUtil.TAB_FONT_SIZE}px;
+  text-align: center;
+  width: ${SystemUtil.TAB_WEDTH}px;
+  height: ${SystemUtil.TAB_HEIGTH}px;
   margin-left: 5px;
   margin-top: 5px;
-  font-size: ${SystemUtil.DAIGAKU_CHAR_SIZE}px;
-  font-weight: bold;
-`;
-
-// カスタムIDの[]:
-const _Custom = styled.span`
-    color: #9b9b9b;
-`;
-// カスタムID
-const _CustomId = styled.span`
-    color: #ac0000;
-`;
-// 大学名
-const _DaigakuName = styled.span`
-    color: #2e9e1f;
-`;
-
-// 画面右
-const _Right = styled.div`
-  background-color: #ede2c8;
   display: inline-block;
-  margin-left: auto;
-  text-align: left;
-  width: 50%;
-  height: calc(100% - ${SystemUtil.HEADER_HEIGTH}px);
 `;
+
+// コンテンツのエリア
+const _Contents = styled.div`
+  width: 100%;
+  height: calc(100% - ${SystemUtil.TAB_AREA_HEIGTH}px};
+`;
+
