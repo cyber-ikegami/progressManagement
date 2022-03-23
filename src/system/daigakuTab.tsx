@@ -22,11 +22,11 @@ const DaigakuTab = () => {
 
     return (
         <>
-            <_Header><button onClick={() => {
+            <_Header><_DispButton onClick={() => {
                 DaigakuFind().then(value => {
                     setDaigakuList(value);
                 });
-            }}>表示</button></_Header>
+            }}>表示</_DispButton></_Header>
             <_Left>{daigakuJsxList}</_Left>
             <_Right></_Right>
         </>
@@ -47,6 +47,24 @@ const _Header = styled.div`
   background-color: #c8e7ed;
   width: 100%;
   height: ${SystemUtil.HEADER_HEIGTH}px;
+`;
+
+// 表示ボタン
+const _DispButton = styled.div`
+  display: inline-block;
+  background-color:#eef5ff;
+  font-size: 15px;
+  width: 50px;
+  height: calc(100% - 10px);
+  text-align: center;
+  line-height: 30px;
+  margin-top: 5px;
+  margin-left: 5px;
+  border: 1px solid #919191;
+  border-radius: 5px;
+  &:hover {
+    background-color:#b1bff5;
+  }
 `;
 
 // 画面左

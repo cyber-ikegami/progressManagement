@@ -16,19 +16,26 @@ type ankenType = {
 
 const AnkenTab = () => {
     const [ankenList, setAnkenList] = useState<ankenType[]>([]);
-
+    const [ankenStatus, setAnkenStatus] = useState<string>('');
+    
     const ankenJsxList: JSX.Element[] = [];
 
     ankenList.forEach((value, i) => {
-        let anken = '';
-
+        // 緊急度
         const status  = ankenList[i].status;
+        // 案件タイプ(SE/EE/PKG)
         const ankenType  = ankenList[i].ankentype;
+        // カスタムID
         const customId = ankenList[i].customid;
+        // 大学名
         const daigakuName = ankenList[i].daigakunam;
+        // 対応開始日
         const startDy  = ankenList[i].start_dy;
+        // 最終更新日
         const updateDy  = ankenList[i].update_dy;
+        // 案件番号
         const ankenNo  = ankenList[i].ankenno;
+        // 案件タイトル
         const title  = ankenList[i].title;
 
         ankenJsxList.push(<_AnkenLabel key = {i} ankenType = {ankenType}>
@@ -46,17 +53,29 @@ const AnkenTab = () => {
             <_Other>) </_Other>
             <_Title>{title}</_Title>
             </_BottomAnkenLabel>
-        </_AnkenLabel>);
+            </_AnkenLabel>);
+        }
 
-    });
+    );
 
     return (
         <>
-            <_Header><button onClick={() => {
-                AnkenFind().then(value => {
-                    setAnkenList(value);
-                });
-            }}>表示</button></_Header>
+            <_Header>
+                <input type="number"  min='0' max='100' placeholder="条件(緊急度0～100)を入力" onChange={(e)=>{
+                    setAnkenStatus(e.target.value);
+                }}/>
+                <_DispButton isEnable={0 <= Number(ankenStatus) && Number(ankenStatus) <= 100} onClick={() => {
+                    // 条件が入力されていたらwhere句を追加
+                    let joken = '';
+                    if (ankenStatus != '') {
+                        joken = 'where a.status = ' + ankenStatus;
+                    } 
+
+                    AnkenFind(joken).then(value => {
+                        setAnkenList(value);
+                    });
+                }}>表示</_DispButton>
+            </_Header>
             <_Left>{ankenJsxList}</_Left>
             <_Right></_Right>
         </>
@@ -64,14 +83,15 @@ const AnkenTab = () => {
 }
 
 // SQL(案件)取得
-const AnkenFind = async () => {
+const AnkenFind = async (joken: string) => {
     const response = await sendQueryRequestToAPI('select',
         `SELECT a.status, a.ankentype, a.customid, d.daigakunam, a.start_dy, a.update_dy,
         a.ankenno, a.title
         from anken a
         inner join daigaku d
         on a.customid = d.customid
-        order by status `);
+        ${joken}
+        order by status`);
     const results = await response.json();
     return results as ankenType[];
 };
@@ -83,6 +103,34 @@ const _Header = styled.div`
   background-color: #c8e7ed;
   width: 100%;
   height: ${SystemUtil.HEADER_HEIGTH}px;
+  & input {
+    width: ${SystemUtil.JOKEN_TEXT_WIDTH}px;
+    height: ${SystemUtil.JOKEN_TEXT_HEIGHT}px;
+    margin-left: 10px;
+    margin-top: 10px;
+    box-sizing: border-box; 
+  }
+`;
+
+// 表示ボタン
+const _DispButton = styled.div<{
+    isEnable: boolean;
+  }>`
+  pointer-events: ${props => props.isEnable ? 'auto' : 'none'};
+  background-color: ${props => props.isEnable ? '#eef5ff' : '#acb2ba'};
+  display: inline-block;
+  font-size: 15px;
+  width: 50px;
+  height: calc(100% - 10px);
+  text-align: center;
+  line-height: 30px;
+  margin-top: 5px;
+  margin-left: 5px;
+  border: 1px solid #919191;
+  border-radius: 5px;
+  &:hover {
+    background-color:#b1bff5;
+  }
 `;
 
 // 画面左
