@@ -2,6 +2,7 @@ import React, { useState } from 'react';
 import styled from 'styled-components';
 import SystemUtil from './utils/systemUtil';
 import DaigakuTab from './daigakuTab';
+import AnkenTab from './ankenTab';
 
 const MainFrame = () => {
   // 画面遷移の管理(大学、案件)
@@ -18,7 +19,7 @@ const MainFrame = () => {
       contentsJsx = <DaigakuTab></DaigakuTab>;
     break;
     case 'anken':
-      contentsJsx = <></>;
+      contentsJsx = <AnkenTab></AnkenTab>;
     break;
   }
 

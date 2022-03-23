@@ -17,7 +17,7 @@ const DaigakuTab = () => {
     daigakuList.forEach((value, i) => {
         const customId = daigakuList[i].customid;
         const daigakuName = daigakuList[i].daigakunam;
-        daigakuJsxList.push(<_DaigakuLabel key = {i}><_Custom>[</_Custom><_CustomId>{customId}</_CustomId><_Custom>]: </_Custom><_DaigakuName>{daigakuName}</_DaigakuName></_DaigakuLabel>);
+        daigakuJsxList.push(<_DaigakuLabel key = {i}><_Other>[</_Other><_CustomId>{customId}</_CustomId><_Other>]: </_Other><_DaigakuName>{daigakuName}</_DaigakuName></_DaigakuLabel>);
     });
 
     return (
@@ -35,7 +35,7 @@ const DaigakuTab = () => {
 
 // SQL(大学名)取得
 const DaigakuFind = async () => {
-    const response = await sendQueryRequestToAPI('select', `SELECT customid, daigakunam from daigaku`);
+    const response = await sendQueryRequestToAPI('select', `SELECT customid, daigakunam from daigaku  order by customid`);
     const results = await response.json();
     return results as daigakuType[];
 };
@@ -67,14 +67,10 @@ const _DaigakuLabel = styled.div`
   height: ${SystemUtil.DAIGAKU_LABEL_HEIGTH}px;
   margin-left: 5px;
   margin-top: 5px;
-  font-size: ${SystemUtil.DAIGAKU_CHAR_SIZE}px;
+  font-size: ${SystemUtil.CONTENTS_CHAR_SIZE}px;
   font-weight: bold;
 `;
 
-// カスタムIDの[]:
-const _Custom = styled.span`
-    color: #9b9b9b;
-`;
 // カスタムID
 const _CustomId = styled.span`
     color: #ac0000;
@@ -82,6 +78,10 @@ const _CustomId = styled.span`
 // 大学名
 const _DaigakuName = styled.span`
     color: #2e9e1f;
+`;
+// []:
+const _Other = styled.span`
+    color: #9b9b9b;
 `;
 
 // 画面右
