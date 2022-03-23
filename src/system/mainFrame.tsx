@@ -53,7 +53,7 @@ const _ModeItem = styled.div<{
 }>`
   cursor: pointer;
   background-color: ${props => props.isActive ? '#58e85c' : '#9fe6a1'};
-  font-size: ${SystemUtil.TAB_FONT_SIZE}px;
+  font-size: ${SystemUtil.TAB_CHAR_SIZE}px;
   text-align: center;
   width: ${SystemUtil.TAB_WEDTH}px;
   height: ${SystemUtil.TAB_HEIGTH}px;
