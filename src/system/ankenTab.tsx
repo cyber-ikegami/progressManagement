@@ -1,16 +1,24 @@
 import React, { useState } from 'react';
-import styled from 'styled-components';
+import styled, { css } from 'styled-components';
 import SystemUtil from './utils/systemUtil';
 import { sendQueryRequestToAPI } from './utils/dataBaseUtil';
 
 type ankenType = {
+    // 緊急度
     status: number;
+    // 案件タイプ(SE/EE/PKG)
     ankentype: string;
+    // カスタムID
     customid: string;
+    // 大学名
     daigakunam: string;
+    // 対応開始日
     start_dy: string;
+    // 最終更新日
     update_dy: string;
+    // 案件番号
     ankenno: number;
+    // 案件タイトル
     title: string;
 }
 
@@ -22,40 +30,23 @@ const AnkenTab = () => {
     const ankenJsxList: JSX.Element[] = [];
 
     ankenList.forEach((value, i) => {
-        // 緊急度
-        const status = ankenList[i].status;
-        // 案件タイプ(SE/EE/PKG)
-        const ankenType = ankenList[i].ankentype;
-        // カスタムID
-        const customId = ankenList[i].customid;
-        // 大学名
-        const daigakuName = ankenList[i].daigakunam;
-        // 対応開始日
-        const startDy = ankenList[i].start_dy;
-        // 最終更新日
-        const updateDy = ankenList[i].update_dy;
-        // 案件番号
-        const ankenNo = ankenList[i].ankenno;
-        // 案件タイトル
-        const title = ankenList[i].title;
-
-        ankenJsxList.push(<_AnkenLabel key={i} ankenType={ankenType} onClick={() => {
+        ankenJsxList.push(<_AnkenLabel key={i} ankenType={value.ankentype} onClick={() => {
             setFocus(i);
         }}>
             <_SelectAnkenLabel isSelect={focus === i} />
             <_TopAnkenLabel>
-                <_Status>{status}</_Status>
+                <_Status>{value.status}</_Status>
                 <_Other> [</_Other>
-                <_AnkenType>{ankenType}</_AnkenType>
+                <_AnkenType>{value.ankentype}</_AnkenType>
                 <_Other>](</_Other>
-                <_Daigaku>{customId}:{daigakuName}</_Daigaku>
+                <_Daigaku>{value.customid}:{value.daigakunam}</_Daigaku>
                 <_Other>): </_Other>
-                <_Date>{startDy}～{updateDy}</_Date>
+                <_Date>{value.start_dy}～{value.update_dy}</_Date>
             </_TopAnkenLabel>
             <_BottomAnkenLabel>
-                <_AnkenNo>{ankenNo}</_AnkenNo>
+                <_AnkenNo>{value.ankenno}</_AnkenNo>
                 <_Other>) </_Other>
-                <_Title>{title}</_Title>
+                <_Title>{value.title}</_Title>
             </_BottomAnkenLabel>
         </_AnkenLabel>);
     }
@@ -119,8 +110,15 @@ const _Header = styled.div`
 const _DispButton = styled.div<{
     isEnable: boolean;
 }>`
-  pointer-events: ${props => props.isEnable ? 'auto' : 'none'};
-  background-color: ${props => props.isEnable ? '#eef5ff' : '#acb2ba'};
+  pointer-events: auto;
+  background-color: #eef5ff;
+
+  // 非活性処理
+  ${props => props.isEnable ? '' : css`
+    pointer-events: none;
+    background-color: #acb2ba;
+  `}
+  
   display: inline-block;
   font-size: 15px;
   width: 50px;
