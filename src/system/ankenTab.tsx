@@ -17,61 +17,58 @@ type ankenType = {
 const AnkenTab = () => {
     const [ankenList, setAnkenList] = useState<ankenType[]>([]);
     const [ankenStatus, setAnkenStatus] = useState<string>('');
-    
+    const [focus, setFocus] = useState<number>();
+
     const ankenJsxList: JSX.Element[] = [];
 
     ankenList.forEach((value, i) => {
         // 緊急度
-        const status  = ankenList[i].status;
+        const status = ankenList[i].status;
         // 案件タイプ(SE/EE/PKG)
-        const ankenType  = ankenList[i].ankentype;
+        const ankenType = ankenList[i].ankentype;
         // カスタムID
         const customId = ankenList[i].customid;
         // 大学名
         const daigakuName = ankenList[i].daigakunam;
         // 対応開始日
-        const startDy  = ankenList[i].start_dy;
+        const startDy = ankenList[i].start_dy;
         // 最終更新日
-        const updateDy  = ankenList[i].update_dy;
+        const updateDy = ankenList[i].update_dy;
         // 案件番号
-        const ankenNo  = ankenList[i].ankenno;
+        const ankenNo = ankenList[i].ankenno;
         // 案件タイトル
-        const title  = ankenList[i].title;
+        const title = ankenList[i].title;
 
-        ankenJsxList.push(<_AnkenLabel key = {i} ankenType = {ankenType}>
+        ankenJsxList.push(<_AnkenLabel key={i} ankenType={ankenType} onClick={() => {
+            setFocus(i);
+        }}>
+            <_SelectAnkenLabel isSelect={focus === i} />
             <_TopAnkenLabel>
-            <_Status>{status}</_Status>
-            <_Other> [</_Other>
-            <_AnkenType>{ankenType}</_AnkenType>
-            <_Other>](</_Other>
-            <_Daigaku>{customId}:{daigakuName}</_Daigaku>
-            <_Other>): </_Other>
-            <_Date>{startDy}～{updateDy}</_Date>
+                <_Status>{status}</_Status>
+                <_Other> [</_Other>
+                <_AnkenType>{ankenType}</_AnkenType>
+                <_Other>](</_Other>
+                <_Daigaku>{customId}:{daigakuName}</_Daigaku>
+                <_Other>): </_Other>
+                <_Date>{startDy}～{updateDy}</_Date>
             </_TopAnkenLabel>
             <_BottomAnkenLabel>
-            <_AnkenNo>{ankenNo}</_AnkenNo>
-            <_Other>) </_Other>
-            <_Title>{title}</_Title>
+                <_AnkenNo>{ankenNo}</_AnkenNo>
+                <_Other>) </_Other>
+                <_Title>{title}</_Title>
             </_BottomAnkenLabel>
-            </_AnkenLabel>);
-        }
-
+        </_AnkenLabel>);
+    }
     );
 
     return (
         <>
             <_Header>
-                <input type="number"  min='0' max='100' placeholder="条件(緊急度0～100)を入力" onChange={(e)=>{
+                <input type="number" min='0' max='100' placeholder="条件(緊急度0～100)を入力" onChange={(e) => {
                     setAnkenStatus(e.target.value);
-                }}/>
+                }} />
                 <_DispButton isEnable={0 <= Number(ankenStatus) && Number(ankenStatus) <= 100} onClick={() => {
-                    // 条件が入力されていたらwhere句を追加
-                    let joken = '';
-                    if (ankenStatus != '') {
-                        joken = 'where a.status = ' + ankenStatus;
-                    } 
-
-                    AnkenFind(joken).then(value => {
+                    findAnkenList(ankenStatus).then(value => {
                         setAnkenList(value);
                     });
                 }}>表示</_DispButton>
@@ -83,7 +80,13 @@ const AnkenTab = () => {
 }
 
 // SQL(案件)取得
-const AnkenFind = async (joken: string) => {
+const findAnkenList = async (ankenStatus: string) => {
+    // 条件が入力されていたらwhere句を追加
+    let joken = '';
+    if (ankenStatus != '') {
+        joken = 'where a.status <= ' + ankenStatus;
+    }
+
     const response = await sendQueryRequestToAPI('select',
         `SELECT a.status, a.ankentype, a.customid, d.daigakunam, a.start_dy, a.update_dy,
         a.ankenno, a.title
@@ -115,7 +118,7 @@ const _Header = styled.div`
 // 表示ボタン
 const _DispButton = styled.div<{
     isEnable: boolean;
-  }>`
+}>`
   pointer-events: ${props => props.isEnable ? 'auto' : 'none'};
   background-color: ${props => props.isEnable ? '#eef5ff' : '#acb2ba'};
   display: inline-block;
@@ -143,10 +146,22 @@ const _Left = styled.div`
   height: calc(100% - ${SystemUtil.HEADER_HEIGTH}px);
 `;
 
+// 案件ラベル選択時
+const _SelectAnkenLabel = styled.div<{
+    isSelect: boolean;
+}>`
+  display: ${props => props.isSelect ? 'block' : 'none'};
+  background-color: #fcff4b9f;
+  width: 100%;
+  height: 100%;
+  position: absolute;
+  z-index: 10;
+`;
+
 // 案件ラベル(外枠)
 const _AnkenLabel = styled.div<{
     ankenType: string;
-  }>`
+}>`
   ${props => props.ankenType !== 'SE' ? '' : `background-color: #caccff;`}
   ${props => props.ankenType !== 'EE' ? '' : `background-color: #ffd2ca;`}
   ${props => props.ankenType !== 'PKG' ? '' : `background-color: #cdffca;`}
@@ -157,6 +172,10 @@ const _AnkenLabel = styled.div<{
   margin-top: 5px;
   font-size: ${SystemUtil.CONTENTS_CHAR_SIZE}px;
   font-weight: bold;
+  position: relative;
+  &:hover {
+    opacity: 0.5;
+  }
 `;
 
 // 案件ラベル(内側上部)

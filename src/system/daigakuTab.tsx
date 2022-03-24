@@ -17,7 +17,7 @@ const DaigakuTab = () => {
     daigakuList.forEach((value, i) => {
         const customId = daigakuList[i].customid;
         const daigakuName = daigakuList[i].daigakunam;
-        daigakuJsxList.push(<_DaigakuLabel key = {i}><_Other>[</_Other><_CustomId>{customId}</_CustomId><_Other>]: </_Other><_DaigakuName>{daigakuName}</_DaigakuName></_DaigakuLabel>);
+        daigakuJsxList.push(<_DaigakuLabel key={i}><_Other>[</_Other><_CustomId>{customId}</_CustomId><_Other>]: </_Other><_DaigakuName>{daigakuName}</_DaigakuName></_DaigakuLabel>);
     });
 
     return (
