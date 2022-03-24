@@ -1,4 +1,4 @@
-import React, { useState } from 'react';
+import React, { useEffect, useMemo, useState } from 'react';
 import styled, { css } from 'styled-components';
 import SystemUtil from './utils/systemUtil';
 import { sendQueryRequestToAPI } from './utils/dataBaseUtil';
@@ -27,30 +27,34 @@ const AnkenTab = () => {
     const [ankenStatus, setAnkenStatus] = useState<string>('');
     const [focus, setFocus] = useState<number>();
 
-    const ankenJsxList: JSX.Element[] = [];
+    const ankenJsxList = useMemo(() => {
+        console.log('ankenList.forEach');
 
-    ankenList.forEach((value, i) => {
-        ankenJsxList.push(<_AnkenLabel key={i} ankenType={value.ankentype} onClick={() => {
-            setFocus(i);
-        }}>
-            <_SelectAnkenLabel isSelect={focus === i} />
-            <_TopAnkenLabel>
-                <_Status>{value.status}</_Status>
-                <_Other> [</_Other>
-                <_AnkenType>{value.ankentype}</_AnkenType>
-                <_Other>](</_Other>
-                <_Daigaku>{value.customid}:{value.daigakunam}</_Daigaku>
-                <_Other>): </_Other>
-                <_Date>{value.start_dy}～{value.update_dy}</_Date>
-            </_TopAnkenLabel>
-            <_BottomAnkenLabel>
-                <_AnkenNo>{value.ankenno}</_AnkenNo>
-                <_Other>) </_Other>
-                <_Title>{value.title}</_Title>
-            </_BottomAnkenLabel>
-        </_AnkenLabel>);
-    }
-    );
+        ankenList.map((value, i) => {
+            return(
+            <_AnkenLabel key={i} ankenType={value.ankentype} onClick={() => {
+                setFocus(i);
+            }}>
+                <_SelectAnkenLabel isSelect={focus === i} />
+                <_TopAnkenLabel>
+                    <_Status>{value.status}</_Status>
+                    <_Other> [</_Other>
+                    <_AnkenType>{value.ankentype}</_AnkenType>
+                    <_Other>](</_Other>
+                    <_Daigaku>{value.customid}:{value.daigakunam}</_Daigaku>
+                    <_Other>): </_Other>
+                    <_Date>{value.start_dy}～{value.update_dy}</_Date>
+                </_TopAnkenLabel>
+                <_BottomAnkenLabel>
+                    <_AnkenNo>{value.ankenno}</_AnkenNo>
+                    <_Other>) </_Other>
+                    <_Title>{value.title}</_Title>
+                </_BottomAnkenLabel>
+            </_AnkenLabel>
+            )
+        }
+        );
+    }, [ankenList, focus]);
 
     return (
         <>
