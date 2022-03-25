@@ -2,7 +2,7 @@ import React, { useState } from 'react';
 import styled from 'styled-components';
 import SystemUtil from './utils/systemUtil';
 import DaigakuTab from './daigakuTab';
-import AnkenTab from './ankenTab';
+import AnkenTabLeft from './ankenTab';
 
 const MainFrame = () => {
     // 画面遷移の管理(大学、案件)
@@ -19,20 +19,20 @@ const MainFrame = () => {
             contentsJsx = <DaigakuTab></DaigakuTab>;
             break;
         case 'anken':
-            contentsJsx = <AnkenTab></AnkenTab>;
+            contentsJsx = <AnkenTabLeft></AnkenTabLeft>;
             break;
     }
 
     return (
         <>
-            <_Tab>
-                <_ModeItem isActive={mode === 'daigaku'} onClick={() => {
+            <_TabArea>
+                <_Tab isActive={mode === 'daigaku'} onClick={() => {
                     setMode('daigaku');
-                }} >大学</_ModeItem>
-                <_ModeItem isActive={mode === 'anken'} onClick={() => {
+                }} >大学</_Tab>
+                <_Tab isActive={mode === 'anken'} onClick={() => {
                     setMode('anken');
-                }} >案件</_ModeItem>
-            </_Tab>
+                }} >案件</_Tab>
+            </_TabArea>
             <_Contents>{contentsJsx}</_Contents>
         </>
     );
@@ -41,18 +41,18 @@ const MainFrame = () => {
 export default MainFrame;
 
 // タブのエリア
-const _Tab = styled.div`
-  background-color: #acdfe9;
+const _TabArea = styled.div`
+  background-color: #e2e6e8;
   width: 100%;
   height: ${SystemUtil.TAB_AREA_HEIGTH}px;
 `;
 
-// 状態を示すラベル
-const _ModeItem = styled.div<{
+// タブ
+const _Tab = styled.div<{
     isActive: boolean;
 }>`
   cursor: pointer;
-  background-color: ${props => props.isActive ? '#58e85c' : '#9fe6a1'};
+  background-color: ${props => props.isActive ? '#8b8ff8' : '#bcbefc'};
   font-size: ${SystemUtil.TAB_CHAR_SIZE}px;
   text-align: center;
   width: ${SystemUtil.TAB_WEDTH}px;
