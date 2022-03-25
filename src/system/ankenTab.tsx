@@ -27,11 +27,10 @@ const AnkenTab = () => {
     const [ankenStatus, setAnkenStatus] = useState<string>('');
     const [focus, setFocus] = useState<number>();
 
-    const ankenJsxList = useMemo(() => {
+    const ankenJsxList: JSX.Element[] = useMemo(() => {
         console.log('ankenList.forEach');
 
-        ankenList.map((value, i) => {
-            return(
+        return ankenList.map((value, i) =>
             <_AnkenLabel key={i} ankenType={value.ankentype} onClick={() => {
                 setFocus(i);
             }}>
@@ -51,8 +50,6 @@ const AnkenTab = () => {
                     <_Title>{value.title}</_Title>
                 </_BottomAnkenLabel>
             </_AnkenLabel>
-            )
-        }
         );
     }, [ankenList, focus]);
 
