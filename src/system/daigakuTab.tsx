@@ -44,7 +44,7 @@ export default DaigakuTab;
 
 // ヘッダー
 const _Header = styled.div`
-  background-color: #c8e7ed;
+  background-color: #dbdcfc;
   width: 100%;
   height: ${SystemUtil.HEADER_HEIGTH}px;
 `;

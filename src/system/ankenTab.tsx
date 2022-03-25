@@ -22,14 +22,18 @@ type ankenType = {
     title: string;
 }
 
-const AnkenTab = () => {
+// 案件タブ（左側）
+const AnkenTabLeft = () => {
     const [ankenList, setAnkenList] = useState<ankenType[]>([]);
     const [ankenStatus, setAnkenStatus] = useState<string>('');
     const [focus, setFocus] = useState<number>();
 
-    const ankenJsxList: JSX.Element[] = useMemo(() => {
-        console.log('ankenList.forEach');
+    // 画面遷移の管理(詳細、履歴、実績)
+    type AnkenMode = 'syosai' | 'rireki' | 'jisseki';
+    // 画面遷移の管理
+    const [ankenMode, setAnkenMode] = useState<AnkenMode>('syosai');
 
+    const ankenJsxList: JSX.Element[] = useMemo(() => {
         return ankenList.map((value, i) =>
             <_AnkenLabel key={i} ankenType={value.ankentype} onClick={() => {
                 setFocus(i);
@@ -53,6 +57,22 @@ const AnkenTab = () => {
         );
     }, [ankenList, focus]);
 
+    // 画面の状態を管理する
+    let contentsJsx = <></>;
+
+    // 画面切り替え
+    switch (ankenMode) {
+        case 'syosai':
+            contentsJsx = <textarea>詳細</textarea>;
+            break;
+        case 'rireki':
+            contentsJsx = <textarea>履歴</textarea>;
+            break;
+        case 'jisseki':
+            contentsJsx = <textarea>実績</textarea>;
+            break;
+    }
+
     return (
         <>
             <_Header>
@@ -66,7 +86,20 @@ const AnkenTab = () => {
                 }}>表示</_DispButton>
             </_Header>
             <_Left>{ankenJsxList}</_Left>
-            <_Right></_Right>
+            <_Right>
+                <_TabArea>
+                    <_Tab isActive={ankenMode === 'syosai'} onClick={() => {
+                        setAnkenMode('syosai');
+                    }} >詳細</_Tab>
+                    <_Tab isActive={ankenMode === 'rireki'} onClick={() => {
+                        setAnkenMode('rireki');
+                    }} >履歴</_Tab>
+                    <_Tab isActive={ankenMode === 'jisseki'} onClick={() => {
+                        setAnkenMode('jisseki');
+                    }} >実績</_Tab>
+                </_TabArea>
+                <_Contents>{contentsJsx}</_Contents>
+            </_Right>
         </>
     );
 }
@@ -91,11 +124,11 @@ const findAnkenList = async (ankenStatus: string) => {
     return results as ankenType[];
 };
 
-export default AnkenTab;
+export default AnkenTabLeft;
 
 // ヘッダー
 const _Header = styled.div`
-  background-color: #c8e7ed;
+  background-color: #dbdcfc;
   width: 100%;
   height: ${SystemUtil.HEADER_HEIGTH}px;
   & input {
@@ -227,10 +260,38 @@ const _Other = styled.span`
 
 // 画面右
 const _Right = styled.div`
-  background-color: #ede2c8;
   display: inline-block;
   margin-left: auto;
   text-align: left;
   width: 50%;
   height: calc(100% - ${SystemUtil.HEADER_HEIGTH}px);
+`;
+
+// タブのエリア
+const _TabArea = styled.div`
+  background-color: #acdfe9;
+  width: 100%;
+  height: ${SystemUtil.TAB_AREA_HEIGTH}px;
+`;
+
+// タブ
+const _Tab = styled.div<{
+    isActive: boolean;
+}>`
+  cursor: pointer;
+  background-color: ${props => props.isActive ? '#8b8ff8' : '#bcbefc'};
+  font-size: ${SystemUtil.TAB_CHAR_SIZE}px;
+  text-align: center;
+  width: ${SystemUtil.TAB_WEDTH}px;
+  height: ${SystemUtil.TAB_HEIGTH}px;
+  margin-left: 5px;
+  margin-top: 5px;
+  display: inline-block;
+`;
+
+// コンテンツのエリア
+const _Contents = styled.div`
+  background-color: #ebcc86;
+  width: 100%;
+  height: calc(100% - ${SystemUtil.TAB_HEIGTH}px};
 `;
