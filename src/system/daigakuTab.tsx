@@ -4,7 +4,9 @@ import SystemUtil from './utils/systemUtil';
 import { sendQueryRequestToAPI } from './utils/dataBaseUtil';
 
 type daigakuType = {
+    // カスタムID
     customid: string;
+    // 大学名
     daigakunam: string;
 }
 
@@ -23,7 +25,7 @@ const DaigakuTab = () => {
     return (
         <>
             <_Header><_DispButton onClick={() => {
-                DaigakuFind().then(value => {
+                findDaigakuList().then(value => {
                     setDaigakuList(value);
                 });
             }}>表示</_DispButton></_Header>
@@ -34,7 +36,7 @@ const DaigakuTab = () => {
 }
 
 // SQL(大学名)取得
-const DaigakuFind = async () => {
+export const findDaigakuList = async () => {
     const response = await sendQueryRequestToAPI('select', `SELECT customid, daigakunam from daigaku  order by customid`);
     const results = await response.json();
     return results as daigakuType[];

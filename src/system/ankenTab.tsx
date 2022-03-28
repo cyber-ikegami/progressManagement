@@ -2,6 +2,14 @@ import React, { useEffect, useMemo, useState } from 'react';
 import styled, { css } from 'styled-components';
 import SystemUtil from './utils/systemUtil';
 import { sendQueryRequestToAPI } from './utils/dataBaseUtil';
+import { findDaigakuList } from './daigakuTab';
+
+type daigakuType = {
+    // カスタムID
+    customid: string;
+    // 大学名
+    daigakunam: string;
+}
 
 type ankenType = {
     // 緊急度
@@ -64,7 +72,8 @@ const AnkenTab = () => {
     // 画面切り替え
     switch (ankenMode) {
         case 'syosai':
-            contentsJsx = ankenSyosai(ankenList);
+            contentsJsx = ankenSyosai();
+            // contentsJsx = <textarea value={'詳細'} />;
             break;
         case 'rireki':
             contentsJsx = <textarea value={'履歴'} />;
@@ -121,17 +130,24 @@ const findAnkenList = async (ankenStatus: string) => {
         on a.customid = d.customid
         ${joken}
         order by status`);
-    const results = await response.json();
-    return results as ankenType[];
-};
+        const results = await response.json();
+        return results as ankenType[];
+    };
 
 // 詳細タブ
-const ankenSyosai = (ankenList: ankenType[]) => {
-    const customJsxList: JSX.Element[] = ankenList.map((value) => {
-        return <option>{value.customid}:{value.daigakunam}</option>
-    })
-
-    return (
+const ankenSyosai = () => {
+    const [daigakuList, setDaigakuList] = useState<daigakuType[]>([]);
+    const customJsxList: JSX.Element[] = useMemo(() => {
+        findDaigakuList().then(value => {
+            setDaigakuList(value);
+        });
+        
+        return daigakuList.map((value) => {
+            <option>{value.customid}:{value.daigakunam}</option>
+        })
+    }, []);
+        
+        return (
         <>
             <span>案件種別</span>
             <select id='ankenType'>
@@ -147,15 +163,15 @@ const ankenSyosai = (ankenList: ankenType[]) => {
 
             <span>案件番号</span>
             <input type="text" onChange={(e) => {
-
+                
             }} />
             <span>案件タイトル</span>
             <input type="text" onChange={(e) => {
-
+                
             }} />
             <span>発生日</span>
             <input type="text" onChange={(e) => {
-
+                
             }} />
             <span>詳細</span>
             <textarea></textarea>
@@ -164,11 +180,11 @@ const ankenSyosai = (ankenList: ankenType[]) => {
 }
 // 履歴タブ
 const ankenRireki = () => {
-
+    
 }
 // 実績タブ
 const ankenJisseki = () => {
-
+    
 }
 
 export default AnkenTab;
