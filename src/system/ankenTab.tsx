@@ -1,15 +1,8 @@
-import React, { useEffect, useMemo, useState } from 'react';
+import React, { useMemo, useState } from 'react';
 import styled, { css } from 'styled-components';
 import SystemUtil from './utils/systemUtil';
 import { sendQueryRequestToAPI } from './utils/dataBaseUtil';
-import { findDaigakuList } from './daigakuTab';
-
-type daigakuType = {
-    // カスタムID
-    customid: string;
-    // 大学名
-    daigakunam: string;
-}
+import AnkenSyosai from './ankenSyosai';
 
 type ankenType = {
     // 緊急度
@@ -28,6 +21,8 @@ type ankenType = {
     ankenno: number;
     // 案件タイトル
     title: string;
+    // 詳細
+    detail: string;
 }
 
 // 画面遷移の管理(詳細、履歴、実績)
@@ -37,7 +32,8 @@ type AnkenMode = 'syosai' | 'rireki' | 'jisseki';
 const AnkenTab = () => {
     const [ankenList, setAnkenList] = useState<ankenType[]>([]);
     const [ankenStatus, setAnkenStatus] = useState<string>('');
-    const [focus, setFocus] = useState<number>();
+    const [focus, setFocus] = useState<number>(-1);
+    // const [selectAnken, setSelectAnken] = useState<ankenType>();
 
     // 画面遷移の管理
     const [ankenMode, setAnkenMode] = useState<AnkenMode>('syosai');
@@ -72,8 +68,10 @@ const AnkenTab = () => {
     // 画面切り替え
     switch (ankenMode) {
         case 'syosai':
-            contentsJsx = ankenSyosai();
-            // contentsJsx = <textarea value={'詳細'} />;
+            if (focus !== -1){
+                const selectAnken = ankenList[focus];
+                contentsJsx = <AnkenSyosai selectAnken={selectAnken}/>;
+            }
             break;
         case 'rireki':
             contentsJsx = <textarea value={'履歴'} />;
@@ -124,7 +122,7 @@ const findAnkenList = async (ankenStatus: string) => {
 
     const response = await sendQueryRequestToAPI('select',
         `SELECT a.status, a.ankentype, a.customid, d.daigakunam, a.start_dy, a.update_dy,
-        a.ankenno, a.title
+        a.ankenno, a.title, a.detail
         from anken a
         inner join daigaku d
         on a.customid = d.customid
@@ -133,60 +131,6 @@ const findAnkenList = async (ankenStatus: string) => {
     const results = await response.json();
     return results as ankenType[];
 };
-
-// 詳細タブ
-const ankenSyosai = () => {
-    const [daigakuList, setDaigakuList] = useState<daigakuType[]>([]);
-    const customJsxList: JSX.Element[] = useMemo(() => {
-        findDaigakuList().then(value => {
-            setDaigakuList(value);
-        });
-
-        return daigakuList.map((value) =>
-            <option>{value.customid}:{value.daigakunam}</option>
-        )
-    }, []);
-
-    alert(daigakuList.length);
-    return (
-        <>
-            <span>案件種別</span>
-            <select id='ankenType'>
-                <option>SE</option>
-                <option>EE</option>
-                <option>PKG連絡票</option>
-            </select>
-
-            <span>カスタマID</span>
-            <select id='ankenType'>
-                {customJsxList}
-            </select>
-
-            <span>案件番号</span>
-            <input type="text" onChange={(e) => {
-
-            }} />
-            <span>案件タイトル</span>
-            <input type="text" onChange={(e) => {
-
-            }} />
-            <span>発生日</span>
-            <input type="text" onChange={(e) => {
-
-            }} />
-            <span>詳細</span>
-            <textarea></textarea>
-        </>
-    );
-}
-// 履歴タブ
-const ankenRireki = () => {
-
-}
-// 実績タブ
-const ankenJisseki = () => {
-
-}
 
 export default AnkenTab;
 
@@ -326,7 +270,6 @@ const _Other = styled.span`
 
 // 画面右
 const _Right = styled.div`
-            background-color: #dce9ac;
             display: inline-block;
             vertical-align: top;
             margin-left: auto;
