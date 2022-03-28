@@ -22,14 +22,15 @@ type ankenType = {
     title: string;
 }
 
-// 案件タブ（左側）
-const AnkenTabLeft = () => {
+// 画面遷移の管理(詳細、履歴、実績)
+type AnkenMode = 'syosai' | 'rireki' | 'jisseki';
+
+// 案件タブ
+const AnkenTab = () => {
     const [ankenList, setAnkenList] = useState<ankenType[]>([]);
     const [ankenStatus, setAnkenStatus] = useState<string>('');
     const [focus, setFocus] = useState<number>();
 
-    // 画面遷移の管理(詳細、履歴、実績)
-    type AnkenMode = 'syosai' | 'rireki' | 'jisseki';
     // 画面遷移の管理
     const [ankenMode, setAnkenMode] = useState<AnkenMode>('syosai');
 
@@ -63,13 +64,13 @@ const AnkenTabLeft = () => {
     // 画面切り替え
     switch (ankenMode) {
         case 'syosai':
-            contentsJsx = <textarea>詳細</textarea>;
+            contentsJsx = ankenSyosai(ankenList);
             break;
         case 'rireki':
-            contentsJsx = <textarea>履歴</textarea>;
+            contentsJsx = <textarea value={'履歴'} />;
             break;
         case 'jisseki':
-            contentsJsx = <textarea>実績</textarea>;
+            contentsJsx = <textarea value={'実績'} />;
             break;
     }
 
@@ -124,174 +125,247 @@ const findAnkenList = async (ankenStatus: string) => {
     return results as ankenType[];
 };
 
-export default AnkenTabLeft;
+// 詳細タブ
+const ankenSyosai = (ankenList: ankenType[]) => {
+    const customJsxList: JSX.Element[] = ankenList.map((value) => {
+        return <option>{value.customid}:{value.daigakunam}</option>
+    })
+
+    return (
+        <>
+            <span>案件種別</span>
+            <select id='ankenType'>
+                <option>SE</option>
+                <option>EE</option>
+                <option>PKG連絡票</option>
+            </select>
+
+            <span>カスタマID</span>
+            <select id='ankenType'>
+                {customJsxList}
+            </select>
+
+            <span>案件番号</span>
+            <input type="text" onChange={(e) => {
+
+            }} />
+            <span>案件タイトル</span>
+            <input type="text" onChange={(e) => {
+
+            }} />
+            <span>発生日</span>
+            <input type="text" onChange={(e) => {
+
+            }} />
+            <span>詳細</span>
+            <textarea></textarea>
+        </>
+    );
+}
+// 履歴タブ
+const ankenRireki = () => {
+
+}
+// 実績タブ
+const ankenJisseki = () => {
+
+}
+
+export default AnkenTab;
 
 // ヘッダー
 const _Header = styled.div`
-  background-color: #dbdcfc;
-  width: 100%;
-  height: ${SystemUtil.HEADER_HEIGTH}px;
-  & input {
-    width: ${SystemUtil.JOKEN_TEXT_WIDTH}px;
-    height: ${SystemUtil.JOKEN_TEXT_HEIGHT}px;
-    margin-left: 10px;
-    margin-top: 10px;
-    box-sizing: border-box; 
+            background-color: #dbdcfc;
+            display: inline-block;
+            width: 100%;
+            height: ${SystemUtil.HEADER_HEIGTH}px;
+            & input {
+                width: ${SystemUtil.JOKEN_TEXT_WIDTH}px;
+            height: ${SystemUtil.JOKEN_TEXT_HEIGHT}px;
+            margin-left: 10px;
+            margin-top: 10px;
+            box-sizing: border-box; 
   }
-`;
+            `;
 
 // 表示ボタン
 const _DispButton = styled.div<{
     isEnable: boolean;
 }>`
-  pointer-events: auto;
-  background-color: #eef5ff;
+            pointer-events: auto;
+            background-color: #eef5ff;
 
-  // 非活性処理
-  ${props => props.isEnable ? '' : css`
+            // 非活性処理
+            ${props => props.isEnable ? '' : css`
     pointer-events: none;
     background-color: #acb2ba;
   `}
-  
-  display: inline-block;
-  font-size: 15px;
-  width: 50px;
-  height: calc(100% - 10px);
-  text-align: center;
-  line-height: 30px;
-  margin-top: 5px;
-  margin-left: 5px;
-  border: 1px solid #919191;
-  border-radius: 5px;
-  &:hover {
-    background-color:#b1bff5;
+
+            display: inline-block;
+            font-size: 15px;
+            width: 50px;
+            height: calc(100% - 10px);
+            text-align: center;
+            line-height: 30px;
+            margin-top: 5px;
+            margin-left: 5px;
+            border: 1px solid #919191;
+            border-radius: 5px;
+            &:hover {
+                background - color:#b1bff5;
   }
-`;
+            `;
 
 // 画面左
 const _Left = styled.div`
-  background-color: #f0f0f0;
-  display: inline-block;
-  vertical-align: top;
-  text-align: left;
-  width: 50%;
-  height: calc(100% - ${SystemUtil.HEADER_HEIGTH}px);
-`;
+            background-color: #f0f0f0;
+            display: inline-block;
+            vertical-align: top;
+            text-align: left;
+            width: 50%;
+            height: calc(100% - ${SystemUtil.HEADER_HEIGTH}px);
+            `;
 
 // 案件ラベル選択時
 const _SelectAnkenLabel = styled.div<{
     isSelect: boolean;
 }>`
-  display: ${props => props.isSelect ? 'block' : 'none'};
-  background-color: #fcff4b9f;
-  width: 100%;
-  height: 100%;
-  position: absolute;
-  z-index: 10;
-`;
+            display: ${props => props.isSelect ? 'inline-block' : 'none'};
+            background-color: #fcff4b9f;
+            width: 100%;
+            height: 100%;
+            position: absolute;
+            z-index: 10;
+            `;
 
 // 案件ラベル(外枠)
 const _AnkenLabel = styled.div<{
     ankenType: string;
 }>`
-  ${props => props.ankenType !== 'SE' ? '' : `background-color: #caccff;`}
-  ${props => props.ankenType !== 'EE' ? '' : `background-color: #ffd2ca;`}
-  ${props => props.ankenType !== 'PKG' ? '' : `background-color: #cdffca;`}
-  display: inline-block;
-  width: calc(100% - 10px);
-  height: ${SystemUtil.ANKEN_LABEL_HEIGTH}px;
-  margin-left: 5px;
-  margin-top: 5px;
-  font-size: ${SystemUtil.CONTENTS_CHAR_SIZE}px;
-  font-weight: bold;
-  position: relative;
-  &:hover {
-    opacity: 0.5;
+            ${props => props.ankenType !== 'SE' ? '' : `background-color: #caccff;`}
+            ${props => props.ankenType !== 'EE' ? '' : `background-color: #ffd2ca;`}
+            ${props => props.ankenType !== 'PKG' ? '' : `background-color: #cdffca;`}
+            display: inline-block;
+            width: calc(100% - 10px);
+            height: ${SystemUtil.ANKEN_LABEL_HEIGTH}px;
+            margin-left: 5px;
+            margin-top: 5px;
+            font-size: ${SystemUtil.CONTENTS_CHAR_SIZE}px;
+            font-weight: bold;
+            position: relative;
+            &:hover {
+                opacity: 0.5;
   }
-`;
+            `;
 
 // 案件ラベル(内側上部)
 const _TopAnkenLabel = styled.div`
-  white-space: nowrap;
-  overflow: hidden;
-  width: 100%;
-  height: 50%;
-`;
+            display: inline-block;
+            white-space: nowrap;
+            overflow: hidden;
+            width: 100%;
+            height: 50%;
+            `;
 
 // 案件ラベル(内側下部)
 const _BottomAnkenLabel = styled.div`
-  display: inline-block;
-  background-color: #f6f8ff;
-  white-space: nowrap;
-  overflow: hidden;
-  width: 100%;
-  height: calc(50% - 3px);
-  margin-bottom: 3px;
-`;
+            background-color: #f6f8ff;
+            display: inline-block;
+            white-space: nowrap;
+            overflow: hidden;
+            width: 100%;
+            height: calc(50% - 3px);
+            margin-bottom: 3px;
+            `;
 
 // ステータス
 const _Status = styled.span`
-    color: #d80000;
-`;
+            color: #d80000;
+            `;
 // 案件タイプ
 const _AnkenType = styled.span`
-    color: #68c05d;
-`;
+            color: #68c05d;
+            `;
 // カスタムID、大学名
 const _Daigaku = styled.span`
-    color: #0014af;
-`;
+            color: #0014af;
+            `;
 // 開始日～終了日
 const _Date = styled.span`
-    color: #6e768a;
-`;
+            color: #6e768a;
+            `;
 // 案件番号
 const _AnkenNo = styled.span`
-    color: #a2a2a2;
-`;
+            color: #a2a2a2;
+            `;
 // 案件名
 const _Title = styled.span`
-    color: #000000;
-`;
+            color: #000000;
+            `;
 // []():
 const _Other = styled.span`
-    color: #9b9b9b;
-`;
+            color: #9b9b9b;
+            `;
 
 // 画面右
 const _Right = styled.div`
-  display: inline-block;
-  margin-left: auto;
-  text-align: left;
-  width: 50%;
-  height: calc(100% - ${SystemUtil.HEADER_HEIGTH}px);
-`;
+            background-color: #dce9ac;
+            display: inline-block;
+            vertical-align: top;
+            margin-left: auto;
+            text-align: left;
+            width: 50%;
+            height: calc(100% - ${SystemUtil.HEADER_HEIGTH}px);
+            `;
 
 // タブのエリア
 const _TabArea = styled.div`
-  background-color: #acdfe9;
-  width: 100%;
-  height: ${SystemUtil.TAB_AREA_HEIGTH}px;
-`;
+            background-color: #acdfe9;
+            display: inline-block;
+            width: 100%;
+            height: ${SystemUtil.TAB_AREA_HEIGTH}px;
+            `;
 
 // タブ
 const _Tab = styled.div<{
     isActive: boolean;
 }>`
-  cursor: pointer;
-  background-color: ${props => props.isActive ? '#8b8ff8' : '#bcbefc'};
-  font-size: ${SystemUtil.TAB_CHAR_SIZE}px;
-  text-align: center;
-  width: ${SystemUtil.TAB_WEDTH}px;
-  height: ${SystemUtil.TAB_HEIGTH}px;
-  margin-left: 5px;
-  margin-top: 5px;
-  display: inline-block;
-`;
+            cursor: pointer;
+            background-color: ${props => props.isActive ? '#8b8ff8' : '#bcbefc'};
+            display: inline-block;
+            font-size: ${SystemUtil.TAB_CHAR_SIZE}px;
+            text-align: center;
+            width: ${SystemUtil.TAB_WEDTH}px;
+            height: ${SystemUtil.TAB_HEIGTH}px;
+            margin-left: 5px;
+            margin-top: 5px;
+            `;
 
 // コンテンツのエリア
 const _Contents = styled.div`
-  background-color: #ebcc86;
-  width: 100%;
-  height: calc(100% - ${SystemUtil.TAB_HEIGTH}px};
-`;
+            background-color: #e8e8e8;
+            width: 100%;
+            display: inline-block;
+            height: calc(100% - ${SystemUtil.TAB_HEIGTH}px);
+            position: relative;
+            & span {
+                font-size: 15px;
+                margin-left: 5px;
+                font-weight: bold;
+            }
+            & select, input {
+                width: calc(100% - 10px);
+                height: ${SystemUtil.JOKEN_TEXT_HEIGHT}px;
+                margin-left: 5px;
+                margin-bottom: 5px;
+                box-sizing: border-box;  
+            }
+            & textarea {
+                width: calc(100% - 10px);
+                height: 250px;
+                resize: none;
+                margin-left: 5px;
+                margin-top: 5px;
+                box-sizing: border-box; 
+            }
+            `;
