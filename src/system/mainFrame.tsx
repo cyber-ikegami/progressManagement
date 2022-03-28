@@ -2,7 +2,7 @@ import React, { useState } from 'react';
 import styled from 'styled-components';
 import SystemUtil from './utils/systemUtil';
 import DaigakuTab from './daigakuTab';
-import AnkenTabLeft from './ankenTab';
+import AnkenTab from './ankenTab';
 
 const MainFrame = () => {
     // 画面遷移の管理(大学、案件)
@@ -19,12 +19,12 @@ const MainFrame = () => {
             contentsJsx = <DaigakuTab></DaigakuTab>;
             break;
         case 'anken':
-            contentsJsx = <AnkenTabLeft></AnkenTabLeft>;
+            contentsJsx = <AnkenTab></AnkenTab>;
             break;
     }
 
     return (
-        <>
+        <_Frame>
             <_TabArea>
                 <_Tab isActive={mode === 'daigaku'} onClick={() => {
                     setMode('daigaku');
@@ -34,15 +34,22 @@ const MainFrame = () => {
                 }} >案件</_Tab>
             </_TabArea>
             <_Contents>{contentsJsx}</_Contents>
-        </>
+        </_Frame>
     );
 }
 
 export default MainFrame;
 
+const _Frame = styled.div`
+  display: inline-block;
+  width: 100%;
+  height: 100%;
+`;
+
 // タブのエリア
 const _TabArea = styled.div`
   background-color: #e2e6e8;
+  display: inline-block;
   width: 100%;
   height: ${SystemUtil.TAB_AREA_HEIGTH}px;
 `;
@@ -53,18 +60,19 @@ const _Tab = styled.div<{
 }>`
   cursor: pointer;
   background-color: ${props => props.isActive ? '#8b8ff8' : '#bcbefc'};
+  display: inline-block;
   font-size: ${SystemUtil.TAB_CHAR_SIZE}px;
   text-align: center;
   width: ${SystemUtil.TAB_WEDTH}px;
   height: ${SystemUtil.TAB_HEIGTH}px;
   margin-left: 5px;
   margin-top: 5px;
-  display: inline-block;
 `;
 
 // コンテンツのエリア
 const _Contents = styled.div`
+  display: inline-block;
   width: 100%;
-  height: calc(100% - ${SystemUtil.TAB_AREA_HEIGTH}px};
+  height: calc(100% - ${SystemUtil.TAB_AREA_HEIGTH}px);
 `;
 

@@ -104,7 +104,7 @@ const _Other = styled.span`
 
 // 画面右
 const _Right = styled.div`
-  background-color: #ede2c8;
+  background-color: #e8e8e8;
   display: inline-block;
   margin-left: auto;
   text-align: left;
