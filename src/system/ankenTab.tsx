@@ -130,9 +130,9 @@ const findAnkenList = async (ankenStatus: string) => {
         on a.customid = d.customid
         ${joken}
         order by status`);
-        const results = await response.json();
-        return results as ankenType[];
-    };
+    const results = await response.json();
+    return results as ankenType[];
+};
 
 // 詳細タブ
 const ankenSyosai = () => {
@@ -141,13 +141,14 @@ const ankenSyosai = () => {
         findDaigakuList().then(value => {
             setDaigakuList(value);
         });
-        
-        return daigakuList.map((value) => {
+
+        return daigakuList.map((value) =>
             <option>{value.customid}:{value.daigakunam}</option>
-        })
+        )
     }, []);
-        
-        return (
+
+    alert(daigakuList.length);
+    return (
         <>
             <span>案件種別</span>
             <select id='ankenType'>
@@ -163,15 +164,15 @@ const ankenSyosai = () => {
 
             <span>案件番号</span>
             <input type="text" onChange={(e) => {
-                
+
             }} />
             <span>案件タイトル</span>
             <input type="text" onChange={(e) => {
-                
+
             }} />
             <span>発生日</span>
             <input type="text" onChange={(e) => {
-                
+
             }} />
             <span>詳細</span>
             <textarea></textarea>
@@ -180,11 +181,11 @@ const ankenSyosai = () => {
 }
 // 履歴タブ
 const ankenRireki = () => {
-    
+
 }
 // 実績タブ
 const ankenJisseki = () => {
-    
+
 }
 
 export default AnkenTab;
