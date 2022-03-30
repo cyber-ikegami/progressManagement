@@ -33,7 +33,6 @@ const AnkenTab = () => {
     const [ankenList, setAnkenList] = useState<ankenType[]>([]);
     const [ankenStatus, setAnkenStatus] = useState<string>('');
     const [focus, setFocus] = useState<number>(-1);
-    // const [selectAnken, setSelectAnken] = useState<ankenType>();
 
     // 画面遷移の管理
     const [ankenMode, setAnkenMode] = useState<AnkenMode>('syosai');

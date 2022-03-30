@@ -33,7 +33,7 @@ type ankenType = {
 const AnkenSyosai = (props: {
     selectAnken: ankenType;
 }) => {
-    const [daigakuList, setDaigakuList] = useState<daigakuType[]>([]);
+    // const [daigakuList, setDaigakuList] = useState<daigakuType[]>([]);
 
     // useEffect(() => {
     //     findDaigakuList().then(value => {
