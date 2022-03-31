@@ -3,7 +3,7 @@ import styled from 'styled-components';
 import SystemUtil from './utils/systemUtil';
 import { sendQueryRequestToAPI } from './utils/dataBaseUtil';
 
-type daigakuType = {
+type DaigakuInfo = {
     // カスタムID
     customid: string;
     // 大学名
@@ -12,7 +12,7 @@ type daigakuType = {
 
 const DaigakuTab = () => {
     // 大学名
-    const [daigakuList, setDaigakuList] = useState<daigakuType[]>([]);
+    const [daigakuList, setDaigakuList] = useState<DaigakuInfo[]>([]);
 
     const daigakuJsxList: JSX.Element[] = [];
 
@@ -39,7 +39,7 @@ const DaigakuTab = () => {
 export const findDaigakuList = async () => {
     const response = await sendQueryRequestToAPI('select', `SELECT customid, daigakunam from daigaku  order by customid`);
     const results = await response.json();
-    return results as daigakuType[];
+    return results as DaigakuInfo[];
 };
 
 export default DaigakuTab;

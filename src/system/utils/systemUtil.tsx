@@ -13,6 +13,8 @@ namespace SystemUtil {
 
     export const ANKEN_LABEL_HEIGTH = 60;
 
+    export const JISSEKI_LABEL_HEIGTH = 30;
+
     export const CONTENTS_CHAR_SIZE = 20;
 }
 
