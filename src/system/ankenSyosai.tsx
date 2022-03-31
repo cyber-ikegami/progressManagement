@@ -1,39 +1,15 @@
-import { useEffect, useMemo, useState } from "react";
-import { findDaigakuList } from "./daigakuTab";
+// import { useEffect, useMemo, useState } from "react";
+// import { findDaigakuList } from "./daigakuTab";
 
-type daigakuType = {
-    // カスタムID
-    customid: string;
-    // 大学名
-    daigakunam: string;
-}
-
-type ankenType = {
-    // 緊急度
-    status: number;
-    // 案件タイプ(SE/EE/PKG)
-    ankentype: string;
-    // カスタムID
-    customid: string;
-    // 大学名
-    daigakunam: string;
-    // 対応開始日
-    start_dy: string;
-    // 最終更新日
-    update_dy: string;
-    // 案件番号
-    ankenno: number;
-    // 案件タイトル
-    title: string;
-    // 詳細
-    detail: string;
-}
+import styled from "styled-components";
+import { AnkenInfo } from "./ankenTab";
+import SystemUtil from "./utils/systemUtil";
 
 // 案件詳細タブ
 const AnkenSyosai = (props: {
-    selectAnken: ankenType;
+    selectAnken: AnkenInfo;
 }) => {
-    // const [daigakuList, setDaigakuList] = useState<daigakuType[]>([]);
+    // const [daigakuList, setDaigakuList] = useState<DaigakuInfo[]>([]);
 
     // useEffect(() => {
     //     findDaigakuList().then(value => {
@@ -48,7 +24,7 @@ const AnkenSyosai = (props: {
     // }, [daigakuList]);
 
     return (
-        <>
+        <_Syosai>
             <span>案件種別</span>
             <select id='ankenType'>
                 <option>{props.selectAnken.ankentype}</option>
@@ -76,8 +52,32 @@ const AnkenSyosai = (props: {
             }} />
             <span>詳細</span>
             <textarea value={props.selectAnken.detail}></textarea>
-        </>
+        </_Syosai>
     );
 }
 
 export default AnkenSyosai;
+
+// 詳細
+const _Syosai = styled.div`
+            & span {
+                font-size: 15px;
+                margin-left: 5px;
+                font-weight: bold;
+            }
+            & select, input {
+                width: calc(100% - 10px);
+                height: ${SystemUtil.JOKEN_TEXT_HEIGHT}px;
+                margin-left: 5px;
+                margin-bottom: 5px;
+                box-sizing: border-box;  
+            }
+            & textarea {
+                width: calc(100% - 10px);
+                height: 250px;
+                resize: none;
+                margin-left: 5px;
+                margin-top: 5px;
+                box-sizing: border-box; 
+            }
+            `;

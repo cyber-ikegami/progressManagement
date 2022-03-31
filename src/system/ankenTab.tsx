@@ -3,8 +3,9 @@ import styled, { css } from 'styled-components';
 import SystemUtil from './utils/systemUtil';
 import { sendQueryRequestToAPI } from './utils/dataBaseUtil';
 import AnkenSyosai from './ankenSyosai';
+import AnkenJisseki from './ankenJisseki';
 
-type ankenType = {
+export type AnkenInfo = {
     // 緊急度
     status: number;
     // 案件タイプ(SE/EE/PKG)
@@ -23,6 +24,19 @@ type ankenType = {
     title: string;
     // 詳細
     detail: string;
+    // 実績リスト
+    jissekiList: null | JissekiInfo[];
+}
+
+export type JissekiInfo = {
+    // 作業日
+    sagyou_dy: string;
+    // 作業者
+    user: string;
+    // 作業種別
+    worktype: string;
+    // 時間(m)
+    time: number;
 }
 
 // 画面遷移の管理(詳細、履歴、実績)
@@ -30,7 +44,7 @@ type AnkenMode = 'syosai' | 'rireki' | 'jisseki';
 
 // 案件タブ
 const AnkenTab = () => {
-    const [ankenList, setAnkenList] = useState<ankenType[]>([]);
+    const [ankenList, setAnkenList] = useState<AnkenInfo[]>([]);
     const [ankenStatus, setAnkenStatus] = useState<string>('');
     const [focus, setFocus] = useState<number>(-1);
 
@@ -44,18 +58,16 @@ const AnkenTab = () => {
             }}>
                 <_SelectAnkenLabel isSelect={focus === i} />
                 <_TopAnkenLabel>
-                    <_Status>{value.status}</_Status>
-                    <_Other> [</_Other>
-                    <_AnkenType>{value.ankentype}</_AnkenType>
-                    <_Other>](</_Other>
-                    <_Daigaku>{value.customid}:{value.daigakunam}</_Daigaku>
-                    <_Other>): </_Other>
-                    <_Date>{value.start_dy}～{value.update_dy}</_Date>
+                    <_Red>{value.status}</_Red>
+                    <_Gray> [</_Gray>
+                    <_Green>{value.ankentype}</_Green>
+                    <_Gray>](</_Gray>
+                    <_Blue>{value.customid}:{value.daigakunam}</_Blue>
+                    <_Gray>): {value.start_dy}～{value.update_dy}</_Gray>
                 </_TopAnkenLabel>
                 <_BottomAnkenLabel>
-                    <_AnkenNo>{value.ankenno}</_AnkenNo>
-                    <_Other>) </_Other>
-                    <_Title>{value.title}</_Title>
+                    <_Gray>{value.ankenno} ) </_Gray>
+                    <_Black>{value.title}</_Black>
                 </_BottomAnkenLabel>
             </_AnkenLabel>
         );
@@ -67,16 +79,17 @@ const AnkenTab = () => {
     // 画面切り替え
     switch (ankenMode) {
         case 'syosai':
-            if (focus !== -1){
+            if (focus !== -1) {
                 const selectAnken = ankenList[focus];
-                contentsJsx = <AnkenSyosai selectAnken={selectAnken}/>;
+                contentsJsx = <AnkenSyosai selectAnken={selectAnken} />;
             }
             break;
         case 'rireki':
             contentsJsx = <textarea value={'履歴'} />;
             break;
         case 'jisseki':
-            contentsJsx = <textarea value={'実績'} />;
+                const selectAnken = ankenList[focus];
+                contentsJsx = <AnkenJisseki selectAnken={selectAnken} />;
             break;
     }
 
@@ -128,7 +141,7 @@ const findAnkenList = async (ankenStatus: string) => {
         ${joken}
         order by status`);
     const results = await response.json();
-    return results as ankenType[];
+    return results as AnkenInfo[];
 };
 
 export default AnkenTab;
@@ -238,35 +251,6 @@ const _BottomAnkenLabel = styled.div`
             margin-bottom: 3px;
             `;
 
-// ステータス
-const _Status = styled.span`
-            color: #d80000;
-            `;
-// 案件タイプ
-const _AnkenType = styled.span`
-            color: #68c05d;
-            `;
-// カスタムID、大学名
-const _Daigaku = styled.span`
-            color: #0014af;
-            `;
-// 開始日～終了日
-const _Date = styled.span`
-            color: #6e768a;
-            `;
-// 案件番号
-const _AnkenNo = styled.span`
-            color: #a2a2a2;
-            `;
-// 案件名
-const _Title = styled.span`
-            color: #000000;
-            `;
-// []():
-const _Other = styled.span`
-            color: #9b9b9b;
-            `;
-
 // 画面右
 const _Right = styled.div`
             display: inline-block;
@@ -307,24 +291,41 @@ const _Contents = styled.div`
             display: inline-block;
             height: calc(100% - ${SystemUtil.TAB_HEIGTH}px);
             position: relative;
-            & span {
-                font-size: 15px;
-                margin-left: 5px;
-                font-weight: bold;
+            `;
+
+// 実績ラベル
+const _JissekiLabel = styled.div`
+            background-color: #d6d1ac;
+            display: inline-block;
+            width: calc(100% - 10px);
+            height: ${SystemUtil.JISSEKI_LABEL_HEIGTH}px;
+            margin-left: 5px;
+            margin-top: 5px;
+            font-size: ${SystemUtil.CONTENTS_CHAR_SIZE}px;
+            font-weight: bold;
+            position: relative;
+            &:hover {
+                opacity: 0.5;
             }
-            & select, input {
-                width: calc(100% - 10px);
-                height: ${SystemUtil.JOKEN_TEXT_HEIGHT}px;
-                margin-left: 5px;
-                margin-bottom: 5px;
-                box-sizing: border-box;  
-            }
-            & textarea {
-                width: calc(100% - 10px);
-                height: 250px;
-                resize: none;
-                margin-left: 5px;
-                margin-top: 5px;
-                box-sizing: border-box; 
-            }
+            `;
+
+// 赤文字(ステータス等)
+const _Red = styled.span`
+            color: #d80000;
+            `;
+// 緑文字(案件タイプ等)
+const _Green = styled.span`
+            color: #68c05d;
+            `;
+// 青文字(カスタムID、大学名等)
+const _Blue = styled.span`
+            color: #0014af;
+            `;
+// グレー文字(開始日～終了日等)
+const _Gray = styled.span`
+            color: #6e768a;
+            `;
+// 黒文字(案件名等)
+const _Black = styled.span`
+            color: #000000;
             `;
