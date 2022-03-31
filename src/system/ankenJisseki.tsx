@@ -1,4 +1,4 @@
-import { useEffect } from "react";
+import { useEffect, useMemo } from "react";
 import styled from "styled-components";
 import { AnkenInfo } from "./ankenTab";
 import { sendQueryRequestToAPI } from "./utils/dataBaseUtil";
@@ -7,26 +7,34 @@ import SystemUtil from "./utils/systemUtil";
 // 案件詳細タブ
 const AnkenJisseki = (props: {
     selectAnken: AnkenInfo;
+    setAnkenList: Function;
 }) => {
-    findJissekiList().then(value => {
-        props.selectAnken.jissekiList = value;
-    });
-
     useEffect(() => {
-        props.selectAnken.jissekiList.map((value, i) =>
-            <_JissekiLabel>
-                <_Gray>＜</_Gray>
-                <_Black>{value.sagyou_dy}</_Black>
-                <_Gray>＞ </_Gray>
-                <_Red>{value.user}</_Red>
-                <_Gray>: {value.worktype} [</_Gray>
-                <_Blue>{value.time}</_Blue>
-                <_Gray>]</_Gray>
-            </_JissekiLabel>
-        );
+        if (props.selectAnken.jissekiList != null) {
+            findJissekiList().then(value => {
+                props.selectAnken.jissekiList = value;
+            });
+        }
     }, []);
 
-    return <></>;
+    const jissekiJsxList: JSX.Element[] = useMemo(() => {
+        if (props.selectAnken.jissekiList != null) {
+            return props.selectAnken.jissekiList.map((value) =>
+                <_JissekiLabel>
+                    <_Gray>＜</_Gray>
+                    <_Black>{value.sagyou_dy}</_Black>
+                    <_Gray>＞ </_Gray>
+                    <_Red>{value.user}</_Red>
+                    <_Gray>: {value.worktype} [</_Gray>
+                    <_Blue>{value.time}</_Blue>
+                    <_Gray>]</_Gray>
+                </_JissekiLabel>
+            );
+        }
+        return [];
+    }, []);
+
+    return <>{jissekiJsxList}</>;
 }
 
 // SQL(実績)取得

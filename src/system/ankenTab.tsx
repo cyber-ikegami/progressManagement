@@ -89,7 +89,7 @@ const AnkenTab = () => {
             break;
         case 'jisseki':
                 const selectAnken = ankenList[focus];
-                contentsJsx = <AnkenJisseki selectAnken={selectAnken} />;
+                contentsJsx = <AnkenJisseki selectAnken={selectAnken} setAnkenList={setAnkenList}/>;
             break;
     }
 
