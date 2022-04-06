@@ -6,6 +6,8 @@ import AnkenSyosai from './ankenSyosai';
 import AnkenJisseki from './ankenJisseki';
 
 export type AnkenInfo = {
+    // 案件ID
+    ankenid: number;
     // 緊急度
     status: number;
     // 案件タイプ(SE/EE/PKG)
@@ -88,8 +90,11 @@ const AnkenTab = () => {
             contentsJsx = <textarea value={'履歴'} />;
             break;
         case 'jisseki':
-                const selectAnken = ankenList[focus];
-                contentsJsx = <AnkenJisseki selectAnken={selectAnken} setAnkenList={setAnkenList}/>;
+            const selectAnken = ankenList[focus];
+            contentsJsx = <AnkenJisseki selectAnken={selectAnken} focus={focus} updateJisseki={(jissekiList: JissekiInfo[]) => {
+                ankenList[focus].jissekiList = jissekiList;
+                setAnkenList(ankenList.slice());
+            }} />;
             break;
     }
 
@@ -133,8 +138,8 @@ const findAnkenList = async (ankenStatus: string) => {
     }
 
     const response = await sendQueryRequestToAPI('select',
-        `SELECT a.status, a.ankentype, a.customid, d.daigakunam, a.start_dy, a.update_dy,
-        a.ankenno, a.title, a.detail
+        `SELECT a.ankenid, a.status, a.ankentype, a.customid, d.daigakunam, a.start_dy, a.update_dy,
+        a.ankenno, a.title, a.detail, null as jissekiList
         from anken a
         inner join daigaku d
         on a.customid = d.customid

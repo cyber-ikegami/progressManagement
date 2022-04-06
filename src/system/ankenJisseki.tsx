@@ -7,20 +7,21 @@ import SystemUtil from "./utils/systemUtil";
 // 案件詳細タブ
 const AnkenJisseki = (props: {
     selectAnken: AnkenInfo;
-    setAnkenList: Function;
+    updateJisseki: Function;
+    focus: Number;
 }) => {
+
     useEffect(() => {
-        if (props.selectAnken.jissekiList != null) {
-            findJissekiList().then(value => {
-                props.selectAnken.jissekiList = value;
+        if (props.selectAnken.jissekiList == null) {
+            findJissekiList(props.selectAnken.ankenid).then(value => {
+                props.updateJisseki(value);
             });
         }
-    }, []);
-
+    }, [props.focus]);
     const jissekiJsxList: JSX.Element[] = useMemo(() => {
         if (props.selectAnken.jissekiList != null) {
-            return props.selectAnken.jissekiList.map((value) =>
-                <_JissekiLabel>
+            return props.selectAnken.jissekiList.map((value, i) =>
+                <_JissekiLabel key={i}>
                     <_Gray>＜</_Gray>
                     <_Black>{value.sagyou_dy}</_Black>
                     <_Gray>＞ </_Gray>
@@ -32,19 +33,20 @@ const AnkenJisseki = (props: {
             );
         }
         return [];
-    }, []);
+    }, [props.selectAnken.jissekiList]);
 
     return <>{jissekiJsxList}</>;
 }
 
 // SQL(実績)取得
-const findJissekiList = async () => {
+const findJissekiList = async (ankenid: number) => {
     const response = await sendQueryRequestToAPI('select',
-        `SELECT j.sagyou_dy, j.user, j.worktype, j.time
-        from jisseki j
-        inner join anken a
-        on j.ankenid = a.ankenid
-        order by j.ankenid`);
+    `SELECT j.sagyou_dy, j.user, j.worktype, j.time
+    from jisseki j
+    inner join anken a
+    on j.ankenid = a.ankenid
+    where a.ankenid = '${ankenid}'
+    order by j.ankenid`);
     const results = await response.json();
     return results;
 };

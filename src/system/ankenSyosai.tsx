@@ -51,7 +51,9 @@ const AnkenSyosai = (props: {
 
             }} />
             <span>詳細</span>
-            <textarea value={props.selectAnken.detail}></textarea>
+            <textarea value={props.selectAnken.detail} onChange={(e) => {
+
+            }}/>
         </_Syosai>
     );
 }
