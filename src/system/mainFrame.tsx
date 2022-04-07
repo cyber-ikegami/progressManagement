@@ -44,6 +44,7 @@ const _Frame = styled.div`
   display: inline-block;
   width: 100%;
   height: 100%;
+  overflow-y: hidden;
 `;
 
 // タブのエリア
