@@ -4,7 +4,7 @@ import { AnkenInfo } from "./ankenTab";
 import { sendQueryRequestToAPI } from "./utils/dataBaseUtil";
 import SystemUtil from "./utils/systemUtil";
 
-// 案件詳細タブ
+// 案件実績タブ
 const AnkenJisseki = (props: {
     selectAnken: AnkenInfo;
     updateJisseki: Function;
@@ -46,7 +46,7 @@ const findJissekiList = async (ankenid: number) => {
     inner join anken a
     on j.ankenid = a.ankenid
     where a.ankenid = '${ankenid}'
-    order by j.ankenid`);
+    order by j.ankenid, j.sagyou_dy desc`);
     const results = await response.json();
     return results;
 };
@@ -55,37 +55,33 @@ export default AnkenJisseki;
 
 // 実績ラベル
 const _JissekiLabel = styled.div`
-            background-color: #d6d1ac;
-            display: inline-block;
-            width: calc(100% - 10px);
-            height: ${SystemUtil.JISSEKI_LABEL_HEIGTH}px;
-            margin-left: 5px;
-            margin-top: 5px;
-            font-size: ${SystemUtil.CONTENTS_CHAR_SIZE}px;
-            font-weight: bold;
-            position: relative;
-            &:hover {
-                opacity: 0.5;
-            }
-            `;
+    background-color: #d6d1ac;
+    display: inline-block;
+    width: calc(100% - 10px);
+    height: ${SystemUtil.JISSEKI_LABEL_HEIGTH}px;
+    margin-left: 5px;
+    margin-top: 5px;
+    font-size: ${SystemUtil.CONTENTS_CHAR_SIZE}px;
+    font-weight: bold;
+    position: relative;
+    &:hover {
+        opacity: 0.5;
+    }
+`;
 
-// 赤文字(ステータス等)
+// 赤文字
 const _Red = styled.span`
-            color: #d80000;
-            `;
-// 緑文字(案件タイプ等)
-const _Green = styled.span`
-            color: #68c05d;
-            `;
-// 青文字(カスタムID、大学名等)
+    color: #d80000;
+`;
+// 青文字
 const _Blue = styled.span`
-            color: #0014af;
-            `;
-// グレー文字(開始日～終了日等)
+    color: #0014af;
+`;
+// グレー文字
 const _Gray = styled.span`
-            color: #6e768a;
-            `;
-// 黒文字(案件名等)
+    color: #6e768a;
+`;
+// 黒文字
 const _Black = styled.span`
-            color: #000000;
-            `;
+    color: #000000;
+`;

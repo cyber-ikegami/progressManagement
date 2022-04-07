@@ -53,7 +53,7 @@ const AnkenSyosai = (props: {
             <span>詳細</span>
             <textarea value={props.selectAnken.detail} onChange={(e) => {
 
-            }}/>
+            }} />
         </_Syosai>
     );
 }
@@ -62,24 +62,24 @@ export default AnkenSyosai;
 
 // 詳細
 const _Syosai = styled.div`
-            & span {
-                font-size: 15px;
-                margin-left: 5px;
-                font-weight: bold;
-            }
-            & select, input {
-                width: calc(100% - 10px);
-                height: ${SystemUtil.JOKEN_TEXT_HEIGHT}px;
-                margin-left: 5px;
-                margin-bottom: 5px;
-                box-sizing: border-box;  
-            }
-            & textarea {
-                width: calc(100% - 10px);
-                height: 250px;
-                resize: none;
-                margin-left: 5px;
-                margin-top: 5px;
-                box-sizing: border-box; 
-            }
-            `;
+    & span {
+        font-size: 15px;
+        margin-left: 5px;
+        font-weight: bold;
+    }
+    & select, input {
+        width: calc(100% - 10px);
+        height: ${SystemUtil.JOKEN_TEXT_HEIGHT}px;
+        margin-left: 5px;
+        margin-bottom: 5px;
+        box-sizing: border-box;  
+    }
+    & textarea {
+        width: calc(100% - 10px);
+        height: 250px;
+        resize: none;
+        margin-left: 5px;
+        margin-top: 5px;
+        box-sizing: border-box; 
+    }
+`;

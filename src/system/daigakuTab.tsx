@@ -77,6 +77,8 @@ const _Left = styled.div`
   text-align: left;
   width: 50%;
   height: calc(100% - ${SystemUtil.HEADER_HEIGTH}px);
+  overflow: auto;
+  overflow-x: hidden;
 `;
 
 // 大学名ラベル
@@ -112,4 +114,6 @@ const _Right = styled.div`
   text-align: left;
   width: 50%;
   height: calc(100% - ${SystemUtil.HEADER_HEIGTH}px);
+  overflow: auto;
+  overflow-x: hidden;
 `;
