@@ -1,8 +1,8 @@
 import React, { useState } from 'react';
 import styled from 'styled-components';
 import SystemUtil from './utils/systemUtil';
-import DaigakuTab from './daigakuTab';
-import AnkenTab from './ankenTab';
+import DaigakuTab from './daigaku/daigakuTab';
+import AnkenTab from './anken/ankenTab';
 
 const MainFrame = () => {
     // 画面遷移の管理(大学、案件)

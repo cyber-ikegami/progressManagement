@@ -1,7 +1,7 @@
 import React, { useMemo, useState } from 'react';
 import styled, { css } from 'styled-components';
-import SystemUtil from './utils/systemUtil';
-import { sendQueryRequestToAPI } from './utils/dataBaseUtil';
+import SystemUtil from '../utils/systemUtil';
+import { sendQueryRequestToAPI } from '../utils/dataBaseUtil';
 import AnkenSyosai from './ankenSyosai';
 import AnkenRireki from './ankenRireki';
 import AnkenJisseki from './ankenJisseki';
@@ -87,7 +87,6 @@ const AnkenTab = () => {
         );
     }, [ankenList, focus]);
 
-    // 画面の状態を管理する
     let contentsJsx = <></>;
 
     // 画面切り替え

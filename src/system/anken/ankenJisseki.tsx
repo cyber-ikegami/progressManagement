@@ -1,8 +1,9 @@
 import { useEffect, useMemo } from "react";
 import styled from "styled-components";
 import { AnkenInfo } from "./ankenTab";
-import { sendQueryRequestToAPI } from "./utils/dataBaseUtil";
-import SystemUtil from "./utils/systemUtil";
+import { sendQueryRequestToAPI } from "../utils/dataBaseUtil";
+import SystemUtil from "../utils/systemUtil";
+import AnkenChild from "./ankenChild";
 
 // 案件実績タブ
 const AnkenJisseki = (props: {
@@ -10,7 +11,6 @@ const AnkenJisseki = (props: {
     updateJisseki: Function;
     focus: Number;
 }) => {
-
     useEffect(() => {
         if (props.selectAnken.jissekiList == null) {
             findJissekiList(props.selectAnken.ankenid).then(value => {
@@ -18,7 +18,9 @@ const AnkenJisseki = (props: {
             });
         }
     }, [props.focus]);
-    const jissekiJsxList: JSX.Element[] = useMemo(() => {
+
+    // 実績項目
+    const detailJsx: JSX.Element[] = useMemo(() => {
         if (props.selectAnken.jissekiList != null) {
             return props.selectAnken.jissekiList.map((value, i) =>
                 <_JissekiLabel key={i}>
@@ -35,13 +37,21 @@ const AnkenJisseki = (props: {
         return [];
     }, [props.selectAnken.jissekiList]);
 
-    return <>{jissekiJsxList}</>;
+    // フッター項目
+    const footerJsx = <>
+        <_Button>更新</_Button>
+        <_Button>削除
+        </_Button></>;
+
+    return (
+        <AnkenChild detailJsx={detailJsx} footerJsx={footerJsx}></AnkenChild>
+    );
 }
 
 // SQL(実績)取得
 const findJissekiList = async (ankenid: number) => {
     const response = await sendQueryRequestToAPI('select',
-    `SELECT j.sagyou_dy, j.user, j.worktype, j.time
+        `SELECT j.sagyou_dy, j.user, j.worktype, j.time
     from jisseki j
     inner join anken a
     on j.ankenid = a.ankenid
@@ -64,8 +74,27 @@ const _JissekiLabel = styled.div`
     font-size: ${SystemUtil.CONTENTS_CHAR_SIZE}px;
     font-weight: bold;
     position: relative;
+    overflow: hidden;
     &:hover {
         opacity: 0.5;
+    }
+`;
+
+// 更新・削除ボタン
+const _Button = styled.div`
+    pointer-events: auto;
+    background-color: #eef5ff;
+    display: inline-block;
+    font-size: 15px;
+    width: 80px;
+    height: calc(100% - 10px);
+    text-align: center;
+    margin-top: 5px;
+    margin-left: 5px;
+    border: 1px solid #919191;
+    border-radius: 5px;
+    &:hover {
+        background-color:#b1bff5;
     }
 `;
 
