@@ -1,7 +1,7 @@
 import React, { useState } from 'react';
 import styled from 'styled-components';
-import SystemUtil from './utils/systemUtil';
-import { sendQueryRequestToAPI } from './utils/dataBaseUtil';
+import SystemUtil from '../utils/systemUtil';
+import { sendQueryRequestToAPI } from '../utils/dataBaseUtil';
 
 type DaigakuInfo = {
     // カスタムID
