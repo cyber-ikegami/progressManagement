@@ -37,11 +37,16 @@ const AnkenJisseki = (props: {
         return [];
     }, [props.selectAnken.jissekiList]);
 
+    // '作業日', '作業者', '作業種別', '作業時間(m)'
+
     // フッター項目
     const footerJsx = <>
+        <_Button onClick={()=>{
+            // InputDialog();
+        }}>追加</_Button>
         <_Button>更新</_Button>
-        <_Button>削除
-        </_Button></>;
+        <_Button>削除</_Button>
+    </>;
 
     return (
         <AnkenChild detailJsx={detailJsx} footerJsx={footerJsx}></AnkenChild>

@@ -5,6 +5,7 @@ import { sendQueryRequestToAPI } from '../utils/dataBaseUtil';
 import AnkenSyosai from './ankenSyosai';
 import AnkenRireki from './ankenRireki';
 import AnkenJisseki from './ankenJisseki';
+import StylesUtil from '../utils/stylesUtil';
 
 export type AnkenInfo = {
     // 案件ID
@@ -58,9 +59,14 @@ type AnkenMode = 'syosai' | 'rireki' | 'jisseki';
 
 // 案件タブ
 const AnkenTab = () => {
+    // 案件のリスト
     const [ankenList, setAnkenList] = useState<AnkenInfo[]>([]);
+    // 検索欄に入力された案件緊急度
     const [ankenStatus, setAnkenStatus] = useState<string>('');
+    // 現在選択している箇所
     const [focus, setFocus] = useState<number>(-1);
+    // ロード(検索中)管理のフラグ
+    const [isLoad, setIsLoad] = useState<boolean>(false);
 
     // 画面遷移の管理
     const [ankenMode, setAnkenMode] = useState<AnkenMode>('syosai');
@@ -117,20 +123,22 @@ const AnkenTab = () => {
                     setAnkenStatus(e.target.value);
                 }} />
                 <_DispButton isEnable={0 <= Number(ankenStatus) && Number(ankenStatus) <= 100} onClick={() => {
+                    setIsLoad(true);
                     findAnkenList(ankenStatus).then(value => {
+                        setIsLoad(false);
                         setAnkenList(value);
                     });
                 }}>表示</_DispButton>
             </_Header>
             <_Left>
                 <_Frame>
-                    {ankenJsxList}
+                    {isLoad ? <_LoadLabel>NowLoding…</_LoadLabel> : ankenJsxList}
                 </_Frame>
             </_Left>
-            <_Right>
+            <_Right isDisable={focus !== -1}>
                 <_Frame>
                     <_TabArea>
-                        <_Tab isActive={ankenMode === 'syosai'} onClick={() => {
+                        <_Tab isActive={ankenMode === 'syosai' && focus !== -1} onClick={() => {
                             setAnkenMode('syosai');
                         }} >詳細</_Tab>
                         <_Tab isActive={ankenMode === 'rireki'} onClick={() => {
@@ -237,6 +245,12 @@ const _Left = styled.div`
     height: calc(100% - ${SystemUtil.HEADER_HEIGTH}px);
 `;
 
+// NowLodingラベル
+const _LoadLabel = styled.div`
+    font-size: 20px;
+    color: #d80000;    
+`;
+
 // 案件ラベル選択時
 const _SelectAnkenLabel = styled.div<{
     isSelect: boolean;
@@ -271,7 +285,6 @@ const _AnkenLabel = styled.div<{
 
 // 案件ラベル(内側上部)
 const _TopAnkenLabel = styled.div`
-    display: inline-block;
     white-space: nowrap;
     overflow: hidden;
     width: 100%;
@@ -290,7 +303,12 @@ const _BottomAnkenLabel = styled.div`
 `;
 
 // 画面右
-const _Right = styled.div`
+const _Right = styled.div<{
+    isDisable: boolean;
+}>`
+    // 非活性処理
+    ${props => props.isDisable ? '' : StylesUtil.IS_DISABLE}
+
     background-color: #f0f0f0;
     display: inline-block;
     vertical-align: top;
