@@ -3,12 +3,18 @@ import styled from 'styled-components';
 import SystemUtil from './utils/systemUtil';
 import DaigakuTab from './daigaku/daigakuTab';
 import AnkenTab from './anken/ankenTab';
+import InputDialog, { DialogProps } from './utils/inputDialog';
 
 const MainFrame = () => {
     // 画面遷移の管理(大学、案件)
     type Mode = 'daigaku' | 'anken';
     // 画面遷移の管理
     const [mode, setMode] = useState<Mode>('daigaku');
+    // ダイアログを表示するか
+    const [dialogProps, setDialogProps] = useState<null | DialogProps>({
+        formList: [{labelName:'ラベル1', value:'値1'}, {labelName:'ラベル2', value:'値2'}, {labelName:'ラベル3', value:'値3'}],
+        execute: ()=>{alert('テスト')}
+    });
 
     // 画面の状態を管理する
     let contentsJsx = <></>;
@@ -25,6 +31,7 @@ const MainFrame = () => {
 
     return (
         <_Frame>
+            {dialogProps == null ? <></> : <InputDialog formList={dialogProps.formList} execute={dialogProps.execute}/>}
             <_TabArea>
                 <_Tab isActive={mode === 'daigaku'} onClick={() => {
                     setMode('daigaku');
@@ -40,6 +47,7 @@ const MainFrame = () => {
 
 export default MainFrame;
 
+// フレーム
 const _Frame = styled.div`
   display: inline-block;
   width: 100%;
