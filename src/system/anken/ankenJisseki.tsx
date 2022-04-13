@@ -40,15 +40,16 @@ const AnkenJisseki = (props: {
         return [];
     }, [props.selectAnken.jissekiList]);
 
-    // '作業日', '作業者', '作業種別', '作業時間(m)'
-
     // フッター項目
     const footerJsx = <>
         <_Button onClick={() => {
             setDialogProps(
                 {
-                    formList: [{ labelName: 'ラベル1', value: '値1' }, { labelName: 'ラベル2', value: '値2' }, { labelName: 'ラベル3', value: '値3' }],
-                    execute: (values) => { console.log(values) }
+                    formList: [{ labelName: '作業日', value: '' }, { labelName: '作業者', value: '' }, { labelName: '作業種別', value: '' }, { labelName: '作業時間(m)', value: '' }],
+                    execute: (values) => {
+                        insertJisseki(props.selectAnken.ankenid, values);
+                        props.selectAnken.jissekiList = null;
+                    }
                 }
             );
         }}>追加</_Button>
@@ -73,6 +74,20 @@ const findJissekiList = async (ankenid: number) => {
     const results = await response.json();
     return results;
 };
+
+// SQL追加
+const insertJisseki = async (ankenid: number, values: string[]) => {
+    await sendQueryRequestToAPI('insert',
+    `INSERT INTO jisseki values (${ankenid}, '999', ${values[0]}, ${values[1]}, ${values[2]}, ${values[3]})`);
+}
+
+// const findNextJisekseq = async (ankenid: number) => {
+//     const maxJisekseqSql = await sendQueryRequestToAPI('select',
+//     `SELECT max(jisekiseq) as maxseq from jisseki where ankenid = ${ankenid}`);
+//     const maxJisekseq = await maxJisekseqSql.json();
+//     const nextJisekseq = maxJisekseq[0].maxseq == null ? 0 : ((maxJisekseq[0].maxseq) + 1);
+//     return nextJisekseq;
+// }
 
 export default AnkenJisseki;
 
