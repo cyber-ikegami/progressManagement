@@ -1,5 +1,6 @@
-import { useEffect, useMemo, useState } from "react";
+import { useContext, useState } from "react";
 import styled from "styled-components";
+import { GlobalContext } from "../mainFrame";
 
 export type FormInfo = {
     // 項目名label
@@ -12,40 +13,44 @@ export type DialogProps = {
     // ダイアログに表示する情報
     formList: FormInfo[];
     // ボタン押下時の処理
-    execute: Function;
+    execute: (formValues: string[]) => void;
 }
 
 const InputDialog = (props: DialogProps) => {
     // ダイアログに表示する値
-    const [formValues, setFormValues] = useState<string[]>([]);
+    const [formValues, setFormValues] = useState<string[]>(props.formList.map((form, i) => form.value));
+
+    const { setDialogProps } = useContext(GlobalContext);
 
     // 項目の値を取得
-    useEffect(() => {
-        const values = props.formList.map((form, i) => form.value);
-        setFormValues(values);
-    }, []);
+    // useEffect(() => {
+    //     // const values = props.formList.map((form, i) => form.value);
+    //     setFormValues(['a', 'b', 'c']);
+    //     // console.log(values);
+    // }, []);
 
     // ダイアログの入力欄作成
-    const valueJsxList: JSX.Element[] = useMemo(() => {
-        return props.formList.map((value, i) =>
-            <div key={i}> 
-                <_LabelName>{value.labelName}</_LabelName>
-                <input type="text" value={formValues[i]} onChange={(e) => {
-                    formValues[i] = e.target.value;
-                    setFormValues(formValues.slice());
-                }}></input>
-            </div>
-        );
-    }, []);
+    const valueJsxList = props.formList.map((value, i) =>
+        <div key={i}>
+            <_LabelName>{value.labelName}</_LabelName>
+            <input type="text" value={formValues[i]} onChange={(e) => {
+                formValues[i] = e.target.value;
+                setFormValues(formValues.slice());
+            }}></input>
+        </div>
+    );
 
     return (
         <>
             <_Dialog isDisplay={true}>
                 <dialog>
                     {valueJsxList}
-                    <button>更新</button>
                     <button onClick={() => {
-                        // setIsIsDisplay(false);
+                        props.execute(formValues);
+                        setDialogProps(null);
+                    }}>更新</button>
+                    <button onClick={() => {
+                        setDialogProps(null);
                     }}>キャンセル</button>
                 </dialog>
             </_Dialog>
