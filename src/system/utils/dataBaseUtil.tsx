@@ -12,7 +12,7 @@ export const createQueryRequestInit = (sql: string): RequestInit => {
     }
 }
 
-export const sendQueryRequestToAPI = (queryType: 'select' | 'update', sql: string): Promise<Response> => {
+export const sendQueryRequestToAPI = (queryType: 'select' | 'update' | 'insert', sql: string): Promise<Response> => {
     return fetch(API_DOMAIN + '/' + queryType,
         createQueryRequestInit(sql)
     );

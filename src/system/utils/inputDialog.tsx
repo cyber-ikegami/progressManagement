@@ -22,13 +22,6 @@ const InputDialog = (props: DialogProps) => {
 
     const { setDialogProps } = useContext(GlobalContext);
 
-    // 項目の値を取得
-    // useEffect(() => {
-    //     // const values = props.formList.map((form, i) => form.value);
-    //     setFormValues(['a', 'b', 'c']);
-    //     // console.log(values);
-    // }, []);
-
     // ダイアログの入力欄作成
     const valueJsxList = props.formList.map((value, i) =>
         <div key={i}>
