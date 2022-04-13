@@ -1,9 +1,10 @@
-import { useEffect, useMemo } from "react";
+import { useContext, useEffect, useMemo } from "react";
 import styled from "styled-components";
 import { AnkenInfo } from "./ankenTab";
 import { sendQueryRequestToAPI } from "../utils/dataBaseUtil";
 import SystemUtil from "../utils/systemUtil";
 import AnkenChild from "./ankenChild";
+import { GlobalContext } from "../mainFrame";
 
 // 案件実績タブ
 const AnkenJisseki = (props: {
@@ -11,6 +12,8 @@ const AnkenJisseki = (props: {
     updateJisseki: Function;
     focus: Number;
 }) => {
+    const { setDialogProps } = useContext(GlobalContext);
+
     useEffect(() => {
         if (props.selectAnken.jissekiList == null) {
             findJissekiList(props.selectAnken.ankenid).then(value => {
@@ -41,8 +44,13 @@ const AnkenJisseki = (props: {
 
     // フッター項目
     const footerJsx = <>
-        <_Button onClick={()=>{
-            // InputDialog();
+        <_Button onClick={() => {
+            setDialogProps(
+                {
+                    formList: [{ labelName: 'ラベル1', value: '値1' }, { labelName: 'ラベル2', value: '値2' }, { labelName: 'ラベル3', value: '値3' }],
+                    execute: (values) => { console.log(values) }
+                }
+            );
         }}>追加</_Button>
         <_Button>更新</_Button>
         <_Button>削除</_Button>
