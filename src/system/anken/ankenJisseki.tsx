@@ -1,10 +1,11 @@
-import { useContext, useEffect, useMemo } from "react";
+import { useContext, useEffect, useMemo, useState } from "react";
 import styled from "styled-components";
 import { AnkenInfo } from "./ankenTab";
 import { sendQueryRequestToAPI } from "../utils/dataBaseUtil";
 import SystemUtil from "../utils/systemUtil";
 import AnkenChild from "./ankenChild";
 import { GlobalContext } from "../mainFrame";
+import StylesUtil from "../utils/stylesUtil";
 
 // 案件実績タブ
 const AnkenJisseki = (props: {
@@ -12,21 +13,28 @@ const AnkenJisseki = (props: {
     updateJisseki: Function;
     focus: Number;
 }) => {
+    // 現在選択している箇所
+    const [focus, setFocus] = useState<number>(-1);
+
     const { setDialogProps } = useContext(GlobalContext);
 
     useEffect(() => {
+        setFocus(-1);
         if (props.selectAnken.jissekiList == null) {
             findJissekiList(props.selectAnken.ankenid).then(value => {
                 props.updateJisseki(value);
             });
         }
-    }, [props.focus]);
+    }, [props.focus, props.selectAnken.jissekiList]);
 
     // 実績項目
     const detailJsx: JSX.Element[] = useMemo(() => {
         if (props.selectAnken.jissekiList != null) {
             return props.selectAnken.jissekiList.map((value, i) =>
-                <_JissekiLabel key={i}>
+                <_JissekiLabel key={i} onClick={() => {
+                    setFocus(i);
+                }}>
+                    <_SelectJissekiLabel isSelect={focus === i} />
                     <_Gray>＜</_Gray>
                     <_Black>{value.sagyou_dy}</_Black>
                     <_Gray>＞ </_Gray>
@@ -38,11 +46,11 @@ const AnkenJisseki = (props: {
             );
         }
         return [];
-    }, [props.selectAnken.jissekiList]);
+    }, [focus, props.selectAnken.jissekiList]);
 
     // フッター項目
     const footerJsx = <>
-        <_Button onClick={() => {
+        <_Button isDisable={true} onClick={() => {
             setDialogProps(
                 {
                     formList: [{ labelName: '作業日', value: '' }, { labelName: '作業者', value: '' }, { labelName: '作業種別', value: '' }, { labelName: '作業時間(m)', value: '' }],
@@ -53,8 +61,8 @@ const AnkenJisseki = (props: {
                 }
             );
         }}>追加</_Button>
-        <_Button>更新</_Button>
-        <_Button>削除</_Button>
+        <_Button isDisable={focus !== -1}>更新</_Button>
+        <_Button isDisable={focus !== -1}>削除</_Button>
     </>;
 
     return (
@@ -77,19 +85,23 @@ const findJissekiList = async (ankenid: number) => {
 
 // SQL追加
 const insertJisseki = async (ankenid: number, values: string[]) => {
-    await sendQueryRequestToAPI('insert',
-    `INSERT INTO jisseki values (${ankenid}, '999', ${values[0]}, ${values[1]}, ${values[2]}, ${values[3]})`);
+    await sendQueryRequestToAPI('update',
+        `INSERT INTO jisseki values ('${ankenid}', '999', '${values[0]}', '${values[1]}', '${values[2]}', '${values[3]}')`);
 }
 
-// const findNextJisekseq = async (ankenid: number) => {
-//     const maxJisekseqSql = await sendQueryRequestToAPI('select',
-//     `SELECT max(jisekiseq) as maxseq from jisseki where ankenid = ${ankenid}`);
-//     const maxJisekseq = await maxJisekseqSql.json();
-//     const nextJisekseq = maxJisekseq[0].maxseq == null ? 0 : ((maxJisekseq[0].maxseq) + 1);
-//     return nextJisekseq;
-// }
-
 export default AnkenJisseki;
+
+// 実績ラベル選択時
+const _SelectJissekiLabel = styled.div<{
+    isSelect: boolean;
+}>`
+    display: ${props => props.isSelect ? 'inline-block' : 'none'};
+    background-color: #fcff4b9f;
+    width: 100%;
+    height: 100%;
+    position: absolute;
+    z-index: 10;
+`;
 
 // 実績ラベル
 const _JissekiLabel = styled.div`
@@ -108,9 +120,14 @@ const _JissekiLabel = styled.div`
     }
 `;
 
-// 更新・削除ボタン
-const _Button = styled.div`
-    pointer-events: auto;
+// 追加・更新・削除ボタン
+const _Button = styled.div<{
+    isDisable: boolean;
+}>`
+    // 非活性処理
+    ${props => props.isDisable ? '' : StylesUtil.IS_DISABLE}
+
+    /* pointer-events: auto; */
     background-color: #eef5ff;
     display: inline-block;
     font-size: 15px;
