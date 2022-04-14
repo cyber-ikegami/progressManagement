@@ -9,18 +9,19 @@ export type FormInfo = {
     value: string;
 }
 
-export type DialogProps = {
+export type InputDialogProps = {
     // ダイアログに表示する情報
     formList: FormInfo[];
     // ボタン押下時の処理
     execute: (formValues: string[]) => void;
 }
 
-const InputDialog = (props: DialogProps) => {
+// 入力ダイアログ
+const InputDialog = (props: InputDialogProps) => {
     // ダイアログに表示する値
     const [formValues, setFormValues] = useState<string[]>(props.formList.map((form, i) => form.value));
 
-    const { setDialogProps } = useContext(GlobalContext);
+    const { setInputDialogProps: setInputDialogProps } = useContext(GlobalContext);
 
     // ダイアログの入力欄作成
     const valueJsxList = props.formList.map((value, i) =>
@@ -40,10 +41,10 @@ const InputDialog = (props: DialogProps) => {
                     {valueJsxList}
                     <button onClick={() => {
                         props.execute(formValues);
-                        setDialogProps(null);
+                        setInputDialogProps(null);
                     }}>更新</button>
                     <button onClick={() => {
-                        setDialogProps(null);
+                        setInputDialogProps(null);
                     }}>キャンセル</button>
                 </dialog>
             </_Dialog>
@@ -64,7 +65,7 @@ const _Dialog = styled.div<{
     position: absolute;
     top: 0;
     left: 0;
-    z-index: 10;
+    z-index: 20;
     & dialog {
         background-color: #dbdcfc;
         display: inline-block;
