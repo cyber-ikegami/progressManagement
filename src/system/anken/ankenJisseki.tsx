@@ -16,7 +16,8 @@ const AnkenJisseki = (props: {
     // 現在選択している箇所
     const [focus, setFocus] = useState<number>(-1);
 
-    const { setDialogProps } = useContext(GlobalContext);
+    const { setInputDialogProps } = useContext(GlobalContext);
+    const { setConfirmDialogProps } = useContext(GlobalContext);
 
     useEffect(() => {
         setFocus(-1);
@@ -51,7 +52,7 @@ const AnkenJisseki = (props: {
     // フッター項目
     const footerJsx = <>
         <_Button isDisable={true} onClick={() => {
-            setDialogProps(
+            setInputDialogProps(
                 {
                     formList: [{ labelName: '作業日', value: '' }, { labelName: '作業者', value: '' }, { labelName: '作業種別', value: '' }, { labelName: '作業時間(m)', value: '' }],
                     execute: (values) => {
@@ -62,7 +63,18 @@ const AnkenJisseki = (props: {
             );
         }}>追加</_Button>
         <_Button isDisable={focus !== -1}>更新</_Button>
-        <_Button isDisable={focus !== -1}>削除</_Button>
+        <_Button isDisable={focus !== -1} onClick={() => {
+            setConfirmDialogProps(
+                {
+                    cancelName: 'キャンセル',
+                    enterName: '削除',
+                    message: '削除しますか？',
+                    execute: () => {
+                        props.selectAnken.jissekiList = null;
+                    }
+                }
+            )
+        }}>削除</_Button>
     </>;
 
     return (

@@ -3,10 +3,12 @@ import styled from 'styled-components';
 import SystemUtil from './utils/systemUtil';
 import DaigakuTab from './daigaku/daigakuTab';
 import AnkenTab from './anken/ankenTab';
-import InputDialog, { DialogProps } from './utils/inputDialog';
+import InputDialog, { InputDialogProps } from './utils/inputDialog';
+import ConfirmDialog, { ConfirmDialogProps } from './utils/confirmDialog';
 
 type GlobalContextProps = {
-    setDialogProps: React.Dispatch<React.SetStateAction<DialogProps | null>>;
+    setInputDialogProps: React.Dispatch<React.SetStateAction<InputDialogProps | null>>;
+    setConfirmDialogProps: React.Dispatch<React.SetStateAction<ConfirmDialogProps | null>>;
 }
 
 export const GlobalContext = createContext({} as GlobalContextProps);
@@ -16,13 +18,10 @@ const MainFrame = () => {
     type Mode = 'daigaku' | 'anken';
     // 画面遷移の管理
     const [mode, setMode] = useState<Mode>('daigaku');
-    // ダイアログを表示するか
-    const [dialogProps, setDialogProps] = useState<null | DialogProps>(null
-        // {
-        //     formList: [{ labelName: 'ラベル1', value: '値1' }, { labelName: 'ラベル2', value: '値2' }, { labelName: 'ラベル3', value: '値3' }],
-        //     execute: () => { alert('テスト') }
-        // }
-    );
+    // inputダイアログを表示するか
+    const [inputDialogProps, setInputDialogProps] = useState<null | InputDialogProps>(null);
+    // confirmダイアログを表示するか
+    const [confirmDialogProps, setConfirmDialogProps] = useState<null | ConfirmDialogProps>(null);
 
     // 画面の状態を管理する
     let contentsJsx = <></>;
@@ -39,8 +38,9 @@ const MainFrame = () => {
 
     return (
         <_Frame>
-            <GlobalContext.Provider value={{ setDialogProps }}>
-                {dialogProps == null ? <></> : <InputDialog formList={dialogProps.formList} execute={dialogProps.execute} />}
+            <GlobalContext.Provider value={{ setInputDialogProps, setConfirmDialogProps }}>
+                {inputDialogProps == null ? <></> : <InputDialog formList={inputDialogProps.formList} execute={inputDialogProps.execute} />}
+                {confirmDialogProps == null ? <></> : <ConfirmDialog cancelName={confirmDialogProps.cancelName} enterName={confirmDialogProps.enterName} message={confirmDialogProps.message} execute={confirmDialogProps.execute} />}
                 <_TabArea>
                     <_Tab isActive={mode === 'daigaku'} onClick={() => {
                         setMode('daigaku');
