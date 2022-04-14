@@ -44,6 +44,8 @@ export type RirekiInfo = {
 }
 
 export type JissekiInfo = {
+    // 実績番号
+    jisekiseq: number;
     // 作業日
     sagyou_dy: string;
     // 作業者
