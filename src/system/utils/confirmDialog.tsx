@@ -10,7 +10,7 @@ export type ConfirmDialogProps = {
     // 確認メッセージ
     message: string;
     // ボタン押下時の処理
-    execute: Function;
+    execute: () => void;
 }
 
 // 確認ダイアログ
@@ -23,7 +23,7 @@ const ConfirmDialog = (props: ConfirmDialogProps) => {
                 <dialog>
                     <_Message>{props.message}</_Message>
                     <button onClick={() => {
-                        props.execute(console.log('削除したよ～'));
+                        props.execute();
                         setConfirmDialogProps(null);
                     }}>{props.enterName}</button>
                     <button onClick={() => {

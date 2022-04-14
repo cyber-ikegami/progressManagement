@@ -1,6 +1,6 @@
 import { useContext, useEffect, useMemo, useState } from "react";
 import styled from "styled-components";
-import { AnkenInfo } from "./ankenTab";
+import { AnkenInfo, JissekiInfo } from "./ankenTab";
 import { sendQueryRequestToAPI } from "../utils/dataBaseUtil";
 import SystemUtil from "../utils/systemUtil";
 import AnkenChild from "./ankenChild";
@@ -70,6 +70,8 @@ const AnkenJisseki = (props: {
                     enterName: '削除',
                     message: '削除しますか？',
                     execute: () => {
+                        const jissekiList = props.selectAnken.jissekiList as JissekiInfo[];
+                        deleteJisseki(props.selectAnken.ankenid, jissekiList[focus].jisekiseq);
                         props.selectAnken.jissekiList = null;
                     }
                 }
@@ -85,7 +87,7 @@ const AnkenJisseki = (props: {
 // SQL(実績)取得
 const findJissekiList = async (ankenid: number) => {
     const response = await sendQueryRequestToAPI('select',
-        `SELECT j.sagyou_dy, j.user, j.worktype, j.time
+        `SELECT j.jisekiseq, j.sagyou_dy, j.user, j.worktype, j.time
     from jisseki j
     inner join anken a
     on j.ankenid = a.ankenid
@@ -98,7 +100,13 @@ const findJissekiList = async (ankenid: number) => {
 // SQL追加
 const insertJisseki = async (ankenid: number, values: string[]) => {
     await sendQueryRequestToAPI('update',
-        `INSERT INTO jisseki values ('${ankenid}', '999', '${values[0]}', '${values[1]}', '${values[2]}', '${values[3]}')`);
+        `INSERT INTO jisseki values ('${ankenid}', '5', '${values[0]}', '${values[1]}', '${values[2]}', '${values[3]}')`);
+}
+
+// SQL削除
+const deleteJisseki = async (ankenid: number, jisekiseq: number) => {
+    await sendQueryRequestToAPI('update',
+        `DELETE from jisseki where ankenid = '${ankenid}' and jisekiseq = '${jisekiseq}'`);
 }
 
 export default AnkenJisseki;
