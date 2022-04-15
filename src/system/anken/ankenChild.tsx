@@ -47,10 +47,10 @@ const _Detail = styled.div`
 
 // フッター(下部ボタンエリア)
 const _footer = styled.div`
+    display: 'inline-block';
     background-color: #a2a7ff;
-    display: inline-block;
     width: 100%;
-    height: ${SystemUtil.TAB_AREA_HEIGTH}px;\
+    height: ${SystemUtil.TAB_AREA_HEIGTH}px;
 `;
 
 

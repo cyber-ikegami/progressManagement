@@ -6,6 +6,7 @@ import AnkenSyosai from './ankenSyosai';
 import AnkenRireki from './ankenRireki';
 import AnkenJisseki from './ankenJisseki';
 import StylesUtil from '../utils/stylesUtil';
+import AnkenChild from './ankenChild';
 
 export type AnkenInfo = {
     // 案件ID
@@ -95,6 +96,13 @@ const AnkenTab = () => {
         );
     }, [ankenList, focus]);
 
+    // フッター項目
+    const footerJsx = <>
+        <_Button isDisable={true}>追加</_Button>
+        <_Button isDisable={focus !== -1}>更新</_Button>
+        <_Button isDisable={focus !== -1}>削除</_Button>
+    </>;
+
     let contentsJsx = <></>;
 
     // 画面切り替え
@@ -134,7 +142,7 @@ const AnkenTab = () => {
             </_Header>
             <_Left>
                 <_Frame>
-                    {isLoad ? <_LoadLabel>NowLoding…</_LoadLabel> : ankenJsxList}
+                    {isLoad ? <_LoadLabel>NowLoding…</_LoadLabel> : <AnkenChild detailJsx={ankenJsxList} footerJsx={footerJsx}></AnkenChild>}
                 </_Frame>
             </_Left>
             <_Right isDisable={focus !== -1}>
@@ -302,6 +310,29 @@ const _BottomAnkenLabel = styled.div`
     width: 100%;
     height: calc(50% - 3px);
     margin-bottom: 3px;
+`;
+
+// 追加・更新・削除ボタン
+const _Button = styled.div<{
+    isDisable: boolean;
+}>`
+    // 非活性処理
+    ${props => props.isDisable ? '' : StylesUtil.IS_DISABLE}
+
+    /* pointer-events: auto; */
+    background-color: #eef5ff;
+    display: inline-block;
+    font-size: 15px;
+    width: 80px;
+    height: calc(100% - 10px);
+    text-align: center;
+    margin-top: 5px;
+    margin-left: 5px;
+    border: 1px solid #919191;
+    border-radius: 5px;
+    &:hover {
+        background-color:#b1bff5;
+    }
 `;
 
 // 画面右
