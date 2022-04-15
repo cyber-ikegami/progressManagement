@@ -54,7 +54,7 @@ const AnkenJisseki = (props: {
         <_Button isDisable={true} onClick={() => {
             setInputDialogProps(
                 {
-                    formList: [{ labelName: '作業日', value: '' }, { labelName: '作業者', value: '' }, { labelName: '作業種別', value: '' }, { labelName: '作業時間(m)', value: '' }],
+                    formList: [{ labelName: '作業日', value: ''}, { labelName: '作業者', value: ''}, { labelName: '作業種別', value: ''}, { labelName: '作業時間(m)', value: ''}],
                     execute: (values) => {
                         insertJisseki(props.selectAnken.ankenid, values);
                         props.selectAnken.jissekiList = null;

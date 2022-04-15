@@ -7,6 +7,8 @@ export type FormInfo = {
     labelName: string;
     // 項目の値
     value: string;
+    // 入力欄のタイプ
+    type?: string;
 }
 
 export type InputDialogProps = {
@@ -21,18 +23,44 @@ const InputDialog = (props: InputDialogProps) => {
     // ダイアログに表示する値
     const [formValues, setFormValues] = useState<string[]>(props.formList.map((form, i) => form.value));
 
-    const { setInputDialogProps: setInputDialogProps } = useContext(GlobalContext);
+    const { setInputDialogProps } = useContext(GlobalContext);
 
     // ダイアログの入力欄作成
-    const valueJsxList = props.formList.map((value, i) =>
-        <div key={i}>
-            <_LabelName>{value.labelName}</_LabelName>
-            <input type="text" value={formValues[i]} onChange={(e) => {
-                formValues[i] = e.target.value;
-                setFormValues(formValues.slice());
-            }}></input>
-        </div>
-    );
+    const valueJsxList = props.formList.map((value, i) => {
+        // 入力欄のタイプ管理
+        let typeJsx = <></>;
+
+        switch (value.type) {
+            // typeがundefined
+            case undefined:
+                typeJsx = <input type="text" value={formValues[i]} onChange={(e) => {
+                    formValues[i] = e.target.value;
+                    setFormValues(formValues.slice());
+                }}></input>;
+                break;
+            // テキストフィールド
+            case 'textField':
+                typeJsx = <input type="text" value={formValues[i]} onChange={(e) => {
+                    formValues[i] = e.target.value;
+                    setFormValues(formValues.slice());
+                }}></input>;
+                break;
+            // テキストエリア
+            case 'textArea':
+                typeJsx = <textarea onChange={(e) => {
+                    formValues[i] = e.target.value;
+                    setFormValues(formValues.slice());
+                }}></textarea>;
+                break;
+        }
+
+        return (
+            <div key={i}>
+                <_LabelName>{value.labelName}</_LabelName>
+                {typeJsx}
+            </div>
+        );
+    });
 
     return (
         <>
@@ -76,10 +104,16 @@ const _Dialog = styled.div<{
         padding: 2%;
         transform: translate(-50%,-50%);
         border: 1px solid #3c3c3c;
+        overflow-y: auto;
     }
     & input {
         width: 100%;
         height: 20px;
+    }
+    & textarea {
+        width: 100%;
+        height: 250px;
+        resize: none;
     }
     & button {
         width: 100px;
