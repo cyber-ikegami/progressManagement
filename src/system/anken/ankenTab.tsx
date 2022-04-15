@@ -1,4 +1,4 @@
-import React, { useMemo, useState } from 'react';
+import React, { useContext, useMemo, useState } from 'react';
 import styled, { css } from 'styled-components';
 import SystemUtil from '../utils/systemUtil';
 import { sendQueryRequestToAPI } from '../utils/dataBaseUtil';
@@ -7,6 +7,7 @@ import AnkenRireki from './ankenRireki';
 import AnkenJisseki from './ankenJisseki';
 import StylesUtil from '../utils/stylesUtil';
 import AnkenChild from './ankenChild';
+import { GlobalContext } from '../mainFrame';
 
 export type AnkenInfo = {
     // 案件ID
@@ -70,9 +71,10 @@ const AnkenTab = () => {
     const [focus, setFocus] = useState<number>(-1);
     // ロード(検索中)管理のフラグ
     const [isLoad, setIsLoad] = useState<boolean>(false);
-
     // 画面遷移の管理
     const [ankenMode, setAnkenMode] = useState<AnkenMode>('syosai');
+
+    const { setInputDialogProps } = useContext(GlobalContext);
 
     const ankenJsxList: JSX.Element[] = useMemo(() => {
         return ankenList.map((value, i) =>
@@ -98,7 +100,18 @@ const AnkenTab = () => {
 
     // フッター項目
     const footerJsx = <>
-        <_Button isDisable={true}>追加</_Button>
+        <_Button isDisable={true} onClick={() => {
+            setInputDialogProps(
+                {
+                    formList: [{ labelName: '案件種別', value: '' }, { labelName: 'カスタマID', value: '' }, { labelName: '案件番号', value: '' },
+                    { labelName: '案件タイトル', value: '' }, { labelName: '発生日', value: '' }, { labelName: '詳細', value: '', type: 'textArea' }],
+                    execute: (values) => {
+                        insertAnken(values);
+                        // setAnkenList([]);
+                    }
+                }
+            );
+        }}>追加</_Button>
         <_Button isDisable={focus !== -1}>更新</_Button>
         <_Button isDisable={focus !== -1}>削除</_Button>
     </>;
@@ -186,6 +199,12 @@ const findAnkenList = async (ankenStatus: string) => {
     const results = await response.json();
     return results as AnkenInfo[];
 };
+
+// SQL追加
+const insertAnken = async (values: string[]) => {
+    await sendQueryRequestToAPI('update',
+        `INSERT INTO anken values ('999', '${values[0]}', '${values[1]}', '${values[2]}', '${values[3]}', '${values[5]}', '0', '${values[4]}', '')`);
+}
 
 export default AnkenTab;
 
