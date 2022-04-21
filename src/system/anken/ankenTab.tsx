@@ -103,11 +103,18 @@ const AnkenTab = () => {
         <_Button isDisable={true} onClick={() => {
             setInputDialogProps(
                 {
-                    formList: [{ labelName: '案件種別', value: '' }, { labelName: 'カスタマID', value: '' }, { labelName: '案件番号', value: '' },
-                    { labelName: '案件タイトル', value: '' }, { labelName: '発生日', value: '' }, { labelName: '詳細', value: '', type: 'textArea' }],
+                    formList: [{ labelName: '案件種別', value: '', isRequired: true }, { labelName: 'カスタマID', value: '', isRequired: true },
+                    { labelName: '案件番号', value: '', isRequired: false }, { labelName: '案件タイトル', value: '', isRequired: true }, 
+                    { labelName: '発生日', value: '', isRequired: true }, { labelName: '詳細', value: '', type: 'textArea', isRequired: false }],
                     execute: (values) => {
-                        insertAnken(values);
-                        // setAnkenList([]);
+                        findMaxAnkenId().then(value => {
+                            const nextAnkenId = value[0].maxid + 1;
+                            insertAnken(values, nextAnkenId).then(() => {
+                                findAnkenList('', nextAnkenId).then(value => {
+                                setAnkenList(value);
+                                });
+                            });
+                        });
                     }
                 }
             );
@@ -147,7 +154,7 @@ const AnkenTab = () => {
                 }} />
                 <_DispButton isEnable={0 <= Number(ankenStatus) && Number(ankenStatus) <= 100} onClick={() => {
                     setIsLoad(true);
-                    findAnkenList(ankenStatus).then(value => {
+                    findAnkenList(ankenStatus, '').then(value => {
                         setIsLoad(false);
                         setAnkenList(value);
                     });
@@ -181,11 +188,13 @@ const AnkenTab = () => {
 }
 
 // SQL(案件)取得
-const findAnkenList = async (ankenStatus: string) => {
+const findAnkenList = async (ankenStatus: string, maxAnkenId: string) => {
     // 条件が入力されていたらwhere句を追加
     let joken = '';
     if (ankenStatus != '') {
-        joken = 'where a.status <= ' + ankenStatus;
+        joken = `where a.status <= '${ankenStatus}'`;
+    } else if (maxAnkenId != '') {
+        joken = `where a.ankenid = '${maxAnkenId}'`;
     }
 
     const response = await sendQueryRequestToAPI('select',
@@ -200,10 +209,18 @@ const findAnkenList = async (ankenStatus: string) => {
     return results as AnkenInfo[];
 };
 
+// 案件IDの最大値を取得
+const findMaxAnkenId = async () => {
+    const response = await sendQueryRequestToAPI('select',
+        `SELECT max(ankenid) as maxid from anken`);
+    const results = await response.json();
+    return results;
+}
+
 // SQL追加
-const insertAnken = async (values: string[]) => {
+const insertAnken = async (values: string[], nextAnkenId: number) => {
     await sendQueryRequestToAPI('update',
-        `INSERT INTO anken values ('999', '${values[0]}', '${values[1]}', '${values[2]}', '${values[3]}', '${values[5]}', '0', '${values[4]}', '')`);
+        `INSERT INTO anken values ('${nextAnkenId}', '${values[0]}', '${values[1]}', '${values[2]}', '${values[3]}', '${values[5]}', '0', '${values[4]}', '')`);
 }
 
 export default AnkenTab;

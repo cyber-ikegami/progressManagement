@@ -1,6 +1,7 @@
-import { useContext, useState } from "react";
+import { useContext, useEffect, useState } from "react";
 import styled from "styled-components";
 import { GlobalContext } from "../mainFrame";
+import StylesUtil from "./stylesUtil";
 
 export type FormInfo = {
     // 項目名label
@@ -9,10 +10,12 @@ export type FormInfo = {
     value: string;
     // 入力欄のタイプ
     type?: string;
+    // 必須フラグ
+    isRequired?: boolean;
 }
 
 export type InputDialogProps = {
-    // ダイアログに表示する情報
+    // ダイアログに関する情報
     formList: FormInfo[];
     // ボタン押下時の処理
     execute: (formValues: string[]) => void;
@@ -21,36 +24,48 @@ export type InputDialogProps = {
 // 入力ダイアログ
 const InputDialog = (props: InputDialogProps) => {
     // ダイアログに表示する値
-    const [formValues, setFormValues] = useState<string[]>(props.formList.map((form, i) => form.value));
+    const [formValues, setFormValues] = useState<string[]>(props.formList.map((form, i) => (form.value)));
+    // 必須項目をすべて入力しているか？
+    const [isClickOk, setIsClickOk] = useState<boolean>(false);
 
     const { setInputDialogProps } = useContext(GlobalContext);
+
+    // 追加確定ボタンの活性・非活性
+    useEffect(() => {
+        const empty = formValues.find((value, i) => {
+            return props.formList[i].isRequired == true && value === '';
+        });
+        setIsClickOk(empty == undefined);
+    }, [formValues]);
 
     // ダイアログの入力欄作成
     const valueJsxList = props.formList.map((value, i) => {
         // 入力欄のタイプ管理
         let typeJsx = <></>;
 
+        // タイプがundefinedであれば、初期値にテキストフィールドを設定
+        value.type == undefined ? value.type = 'textField' : value.type = value.type;
+        // 必須フラグがundefinedであれば、初期値にfalse
+        // value.isRequired == undefined ? value.isRequired = false : value.isRequired = true;
+
         switch (value.type) {
-            // typeがundefined
-            case undefined:
-                typeJsx = <input type="text" value={formValues[i]} onChange={(e) => {
-                    formValues[i] = e.target.value;
-                    setFormValues(formValues.slice());
-                }}></input>;
-                break;
             // テキストフィールド
             case 'textField':
-                typeJsx = <input type="text" value={formValues[i]} onChange={(e) => {
-                    formValues[i] = e.target.value;
-                    setFormValues(formValues.slice());
-                }}></input>;
+                typeJsx = <_Text isEmpty={value.isRequired == true && formValues[i] === ''}>
+                    <input type="text" value={formValues[i]} onChange={(e) => {
+                        formValues[i] = e.target.value;
+                        setFormValues(formValues.slice());
+                    }}></input>
+                </_Text>;
                 break;
             // テキストエリア
             case 'textArea':
-                typeJsx = <textarea onChange={(e) => {
-                    formValues[i] = e.target.value;
-                    setFormValues(formValues.slice());
-                }}></textarea>;
+                typeJsx = <_Text isEmpty={value.isRequired == true && formValues[i] === ''}>
+                    <textarea onChange={(e) => {
+                        formValues[i] = e.target.value;
+                        setFormValues(formValues.slice());
+                    }}></textarea>
+                </_Text>;
                 break;
         }
 
@@ -62,18 +77,23 @@ const InputDialog = (props: InputDialogProps) => {
         );
     });
 
+
     return (
         <>
             <_Dialog isDisplay={true}>
                 <dialog>
                     {valueJsxList}
-                    <button onClick={() => {
-                        props.execute(formValues);
-                        setInputDialogProps(null);
-                    }}>更新</button>
-                    <button onClick={() => {
-                        setInputDialogProps(null);
-                    }}>キャンセル</button>
+                    <_Button isDisable={isClickOk}>
+                        <button onClick={() => {
+                            props.execute(formValues);
+                            setInputDialogProps(null);
+                        }}>確定</button>
+                    </_Button>
+                    <_Button isDisable={true}>
+                        <button onClick={() => {
+                            setInputDialogProps(null);
+                        }}>キャンセル</button>
+                    </_Button>
                 </dialog>
             </_Dialog>
         </>
@@ -106,15 +126,33 @@ const _Dialog = styled.div<{
         border: 1px solid #3c3c3c;
         overflow-y: auto;
     }
+`;
+
+// テキストフィールド
+const _Text = styled.div<{
+    isEmpty: boolean;
+}>`
+    width: 100%;
     & input {
+        background-color: ${props => props.isEmpty ? '#fffb7d' : ''};
         width: 100%;
         height: 20px;
     }
     & textarea {
+        background-color: ${props => props.isEmpty ? '#fffb7d' : ''};
         width: 100%;
-        height: 250px;
+        height: 150px;
         resize: none;
     }
+`;
+
+// ボタン
+const _Button = styled.div<{
+    isDisable: boolean;
+}>`
+    // 非活性処理
+    ${props => props.isDisable ? '' : StylesUtil.IS_DISABLE}
+    display: inline-block;
     & button {
         width: 100px;
         height: 30px;
