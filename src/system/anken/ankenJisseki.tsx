@@ -128,7 +128,7 @@ const _JissekiLabel = styled.div`
     background-color: #d6d1ac;
     display: inline-block;
     width: calc(100% - 10px);
-    height: ${SystemUtil.JISSEKI_LABEL_HEIGTH}px;
+    height: ${SystemUtil.ANKEN_JISSEKI_LABEL_HEIGTH}px;
     margin-left: 5px;
     margin-top: 5px;
     font-size: ${SystemUtil.CONTENTS_CHAR_SIZE}px;

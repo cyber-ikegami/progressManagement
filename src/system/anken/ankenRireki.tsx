@@ -65,7 +65,7 @@ const _RirekiLabel = styled.div`
     background-color: #bbefb9;
     display: inline-block;
     width: calc(100% - 10px);
-    height: ${SystemUtil.RIREKI_LABEL_HEIGTH}px;
+    height: ${SystemUtil.ANKEN_RIREKI_LABEL_HEIGTH}px;
     margin-left: 5px;
     margin-top: 5px;
     font-size: ${SystemUtil.CONTENTS_CHAR_SIZE}px;

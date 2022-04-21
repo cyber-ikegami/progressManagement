@@ -17,6 +17,8 @@ export type FormInfo = {
 export type InputDialogProps = {
     // ダイアログに関する情報
     formList: FormInfo[];
+    // ダイアログのheight
+    heightSize?: number;
     // ボタン押下時の処理
     execute: (formValues: string[]) => void;
 }
@@ -37,7 +39,7 @@ const InputDialog = (props: InputDialogProps) => {
         });
         setIsClickOk(empty == undefined);
     }, [formValues]);
-
+    
     // ダイアログの入力欄作成
     const valueJsxList = props.formList.map((value, i) => {
         // 入力欄のタイプ管理
@@ -45,8 +47,6 @@ const InputDialog = (props: InputDialogProps) => {
 
         // タイプがundefinedであれば、初期値にテキストフィールドを設定
         value.type == undefined ? value.type = 'textField' : value.type = value.type;
-        // 必須フラグがundefinedであれば、初期値にfalse
-        // value.isRequired == undefined ? value.isRequired = false : value.isRequired = true;
 
         switch (value.type) {
             // テキストフィールド
@@ -77,25 +77,27 @@ const InputDialog = (props: InputDialogProps) => {
         );
     });
 
-
     return (
         <>
-            <_Dialog isDisplay={true}>
-                <dialog>
+            <_Form isDisplay={true}>
+                <_Dialog dialogHeight={props.heightSize}>
+                {/* <_Dialog> */}
                     {valueJsxList}
-                    <_Button isDisable={isClickOk}>
-                        <button onClick={() => {
-                            props.execute(formValues);
-                            setInputDialogProps(null);
-                        }}>確定</button>
-                    </_Button>
-                    <_Button isDisable={true}>
-                        <button onClick={() => {
-                            setInputDialogProps(null);
-                        }}>キャンセル</button>
-                    </_Button>
-                </dialog>
-            </_Dialog>
+                    <_Fotter>
+                        <_Button isDisable={isClickOk}>
+                            <button onClick={() => {
+                                props.execute(formValues);
+                                setInputDialogProps(null);
+                            }}>確定</button>
+                        </_Button>
+                        <_Button isDisable={true}>
+                            <button onClick={() => {
+                                setInputDialogProps(null);
+                            }}>キャンセル</button>
+                        </_Button>
+                    </_Fotter>
+                </_Dialog>
+            </_Form>
         </>
     )
 }
@@ -103,7 +105,7 @@ const InputDialog = (props: InputDialogProps) => {
 export default InputDialog;
 
 // ダイアログ
-const _Dialog = styled.div<{
+const _Form = styled.div<{
     isDisplay: boolean;
 }>`
     display: ${props => props.isDisplay ? 'block' : 'none'};
@@ -114,36 +116,54 @@ const _Dialog = styled.div<{
     top: 0;
     left: 0;
     z-index: 20;
-    & dialog {
-        background-color: #dbdcfc;
-        display: inline-block;
-        width: 50%;
-        height: 300px;
-        top: 50%;
-        left: 50%;
-        padding: 2%;
-        transform: translate(-50%,-50%);
-        border: 1px solid #3c3c3c;
-        overflow-y: auto;
-    }
+`;
+
+const _Dialog = styled.div<{
+     dialogHeight: number | undefined;
+ }>`
+    background-color: #dbdcfc;
+    display: inline-block;
+    width: 300px;
+    height: ${props => props.dialogHeight == undefined ? 300 : props.dialogHeight}px;
+    /* height: 300px; */
+    /* height: auto; */
+    top: 50%;
+    left: 50%;
+    position: absolute;
+    transform: translate(-50%, -50%);
+    border: 1px solid #3c3c3c;
+    overflow-y: auto;
 `;
 
 // テキストフィールド
 const _Text = styled.div<{
     isEmpty: boolean;
 }>`
+    margin-right: 5px;
     width: 100%;
     & input {
         background-color: ${props => props.isEmpty ? '#fffb7d' : ''};
-        width: 100%;
+        width: calc(100% - 20px);
         height: 20px;
+        margin-left: 5px;
+        margin-bottom: 5px;
     }
     & textarea {
         background-color: ${props => props.isEmpty ? '#fffb7d' : ''};
-        width: 100%;
+        width: calc(100% - 20px);
         height: 150px;
         resize: none;
+        margin-left: 5px;
+        margin-bottom: 5px;
     }
+`;
+
+// ボタンエリア
+const _Fotter = styled.div`
+    background-color: #979bfb;
+    display: inline-block;
+    width: 100%;
+    height: 40px;
 `;
 
 // ボタン
@@ -157,7 +177,7 @@ const _Button = styled.div<{
         width: 100px;
         height: 30px;
         margin-top: 5px;
-        margin-right: 5px;
+        margin-left: 5px;
         bottom: 10px;
     }
 `;

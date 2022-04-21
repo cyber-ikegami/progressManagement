@@ -48,7 +48,7 @@ export default DaigakuTab;
 const _Header = styled.div`
   background-color: #dbdcfc;
   width: 100%;
-  height: ${SystemUtil.HEADER_HEIGTH}px;
+  height: ${SystemUtil.KENSAKU_AREA_HEIGTH}px;
 `;
 
 // 表示ボタン
@@ -76,7 +76,7 @@ const _Left = styled.div`
   vertical-align: top;
   text-align: left;
   width: 50%;
-  height: calc(100% - ${SystemUtil.HEADER_HEIGTH}px);
+  height: calc(100% - ${SystemUtil.KENSAKU_AREA_HEIGTH}px);
   overflow: auto;
   overflow-x: hidden;
 `;
@@ -113,7 +113,7 @@ const _Right = styled.div`
   margin-left: auto;
   text-align: left;
   width: 50%;
-  height: calc(100% - ${SystemUtil.HEADER_HEIGTH}px);
+  height: calc(100% - ${SystemUtil.KENSAKU_AREA_HEIGTH}px);
   overflow: auto;
   overflow-x: hidden;
 `;

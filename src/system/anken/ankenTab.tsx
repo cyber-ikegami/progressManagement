@@ -106,6 +106,7 @@ const AnkenTab = () => {
                     formList: [{ labelName: '案件種別', value: '', isRequired: true }, { labelName: 'カスタマID', value: '', isRequired: true },
                     { labelName: '案件番号', value: '', isRequired: false }, { labelName: '案件タイトル', value: '', isRequired: true }, 
                     { labelName: '発生日', value: '', isRequired: true }, { labelName: '詳細', value: '', type: 'textArea', isRequired: false }],
+                    heightSize: SystemUtil.ANKEN_TUIKA_DIALOG_HEIGTH,
                     execute: (values) => {
                         findMaxAnkenId().then(value => {
                             const nextAnkenId = value[0].maxid + 1;
@@ -230,10 +231,10 @@ const _Header = styled.div`
     background-color: #dbdcfc;
     display: inline-block;
     width: 100%;
-    height: ${SystemUtil.HEADER_HEIGTH}px;
+    height: ${SystemUtil.KENSAKU_AREA_HEIGTH}px;
     & input {
-        width: ${SystemUtil.JOKEN_TEXT_WIDTH}px;
-        height: ${SystemUtil.JOKEN_TEXT_HEIGHT}px;
+        width: ${SystemUtil.KENSAKU_JOKEN_TEXT_WIDTH}px;
+        height: ${SystemUtil.KENSAKU_JOKEN_TEXT_HEIGHT}px;
         margin-left: 10px;
         margin-top: 10px;
         box-sizing: border-box; 
@@ -288,7 +289,7 @@ const _Left = styled.div`
     vertical-align: top;
     text-align: left;
     width: 50%;
-    height: calc(100% - ${SystemUtil.HEADER_HEIGTH}px);
+    height: calc(100% - ${SystemUtil.KENSAKU_AREA_HEIGTH}px);
 `;
 
 // NowLodingラベル
@@ -354,8 +355,6 @@ const _Button = styled.div<{
 }>`
     // 非活性処理
     ${props => props.isDisable ? '' : StylesUtil.IS_DISABLE}
-
-    /* pointer-events: auto; */
     background-color: #eef5ff;
     display: inline-block;
     font-size: 15px;
@@ -384,7 +383,7 @@ const _Right = styled.div<{
     margin-left: auto;
     text-align: left;
     width: 50%;
-    height: calc(100% - ${SystemUtil.HEADER_HEIGTH}px);
+    height: calc(100% - ${SystemUtil.KENSAKU_AREA_HEIGTH}px);
 `;
 
 // タブのエリア
