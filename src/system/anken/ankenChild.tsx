@@ -30,7 +30,7 @@ const _Detail = styled.div`
     overflow-y: auto;
     & select, input {
         width: calc(100% - 10px);
-        height: ${SystemUtil.JOKEN_TEXT_HEIGHT}px;
+        height: ${SystemUtil.KENSAKU_JOKEN_TEXT_HEIGHT}px;
         margin-left: 5px;
         margin-bottom: 5px;
         box-sizing: border-box;  
