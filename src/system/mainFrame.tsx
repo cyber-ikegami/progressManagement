@@ -39,7 +39,7 @@ const MainFrame = () => {
     return (
         <_Frame>
             <GlobalContext.Provider value={{ setInputDialogProps, setConfirmDialogProps }}>
-                {inputDialogProps == null ? <></> : <InputDialog formList={inputDialogProps.formList} execute={inputDialogProps.execute} />}
+                {inputDialogProps == null ? <></> : <InputDialog formList={inputDialogProps.formList} heightSize={inputDialogProps.heightSize} execute={inputDialogProps.execute} />}
                 {confirmDialogProps == null ? <></> : <ConfirmDialog cancelName={confirmDialogProps.cancelName} enterName={confirmDialogProps.enterName} message={confirmDialogProps.message} execute={confirmDialogProps.execute} />}
                 <_TabArea>
                     <_Tab isActive={mode === 'daigaku'} onClick={() => {
