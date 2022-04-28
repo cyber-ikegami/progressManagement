@@ -39,7 +39,7 @@ const InputDialog = (props: InputDialogProps) => {
         });
         setIsClickOk(empty == undefined);
     }, [formValues]);
-    
+
     // ダイアログの入力欄作成
     const valueJsxList = props.formList.map((value, i) => {
         // 入力欄のタイプ管理
@@ -81,7 +81,7 @@ const InputDialog = (props: InputDialogProps) => {
         <>
             <_Form isDisplay={true}>
                 <_Dialog dialogHeight={props.heightSize}>
-                {/* <_Dialog> */}
+                    {/* <_Dialog> */}
                     {valueJsxList}
                     <_Fotter>
                         <_Button isDisable={isClickOk}>
@@ -119,14 +119,13 @@ const _Form = styled.div<{
 `;
 
 const _Dialog = styled.div<{
-     dialogHeight: number | undefined;
- }>`
+    dialogHeight: number | undefined;
+}>`
+    height: ${props => props.dialogHeight === undefined ? '300' : props.dialogHeight}px;
     background-color: #dbdcfc;
     display: inline-block;
     width: 300px;
-    height: ${props => props.dialogHeight == undefined ? 300 : props.dialogHeight}px;
-    /* height: 300px; */
-    /* height: auto; */
+    height: ${props => props.dialogHeight}px;
     top: 50%;
     left: 50%;
     position: absolute;
