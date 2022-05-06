@@ -103,16 +103,20 @@ const AnkenTab = () => {
         <_Button isDisable={true} onClick={() => {
             setInputDialogProps(
                 {
-                    formList: [{ labelName: '案件種別', value: '', isRequired: true }, { labelName: 'カスタマID', value: '', isRequired: true },
-                    { labelName: '案件番号', value: '', isRequired: false }, { labelName: '案件タイトル', value: '', isRequired: true }, 
-                    { labelName: '発生日', value: '', isRequired: true }, { labelName: '詳細', value: '', type: 'textArea', isRequired: false }],
+                    formList: [{
+                        labelName: '案件種別', value: '', type: 'comboBox', optionList: [{ optionValue: '', showValue: '' },
+                        { optionValue: 'SE', showValue: 'SE' }, { optionValue: 'EE', showValue: 'EE' }, { optionValue: 'PKG連絡票', showValue: 'PKG連絡票' }], isRequired: true
+                    },
+                    { labelName: 'カスタマID', value: '', isRequired: true }, { labelName: '案件番号', value: '', isRequired: false },
+                    { labelName: '案件タイトル', value: '', isRequired: true }, { labelName: '発生日', value: '', isRequired: true },
+                    { labelName: '詳細', value: '', type: 'textArea', isRequired: false }],
                     heightSize: SystemUtil.ANKEN_TUIKA_DIALOG_HEIGTH,
                     execute: (values) => {
                         findMaxAnkenId().then(value => {
                             const nextAnkenId = value[0].maxid + 1;
                             insertAnken(values, nextAnkenId).then(() => {
                                 findAnkenList('', nextAnkenId).then(value => {
-                                setAnkenList(value);
+                                    setAnkenList(value);
                                 });
                             });
                         });

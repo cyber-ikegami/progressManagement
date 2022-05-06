@@ -3,13 +3,25 @@ import styled from "styled-components";
 import { GlobalContext } from "../mainFrame";
 import StylesUtil from "./stylesUtil";
 
+// 入力欄のタイプ
+type InputType = 'textField' | 'textArea' | 'comboBox';
+
+type Option = {
+    // コンボボックスのvalue
+    optionValue: string;
+    // コンボボックスの表示する値
+    showValue: string;
+}
+
 export type FormInfo = {
     // 項目名label
     labelName: string;
     // 項目の値
     value: string;
     // 入力欄のタイプ
-    type?: string;
+    type?: InputType;
+    // コンボボックスの選択肢のリスト
+    optionList?: Option[];
     // 必須フラグ
     isRequired?: boolean;
 }
@@ -51,21 +63,40 @@ const InputDialog = (props: InputDialogProps) => {
         switch (value.type) {
             // テキストフィールド
             case 'textField':
-                typeJsx = <_Text isEmpty={value.isRequired == true && formValues[i] === ''}>
+                typeJsx = <_InputArea isEmpty={value.isRequired == true && formValues[i] === ''}>
                     <input type="text" value={formValues[i]} onChange={(e) => {
                         formValues[i] = e.target.value;
                         setFormValues(formValues.slice());
                     }}></input>
-                </_Text>;
+                </_InputArea>;
                 break;
             // テキストエリア
             case 'textArea':
-                typeJsx = <_Text isEmpty={value.isRequired == true && formValues[i] === ''}>
+                typeJsx = <_InputArea isEmpty={value.isRequired == true && formValues[i] === ''}>
                     <textarea onChange={(e) => {
                         formValues[i] = e.target.value;
                         setFormValues(formValues.slice());
                     }}></textarea>
-                </_Text>;
+                </_InputArea>;
+                break;
+            // コンボボックス
+            case 'comboBox':
+                if (value.optionList !== undefined) {
+                    const optionJsxList = value.optionList.map((value, i) => {
+                        return (
+                            <option key={i}>{value.optionValue}</option>
+                        );
+                    })
+
+                    typeJsx = <_InputArea isEmpty={value.isRequired == true && formValues[i] === ''}>
+                        <select value={formValues[i]} onChange={(e) => {
+                            formValues[i] = e.target.value;
+                            setFormValues(formValues.slice());
+                        }}>
+                            {optionJsxList}
+                        </select>
+                    </_InputArea>;
+                }
                 break;
         }
 
@@ -134,33 +165,38 @@ const _Dialog = styled.div<{
     overflow-y: auto;
 `;
 
-// テキストフィールド
-const _Text = styled.div<{
+// 入力エリア
+const _InputArea = styled.div<{
     isEmpty: boolean;
 }>`
     margin-right: 5px;
     width: 100%;
-    & input {
+    & input, select {
         background-color: ${props => props.isEmpty ? '#fffb7d' : ''};
-        width: calc(100% - 20px);
+        width: calc(100% - 10px);
         height: 20px;
         margin-left: 5px;
         margin-bottom: 5px;
+        box-sizing: border-box;
     }
     & textarea {
         background-color: ${props => props.isEmpty ? '#fffb7d' : ''};
-        width: calc(100% - 20px);
+        width: calc(100% - 10px);
         height: 150px;
         resize: none;
         margin-left: 5px;
         margin-bottom: 5px;
+        box-sizing: border-box;
     }
 `;
+
 
 // ボタンエリア
 const _Fotter = styled.div`
     background-color: #979bfb;
     display: inline-block;
+    position: absolute;
+    bottom: 0px;
     width: 100%;
     height: 40px;
 `;
