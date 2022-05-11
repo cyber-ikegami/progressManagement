@@ -3,7 +3,7 @@ import styled from 'styled-components';
 import SystemUtil from '../utils/systemUtil';
 import { sendQueryRequestToAPI } from '../utils/dataBaseUtil';
 
-type DaigakuInfo = {
+export type DaigakuInfo = {
     // カスタムID
     customid: string;
     // 大学名

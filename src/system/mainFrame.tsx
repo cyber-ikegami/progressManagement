@@ -1,14 +1,16 @@
-import React, { createContext, useState } from 'react';
+import React, { createContext, useEffect, useState } from 'react';
 import styled from 'styled-components';
 import SystemUtil from './utils/systemUtil';
-import DaigakuTab from './daigaku/daigakuTab';
+import DaigakuTab, { DaigakuInfo } from './daigaku/daigakuTab';
 import AnkenTab from './anken/ankenTab';
 import InputDialog, { InputDialogProps } from './utils/inputDialog';
 import ConfirmDialog, { ConfirmDialogProps } from './utils/confirmDialog';
+import { sendQueryRequestToAPI } from './utils/dataBaseUtil';
 
 type GlobalContextProps = {
     setInputDialogProps: React.Dispatch<React.SetStateAction<InputDialogProps | null>>;
     setConfirmDialogProps: React.Dispatch<React.SetStateAction<ConfirmDialogProps | null>>;
+    daigakuInfoList: DaigakuInfo[];
 }
 
 export const GlobalContext = createContext({} as GlobalContextProps);
@@ -22,6 +24,15 @@ const MainFrame = () => {
     const [inputDialogProps, setInputDialogProps] = useState<null | InputDialogProps>(null);
     // confirmダイアログを表示するか
     const [confirmDialogProps, setConfirmDialogProps] = useState<null | ConfirmDialogProps>(null);
+    // カスタムID、大学名
+    const [daigakuInfoList, setDaigakuList] = useState<DaigakuInfo[]>([]);
+
+    // カスタマID、大学名の取得
+    useEffect(() => {
+        findDaigakuList().then(value => {
+            setDaigakuList(value);
+        });
+    }, []);
 
     // 画面の状態を管理する
     let contentsJsx = <></>;
@@ -38,7 +49,7 @@ const MainFrame = () => {
 
     return (
         <_Frame>
-            <GlobalContext.Provider value={{ setInputDialogProps, setConfirmDialogProps }}>
+            <GlobalContext.Provider value={{ setInputDialogProps, setConfirmDialogProps, daigakuInfoList }}>
                 {inputDialogProps == null ? <></> : <InputDialog formList={inputDialogProps.formList} heightSize={inputDialogProps.heightSize} execute={inputDialogProps.execute} />}
                 {confirmDialogProps == null ? <></> : <ConfirmDialog cancelName={confirmDialogProps.cancelName} enterName={confirmDialogProps.enterName} message={confirmDialogProps.message} execute={confirmDialogProps.execute} />}
                 <_TabArea>
@@ -55,6 +66,12 @@ const MainFrame = () => {
     );
 }
 
+// SQL(大学名)取得
+export const findDaigakuList = async () => {
+    const response = await sendQueryRequestToAPI('select', `SELECT customid, daigakunam from daigaku  order by customid`);
+    const results = await response.json();
+    return results as DaigakuInfo[];
+};
 export default MainFrame;
 
 // フレーム

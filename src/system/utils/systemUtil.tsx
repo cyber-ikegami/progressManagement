@@ -29,7 +29,7 @@ namespace SystemUtil {
     export const ANKEN_JISSEKI_LABEL_HEIGTH = 30;
 
     // 案件追加ダイアログの高さ
-    export const ANKEN_TUIKA_DIALOG_HEIGTH = 500;
+    export const ANKEN_TUIKA_DIALOG_HEIGTH = 460;
 }
 
 export default SystemUtil;

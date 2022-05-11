@@ -6,7 +6,7 @@ import StylesUtil from "./stylesUtil";
 // 入力欄のタイプ
 type InputType = 'textField' | 'textArea' | 'comboBox';
 
-type Option = {
+export type Option = {
     // コンボボックスのvalue
     optionValue: string;
     // コンボボックスの表示する値
@@ -84,7 +84,7 @@ const InputDialog = (props: InputDialogProps) => {
                 if (value.optionList !== undefined) {
                     const optionJsxList = value.optionList.map((value, i) => {
                         return (
-                            <option key={i}>{value.optionValue}</option>
+                            <option key={i}>{value.showValue}</option>
                         );
                     })
 
@@ -187,6 +187,9 @@ const _InputArea = styled.div<{
         margin-left: 5px;
         margin-bottom: 5px;
         box-sizing: border-box;
+    }
+    & option {
+        background-color: white;
     }
 `;
 
