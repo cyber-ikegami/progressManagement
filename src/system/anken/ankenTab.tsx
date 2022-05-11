@@ -1,4 +1,4 @@
-import React, { useContext, useMemo, useState } from 'react';
+import React, { useContext, useEffect, useMemo, useState } from 'react';
 import styled, { css } from 'styled-components';
 import SystemUtil from '../utils/systemUtil';
 import { sendQueryRequestToAPI } from '../utils/dataBaseUtil';
@@ -8,6 +8,8 @@ import AnkenJisseki from './ankenJisseki';
 import StylesUtil from '../utils/stylesUtil';
 import AnkenChild from './ankenChild';
 import { GlobalContext } from '../mainFrame';
+import DaigakuTab from '../daigaku/daigakuTab';
+import { Option } from '../utils/inputDialog';
 
 export type AnkenInfo = {
     // 案件ID
@@ -74,7 +76,7 @@ const AnkenTab = () => {
     // 画面遷移の管理
     const [ankenMode, setAnkenMode] = useState<AnkenMode>('syosai');
 
-    const { setInputDialogProps } = useContext(GlobalContext);
+    const { setInputDialogProps, daigakuInfoList } = useContext(GlobalContext);
 
     const ankenJsxList: JSX.Element[] = useMemo(() => {
         return ankenList.map((value, i) =>
@@ -101,15 +103,25 @@ const AnkenTab = () => {
     // フッター項目
     const footerJsx = <>
         <_Button isDisable={true} onClick={() => {
+            // 頭に空白追加
+            const comboBoxItemList = daigakuInfoList.slice();
+            comboBoxItemList.unshift({ customid: '', daigakunam: '' });
+
+            // daigakuInfoList(comboBoxItemList)をOption[]の型に変更
+            const daigakuOptionList: Option[] = comboBoxItemList.map((value) => {
+                const isEmpty = value.customid === '' ? '' : `${value.customid}：${value.daigakunam}`;
+                return { optionValue: value.customid, showValue: isEmpty }
+            });
+
             setInputDialogProps(
                 {
                     formList: [{
                         labelName: '案件種別', value: '', type: 'comboBox', optionList: [{ optionValue: '', showValue: '' },
                         { optionValue: 'SE', showValue: 'SE' }, { optionValue: 'EE', showValue: 'EE' }, { optionValue: 'PKG連絡票', showValue: 'PKG連絡票' }], isRequired: true
                     },
-                    { labelName: 'カスタマID', value: '', isRequired: true }, { labelName: '案件番号', value: '', isRequired: false },
-                    { labelName: '案件タイトル', value: '', isRequired: true }, { labelName: '発生日', value: '', isRequired: true },
-                    { labelName: '詳細', value: '', type: 'textArea', isRequired: false }],
+                    { labelName: 'カスタマID', value: '', type: 'comboBox', optionList: daigakuOptionList, isRequired: true },
+                    { labelName: '案件番号', value: '', isRequired: false }, { labelName: '案件タイトル', value: '', isRequired: true },
+                    { labelName: '発生日', value: getSystemDate(), isRequired: true }, { labelName: '詳細', value: '', type: 'textArea', isRequired: false }],
                     heightSize: SystemUtil.ANKEN_TUIKA_DIALOG_HEIGTH,
                     execute: (values) => {
                         findMaxAnkenId().then(value => {
@@ -226,6 +238,15 @@ const findMaxAnkenId = async () => {
 const insertAnken = async (values: string[], nextAnkenId: number) => {
     await sendQueryRequestToAPI('update',
         `INSERT INTO anken values ('${nextAnkenId}', '${values[0]}', '${values[1]}', '${values[2]}', '${values[3]}', '${values[5]}', '0', '${values[4]}', '')`);
+}
+
+// システム日付の取得
+const getSystemDate = () => {
+    let today = new Date();
+    const year = today.getFullYear();
+    const month = today.getMonth() + 1;
+    const day = today.getDate();
+    return year + '/' + month + '/' + day;
 }
 
 export default AnkenTab;
