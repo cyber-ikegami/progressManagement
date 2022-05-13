@@ -268,19 +268,19 @@ const findMaxAnkenId = async () => {
         `SELECT max(ankenid) as maxid from anken`);
     const results = await response.json();
     return results;
-}
+};
 
 // 追加
 const insertAnken = async (values: string[], nextAnkenId: number, customId: string) => {
     await sendQueryRequestToAPI('update',
         `INSERT INTO anken values ('${nextAnkenId}', '${values[0]}', '${customId}', '${values[2]}', '${values[3]}', '${values[5]}', '0', '${values[4]}', '')`);
-}
+};
 
 // 更新
 const updateAnken = async (values: string[], ankenId: number, customId: string) => {
     await sendQueryRequestToAPI('update',
         `UPDATE anken SET ankentype = '${values[0]}', customid = '${customId}', ankenno = '${values[2]}', title = '${values[3]}', detail = '${values[5]}', start_dy = '${values[4]}' where ankenid = '${ankenId}'`);
-}
+};
 
 // システム日付の取得
 const getSystemDate = () => {
@@ -289,7 +289,7 @@ const getSystemDate = () => {
     const month = today.getMonth() + 1;
     const day = today.getDate();
     return year + '/' + month + '/' + day;
-}
+};
 
 export default AnkenTab;
 

@@ -16,8 +16,7 @@ const AnkenJisseki = (props: {
     // 現在選択している箇所
     const [focus, setFocus] = useState<number>(-1);
 
-    const { setInputDialogProps } = useContext(GlobalContext);
-    const { setConfirmDialogProps } = useContext(GlobalContext);
+    const { setInputDialogProps, setConfirmDialogProps } = useContext(GlobalContext);
 
     useEffect(() => {
         setFocus(-1);
@@ -54,15 +53,19 @@ const AnkenJisseki = (props: {
         <_Button isDisable={true} onClick={() => {
             setInputDialogProps(
                 {
-                    formList: [{ labelName: '作業日', value: ''}, { labelName: '作業者', value: ''}, { labelName: '作業種別', value: ''}, { labelName: '作業時間(m)', value: ''}],
+                    formList: [{ labelName: '作業日', value: '' }, { labelName: '作業者', value: '' }, { labelName: '作業種別', value: '' }, { labelName: '作業時間(m)', value: '' }],
+                    heightSize: SystemUtil.ANKEN_JISSEKI_TUIKA_DIALOG_HEIGTH,
                     execute: (values) => {
-                        insertJisseki(props.selectAnken.ankenid, values);
-                        props.selectAnken.jissekiList = null;
+                        findMaxJisekiseq(props.selectAnken.ankenid).then(value => {
+                            const nextJisekiseq = value[0].maxSeq == null ? '0' : value[0].maxSeq + 1;
+                            insertJisseki(props.selectAnken.ankenid, values, nextJisekiseq);
+                            props.selectAnken.jissekiList = null;
+                        });
                     }
                 }
             );
         }}>追加</_Button>
-        <_Button isDisable={focus !== -1}>更新</_Button>
+        {/* <_Button isDisable={focus !== -1}>更新</_Button> */}
         <_Button isDisable={focus !== -1} onClick={() => {
             setConfirmDialogProps(
                 {
@@ -97,17 +100,25 @@ const findJissekiList = async (ankenid: number) => {
     return results;
 };
 
-// SQL追加
-const insertJisseki = async (ankenid: number, values: string[]) => {
-    await sendQueryRequestToAPI('update',
-        `INSERT INTO jisseki values ('${ankenid}', '5', '${values[0]}', '${values[1]}', '${values[2]}', '${values[3]}')`);
-}
+// 実績連番の最大値を取得
+const findMaxJisekiseq = async (ankenid: number) => {
+    const response = await sendQueryRequestToAPI('select',
+        `SELECT max(jisekiseq) as maxSeq from jisseki where ankenid = '${ankenid}'`);
+    const results = await response.json();
+    return results;
+};
 
-// SQL削除
+// 追加
+const insertJisseki = async (ankenid: number, values: string[], jisekiseq: number) => {
+    await sendQueryRequestToAPI('update',
+        `INSERT INTO jisseki values ('${ankenid}', '${jisekiseq}', '${values[0]}', '${values[1]}', '${values[2]}', '${values[3]}')`);
+};
+
+// 削除
 const deleteJisseki = async (ankenid: number, jisekiseq: number) => {
     await sendQueryRequestToAPI('update',
         `DELETE from jisseki where ankenid = '${ankenid}' and jisekiseq = '${jisekiseq}'`);
-}
+};
 
 export default AnkenJisseki;
 
@@ -145,9 +156,8 @@ const _Button = styled.div<{
     isDisable: boolean;
 }>`
     // 非活性処理
-    ${props => props.isDisable ? '' : StylesUtil.IS_DISABLE}
+    ${props => props.isDisable ? '' : StylesUtil.IS_DISABLE};
 
-    /* pointer-events: auto; */
     background-color: #eef5ff;
     display: inline-block;
     font-size: 15px;

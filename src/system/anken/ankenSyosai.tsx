@@ -37,7 +37,8 @@ const AnkenSyosai = (props: {
 
     // フッター項目
     const footerJsx = <>
-        <_Button>更新</_Button></>;
+        {/* <_Button>更新</_Button> */}
+    </>;
 
     return (
         <AnkenChild detailJsx={detailJsx} footerJsx={footerJsx}></AnkenChild>
