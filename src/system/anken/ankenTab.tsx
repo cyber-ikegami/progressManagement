@@ -8,7 +8,6 @@ import AnkenJisseki from './ankenJisseki';
 import StylesUtil from '../utils/stylesUtil';
 import AnkenChild from './ankenChild';
 import { GlobalContext } from '../mainFrame';
-import DaigakuTab from '../daigaku/daigakuTab';
 import { Option } from '../utils/inputDialog';
 
 export type AnkenInfo = {
@@ -89,7 +88,7 @@ const AnkenTab = () => {
                     <_Gray> [</_Gray>
                     <_Green>{value.ankentype}</_Green>
                     <_Gray>](</_Gray>
-                    <_Blue>{value.customid}:{value.daigakunam}</_Blue>
+                    <_Blue>{value.customid === '' ? '---' : `${value.customid}:${value.daigakunam}`}</_Blue>
                     <_Gray>): {value.start_dy}～{value.update_dy}</_Gray>
                 </_TopAnkenLabel>
                 <_BottomAnkenLabel>
@@ -109,8 +108,8 @@ const AnkenTab = () => {
 
             // daigakuInfoList(comboBoxItemList)をOption[]の型に変更
             const daigakuOptionList: Option[] = comboBoxItemList.map((value) => {
-                const isEmpty = value.customid === '' ? '' : `${value.customid}：${value.daigakunam}`;
-                return { optionValue: value.customid, showValue: isEmpty }
+                const customId = value.customid === '' ? '' : `${value.customid}：${value.daigakunam}`;
+                return { optionValue: value.customid, showValue: customId }
             });
 
             setInputDialogProps(
@@ -119,14 +118,17 @@ const AnkenTab = () => {
                         labelName: '案件種別', value: '', type: 'comboBox', optionList: [{ optionValue: '', showValue: '' },
                         { optionValue: 'SE', showValue: 'SE' }, { optionValue: 'EE', showValue: 'EE' }, { optionValue: 'PKG連絡票', showValue: 'PKG連絡票' }], isRequired: true
                     },
-                    { labelName: 'カスタマID', value: '', type: 'comboBox', optionList: daigakuOptionList, isRequired: true },
-                    { labelName: '案件番号', value: '', isRequired: false }, { labelName: '案件タイトル', value: '', isRequired: true },
-                    { labelName: '発生日', value: getSystemDate(), isRequired: true }, { labelName: '詳細', value: '', type: 'textArea', isRequired: false }],
+                    { labelName: 'カスタマID', value: '', type: 'comboBox', optionList: daigakuOptionList, isRequired: false },
+                    { labelName: '案件番号', value: '', isRequired: false },
+                    { labelName: '案件タイトル', value: '', isRequired: true },
+                    { labelName: '発生日', value: getSystemDate(), isRequired: true },
+                    { labelName: '詳細', value: '', type: 'textArea', isRequired: false }],
                     heightSize: SystemUtil.ANKEN_TUIKA_DIALOG_HEIGTH,
                     execute: (values) => {
                         findMaxAnkenId().then(value => {
                             const nextAnkenId = value[0].maxid + 1;
-                            insertAnken(values, nextAnkenId).then(() => {
+                            const selectCustomId = values[1] === '' ? '' : (values[1].split('：'))[0];
+                            insertAnken(values, nextAnkenId, selectCustomId).then(() => {
                                 findAnkenList('', nextAnkenId).then(value => {
                                     setAnkenList(value);
                                 });
@@ -136,7 +138,41 @@ const AnkenTab = () => {
                 }
             );
         }}>追加</_Button>
-        <_Button isDisable={focus !== -1}>更新</_Button>
+        <_Button isDisable={focus !== -1} onClick={() => {
+            // 頭に空白追加
+            const comboBoxItemList = daigakuInfoList.slice();
+            comboBoxItemList.unshift({ customid: '', daigakunam: '' });
+
+            // daigakuInfoList(comboBoxItemList)をOption[]の型に変更
+            const daigakuOptionList: Option[] = comboBoxItemList.map((value) => {
+                const isEmpty = value.customid === '' ? '' : `${value.customid}：${value.daigakunam}`;
+                return { optionValue: value.customid, showValue: isEmpty }
+            });
+
+            setInputDialogProps(
+                {
+                    formList: [{
+                        labelName: '案件種別', value: ankenList[focus].ankentype, type: 'comboBox', optionList: [{ optionValue: '', showValue: '' },
+                        { optionValue: 'SE', showValue: 'SE' }, { optionValue: 'EE', showValue: 'EE' }, { optionValue: 'PKG連絡票', showValue: 'PKG連絡票' }], isRequired: true
+                    },
+                    { labelName: 'カスタマID', value: `${ankenList[focus].customid}：${ankenList[focus].daigakunam}`, type: 'comboBox', optionList: daigakuOptionList, isRequired: false },
+                    { labelName: '案件番号', value: ankenList[focus].ankenno.toString(), isRequired: false },
+                    { labelName: '案件タイトル', value: ankenList[focus].title, isRequired: true },
+                    { labelName: '発生日', value: ankenList[focus].start_dy, isRequired: true },
+                    { labelName: '詳細', value: ankenList[focus].detail, type: 'textArea', isRequired: false }],
+                    heightSize: SystemUtil.ANKEN_TUIKA_DIALOG_HEIGTH,
+                    execute: (values) => {
+                        const selectCustomId = values[1] === '' ? '' : (values[1].split('：'))[0];
+                        console.log(values);
+                        updateAnken(values, ankenList[focus].ankenid, selectCustomId).then(() => {
+                            findAnkenList('', '').then(value => {
+                                setAnkenList(value);
+                            });
+                        });
+                    }
+                }
+            );
+        }}>更新</_Button>
         <_Button isDisable={focus !== -1}>削除</_Button>
     </>;
 
@@ -218,7 +254,7 @@ const findAnkenList = async (ankenStatus: string, maxAnkenId: string) => {
         `SELECT a.ankenid, a.status, a.ankentype, a.customid, d.daigakunam, a.start_dy, a.update_dy,
         a.ankenno, a.title, a.detail, null as jissekiList
         from anken a
-        inner join daigaku d
+        left outer join daigaku d
         on a.customid = d.customid
         ${joken}
         order by status`);
@@ -234,10 +270,16 @@ const findMaxAnkenId = async () => {
     return results;
 }
 
-// SQL追加
-const insertAnken = async (values: string[], nextAnkenId: number) => {
+// 追加
+const insertAnken = async (values: string[], nextAnkenId: number, customId: string) => {
     await sendQueryRequestToAPI('update',
-        `INSERT INTO anken values ('${nextAnkenId}', '${values[0]}', '${values[1]}', '${values[2]}', '${values[3]}', '${values[5]}', '0', '${values[4]}', '')`);
+        `INSERT INTO anken values ('${nextAnkenId}', '${values[0]}', '${customId}', '${values[2]}', '${values[3]}', '${values[5]}', '0', '${values[4]}', '')`);
+}
+
+// 更新
+const updateAnken = async (values: string[], ankenId: number, customId: string) => {
+    await sendQueryRequestToAPI('update',
+        `UPDATE anken SET ankentype = '${values[0]}', customid = '${customId}', ankenno = '${values[2]}', title = '${values[3]}', detail = '${values[5]}', start_dy = '${values[4]}' where ankenid = '${ankenId}'`);
 }
 
 // システム日付の取得
