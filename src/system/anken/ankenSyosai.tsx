@@ -15,9 +15,7 @@ const AnkenSyosai = (props: {
 
         <_ItemName>カスタマID</_ItemName>
         <select id='ankenType'>
-            <option>
-                {props.selectAnken.customid}:{props.selectAnken.daigakunam}
-            </option>
+            <option>{props.selectAnken.customid === '' ? '' : `${props.selectAnken.customid}:${props.selectAnken.daigakunam}`}</option>
         </select>
 
         <_ItemName>案件番号</_ItemName>

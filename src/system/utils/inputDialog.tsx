@@ -73,7 +73,7 @@ const InputDialog = (props: InputDialogProps) => {
             // テキストエリア
             case 'textArea':
                 typeJsx = <_InputArea isEmpty={value.isRequired == true && formValues[i] === ''}>
-                    <textarea onChange={(e) => {
+                    <textarea  value={formValues[i]} onChange={(e) => {
                         formValues[i] = e.target.value;
                         setFormValues(formValues.slice());
                     }}></textarea>
@@ -112,7 +112,6 @@ const InputDialog = (props: InputDialogProps) => {
         <>
             <_Form isDisplay={true}>
                 <_Dialog dialogHeight={props.heightSize}>
-                    {/* <_Dialog> */}
                     {valueJsxList}
                     <_Fotter>
                         <_Button isDisable={isClickOk}>

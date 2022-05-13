@@ -53,7 +53,7 @@ const _Dialog = styled.div<{
         background-color: #dbdcfc;
         display: inline-block;
         width: 50%;
-        height: 100px;
+        height: 70px;
         top: 50%;
         left: 50%;
         padding: 2%;
