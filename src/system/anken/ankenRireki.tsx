@@ -1,9 +1,11 @@
-import { useEffect, useMemo } from "react";
+import { useContext, useEffect, useMemo, useState } from "react";
 import styled from "styled-components";
 import { AnkenInfo } from "./ankenTab";
 import { sendQueryRequestToAPI } from "../utils/dataBaseUtil";
 import SystemUtil from "../utils/systemUtil";
 import AnkenChild from "./ankenChild";
+import StylesUtil from "../utils/stylesUtil";
+import { GlobalContext } from "../mainFrame";
 
 // 案件履歴タブ
 const AnkenRireki = (props: {
@@ -11,19 +13,27 @@ const AnkenRireki = (props: {
     updateRireki: Function;
     focus: Number;
 }) => {
+    // 現在選択している箇所
+    const [focus, setFocus] = useState<number>(-1);
+
+    const { setInputDialogProps } = useContext(GlobalContext);
+
     useEffect(() => {
+        setFocus(-1);
         if (props.selectAnken.rirekiList == null) {
             findRirekiList(props.selectAnken.ankenid).then(value => {
                 props.updateRireki(value);
             });
         }
-    }, [props.focus]);
+    }, [props.focus, props.selectAnken.rirekiList]);
 
     // 履歴項目
     const detailJsx: JSX.Element[] = useMemo(() => {
         if (props.selectAnken.rirekiList != null) {
             return props.selectAnken.rirekiList.map((value, i) =>
-                <_RirekiLabel key={i}>
+                <_RirekiLabel key={i} onClick={() => {
+                    setFocus(i);
+                }}>
                     <_Red>{value.rirekiseq}</_Red>
                     <_Gray>: </_Gray>
                     <_Blue>{value.state} </_Blue>
@@ -36,9 +46,25 @@ const AnkenRireki = (props: {
 
     // フッター項目
     const footerJsx = <>
-        <_Button>更新</_Button>
-        <_Button>削除
-        </_Button></>;
+        <_Button isDisable={true} onClick={() => {
+            setInputDialogProps(
+                {
+                    formList: [{ labelName: '状態', value: '' }, { labelName: '備考', value: '' }, { labelName: '緊急度', value: '' }],
+                    heightSize: SystemUtil.ANKEN_RIREKI_TUIKA_DIALOG_HEIGTH,
+                    execute: (values) => {
+                        console.log(values);
+                        findMaxRirekiseq(props.selectAnken.ankenid).then(value => {
+                            const nextRirekiseq = value[0].maxSeq == null ? '0' : value[0].maxSeq + 1;
+                            insertRireki(props.selectAnken.ankenid, values, nextRirekiseq);
+                            
+                            updateAnkenStatus(props.selectAnken.ankenid, values, nextRirekiseq);
+                            props.selectAnken.rirekiList = null;
+                        });
+                    }
+                }
+            );
+        }}>追加</_Button>
+    </>;
 
     return (
         <AnkenChild detailJsx={detailJsx} footerJsx={footerJsx}></AnkenChild>
@@ -56,6 +82,37 @@ const findRirekiList = async (ankenid: number) => {
     order by r.ankenid, r.rirekiseq desc`);
     const results = await response.json();
     return results;
+};
+
+// 履歴連番の最大値を取得
+const findMaxRirekiseq = async (ankenid: number) => {
+    const response = await sendQueryRequestToAPI('select',
+        `SELECT max(rirekiseq) as maxSeq from rireki where ankenid = '${ankenid}'`);
+    const results = await response.json();
+    return results;
+};
+
+// 追加
+const insertRireki = async (ankenid: number, values: string[], rirekiseq: number) => {
+    await sendQueryRequestToAPI('update',
+        `INSERT INTO jisseki values ('${ankenid}', '${rirekiseq}', '${values[0]}', '${values[1]}')`);
+};
+
+const updateAnkenStatus = async (ankenid: number, values: string[], rirekiseq: number) => {
+    const sql = `UPDATE anken SET status = '${values[2]}', update_dy = '${getSystemDate()}' where ankenid = ${ankenid}`;
+    console.log(sql);
+    await sendQueryRequestToAPI('update',
+    sql
+    );
+};
+
+// システム日付の取得
+const getSystemDate = () => {
+    let today = new Date();
+    const year = today.getFullYear();
+    const month = today.getMonth() + 1;
+    const day = today.getDate();
+    return year + '/' + month + '/' + day;
 };
 
 export default AnkenRireki;
@@ -77,9 +134,14 @@ const _RirekiLabel = styled.div`
     }
 `;
 
-// 更新・削除ボタン
-const _Button = styled.div`
-    pointer-events: auto;
+// 追加・更新・削除ボタン
+const _Button = styled.div<{
+    isDisable: boolean;
+}>`
+    // 非活性処理
+    ${props => props.isDisable ? '' : StylesUtil.IS_DISABLE};
+
+    /* pointer-events: auto; */
     background-color: #eef5ff;
     display: inline-block;
     font-size: 15px;
