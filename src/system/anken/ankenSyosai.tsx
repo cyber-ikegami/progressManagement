@@ -18,13 +18,13 @@ const AnkenSyosai = (props: {
         <_ItemLabel>{props.selectAnken.ankenno === '' ? '-' : props.selectAnken.ankenno}</_ItemLabel>
 
         <_ItemName>案件タイトル</_ItemName>
-        <_ItemLabel>{props.selectAnken.title}</_ItemLabel>
+        <_ItemLabel>{props.selectAnken.title === '' ? '-' : props.selectAnken.title}</_ItemLabel>
 
         <_ItemName>発生日</_ItemName>
-        <_ItemLabel>{props.selectAnken.start_dy}</_ItemLabel>
+        <_ItemLabel>{props.selectAnken.start_dy === '' ? '-' : props.selectAnken.start_dy}</_ItemLabel>
 
         <_ItemName>詳細</_ItemName>
-        <_ItemLabel>{props.selectAnken.detail}</_ItemLabel>
+        <_ItemLabel>{props.selectAnken.detail === '' ? '-' : props.selectAnken.detail}</_ItemLabel>
     </>
 
     // フッター項目
@@ -48,6 +48,5 @@ const _ItemName = styled.div`
 
 const _ItemLabel = styled.div`
     font-size: 15px;
-    margin-left: 10px;
-    /* font-weight: bold; */
+    margin-left: 20px;
 `;
