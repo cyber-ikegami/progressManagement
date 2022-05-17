@@ -11,7 +11,8 @@ import { GlobalContext } from "../mainFrame";
 const AnkenRireki = (props: {
     selectAnken: AnkenInfo;
     updateRireki: Function;
-    focus: Number;
+    updateAnken: ()=>void;
+    focus: number;
 }) => {
     // 現在選択している箇所
     const [focus, setFocus] = useState<number>(-1);
@@ -49,16 +50,19 @@ const AnkenRireki = (props: {
         <_Button isDisable={true} onClick={() => {
             setInputDialogProps(
                 {
-                    formList: [{ labelName: '状態', value: '' }, { labelName: '備考', value: '' }, { labelName: '緊急度', value: '' }],
+                    formList: [{ labelName: '状態', value: '' }, { labelName: '備考', value: '' }, { labelName: '緊急度', value: '0', type: 'number' }],
                     heightSize: SystemUtil.ANKEN_RIREKI_TUIKA_DIALOG_HEIGTH,
                     execute: (values) => {
-                        console.log(values);
                         findMaxRirekiseq(props.selectAnken.ankenid).then(value => {
                             const nextRirekiseq = value[0].maxSeq == null ? '0' : value[0].maxSeq + 1;
-                            insertRireki(props.selectAnken.ankenid, values, nextRirekiseq);
-                            
-                            updateAnkenStatus(props.selectAnken.ankenid, values, nextRirekiseq);
-                            props.selectAnken.rirekiList = null;
+
+                            insertRireki(props.selectAnken.ankenid, values, nextRirekiseq).then(() => {
+                                updateAnkenStatus(props.selectAnken.ankenid, values, nextRirekiseq);
+                                props.selectAnken.rirekiList = null;
+                                props.selectAnken.status = Number(values[2]);
+                                props.selectAnken.update_dy = getSystemDate();
+                                props.updateAnken();
+                            })
                         });
                     }
                 }
@@ -92,18 +96,16 @@ const findMaxRirekiseq = async (ankenid: number) => {
     return results;
 };
 
-// 追加
+// 履歴の追加
 const insertRireki = async (ankenid: number, values: string[], rirekiseq: number) => {
     await sendQueryRequestToAPI('update',
-        `INSERT INTO jisseki values ('${ankenid}', '${rirekiseq}', '${values[0]}', '${values[1]}')`);
+        `INSERT INTO rireki values ('${ankenid}', '${rirekiseq}', '${values[0]}', '${values[1]}')`);
 };
 
+// 案件の緊急度の更新
 const updateAnkenStatus = async (ankenid: number, values: string[], rirekiseq: number) => {
-    const sql = `UPDATE anken SET status = '${values[2]}', update_dy = '${getSystemDate()}' where ankenid = ${ankenid}`;
-    console.log(sql);
     await sendQueryRequestToAPI('update',
-    sql
-    );
+        `UPDATE anken SET status = '${values[2]}', update_dy = '${getSystemDate()}' where ankenid = ${ankenid}`);
 };
 
 // システム日付の取得

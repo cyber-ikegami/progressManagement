@@ -9,31 +9,23 @@ const AnkenSyosai = (props: {
     // 詳細項目
     const detailJsx = <>
         <_ItemName>案件種別</_ItemName>
-        <select id='ankenType'>
-            <option>{props.selectAnken.ankentype}</option>
-        </select>
+        <_ItemLabel>{props.selectAnken.ankentype === '' ? '-' : props.selectAnken.ankentype}</_ItemLabel>
 
         <_ItemName>カスタマID</_ItemName>
-        <select id='ankenType'>
-            <option>{props.selectAnken.customid === '' ? '' : `${props.selectAnken.customid}:${props.selectAnken.daigakunam}`}</option>
-        </select>
+        <_ItemLabel>{props.selectAnken.customid === '' ? '-' : `${props.selectAnken.customid}:${props.selectAnken.daigakunam}`}</_ItemLabel>
 
         <_ItemName>案件番号</_ItemName>
-        <input type="text" value={props.selectAnken.ankenno} onChange={(e) => {
+        <_ItemLabel>{props.selectAnken.ankenno === '' ? '-' : props.selectAnken.ankenno}</_ItemLabel>
 
-        }} />
         <_ItemName>案件タイトル</_ItemName>
-        <input type="text" value={props.selectAnken.title} onChange={(e) => {
+        <_ItemLabel>{props.selectAnken.title}</_ItemLabel>
 
-        }} />
         <_ItemName>発生日</_ItemName>
-        <input type="text" value={props.selectAnken.start_dy} onChange={(e) => {
+        <_ItemLabel>{props.selectAnken.start_dy}</_ItemLabel>
 
-        }} />
         <_ItemName>詳細</_ItemName>
-        <textarea value={props.selectAnken.detail} onChange={(e) => {
-
-        }} /></>;
+        <_ItemLabel>{props.selectAnken.detail}</_ItemLabel>
+    </>
 
     // フッター項目
     const footerJsx = <>
@@ -54,22 +46,8 @@ const _ItemName = styled.div`
     font-weight: bold;
 `;
 
-// 更新ボタン
-const _Button = styled.div`
-    pointer-events: auto;
-    background-color: #eef5ff;
-    display: inline-block;
+const _ItemLabel = styled.div`
     font-size: 15px;
-    width: 80px;
-    height: calc(100% - 10px);
-    text-align: center;
-    margin-top: 5px;
-    margin-left: 5px;
-    border: 1px solid #919191;
-    border-radius: 5px;
-    &:hover {
-        background-color:#b1bff5;
-    }
+    margin-left: 10px;
+    /* font-weight: bold; */
 `;
-
-

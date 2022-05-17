@@ -26,7 +26,7 @@ export type AnkenInfo = {
     // 最終更新日
     update_dy: string;
     // 案件番号
-    ankenno: number;
+    ankenno: string;
     // 案件タイトル
     title: string;
     // 詳細
@@ -75,7 +75,7 @@ const AnkenTab = () => {
     // 画面遷移の管理
     const [ankenMode, setAnkenMode] = useState<AnkenMode>('syosai');
 
-    const { setInputDialogProps, daigakuInfoList } = useContext(GlobalContext);
+    const { setInputDialogProps, setConfirmDialogProps, daigakuInfoList } = useContext(GlobalContext);
 
     const ankenJsxList: JSX.Element[] = useMemo(() => {
         return ankenList.map((value, i) =>
@@ -102,27 +102,27 @@ const AnkenTab = () => {
     // フッター項目
     const footerJsx = <>
         <_Button isDisable={true} onClick={() => {
-            // 頭に空白追加
-            const comboBoxItemList = daigakuInfoList.slice();
-            comboBoxItemList.unshift({ customid: '', daigakunam: '' });
-
-            // daigakuInfoList(comboBoxItemList)をOption[]の型に変更
-            const daigakuOptionList: Option[] = comboBoxItemList.map((value) => {
+            // daigakuInfoListをOption[]の型に変更
+            const daigakuOptionList: Option[] = daigakuInfoList.map((value) => {
                 const customId = value.customid === '' ? '' : `${value.customid}：${value.daigakunam}`;
                 return { optionValue: value.customid, showValue: customId }
             });
+            // 頭に空白追加
+            daigakuOptionList.unshift({ optionValue: '', showValue: '' });
 
             setInputDialogProps(
                 {
-                    formList: [{
-                        labelName: '案件種別', value: '', type: 'comboBox', optionList: [{ optionValue: '', showValue: '' },
-                        { optionValue: 'SE', showValue: 'SE' }, { optionValue: 'EE', showValue: 'EE' }, { optionValue: 'PKG連絡票', showValue: 'PKG連絡票' }], isRequired: true
-                    },
-                    { labelName: 'カスタマID', value: '', type: 'comboBox', optionList: daigakuOptionList, isRequired: false },
-                    { labelName: '案件番号', value: '', isRequired: false },
-                    { labelName: '案件タイトル', value: '', isRequired: true },
-                    { labelName: '発生日', value: getSystemDate(), isRequired: true },
-                    { labelName: '詳細', value: '', type: 'textArea', isRequired: false }],
+                    formList: [
+                        {
+                            labelName: '案件種別', value: '', type: 'comboBox', optionList: [{ optionValue: '', showValue: '' },
+                            { optionValue: 'SE', showValue: 'SE' }, { optionValue: 'EE', showValue: 'EE' }, { optionValue: 'PKG連絡票', showValue: 'PKG連絡票' }], isRequired: true
+                        },
+                        { labelName: 'カスタマID', value: '', type: 'comboBox', optionList: daigakuOptionList, isRequired: false },
+                        { labelName: '案件番号', value: '', isRequired: false },
+                        { labelName: '案件タイトル', value: '', isRequired: true },
+                        { labelName: '発生日', value: getSystemDate(), isRequired: true },
+                        { labelName: '詳細', value: '', type: 'textArea', isRequired: false }
+                    ],
                     heightSize: SystemUtil.ANKEN_TUIKA_DIALOG_HEIGTH,
                     execute: (values) => {
                         findMaxAnkenId().then(value => {
@@ -130,6 +130,7 @@ const AnkenTab = () => {
                             const selectCustomId = values[1] === '' ? '' : (values[1].split('：'))[0];
                             insertAnken(values, nextAnkenId, selectCustomId).then(() => {
                                 findAnkenList('', nextAnkenId).then(value => {
+                                    setAnkenList([]);
                                     setAnkenList(value);
                                 });
                             });
@@ -163,7 +164,6 @@ const AnkenTab = () => {
                     heightSize: SystemUtil.ANKEN_TUIKA_DIALOG_HEIGTH,
                     execute: (values) => {
                         const selectCustomId = values[1] === '' ? '' : (values[1].split('：'))[0];
-                        console.log(values);
                         updateAnken(values, ankenList[focus].ankenid, selectCustomId).then(() => {
                             findAnkenList('', '').then(value => {
                                 setAnkenList(value);
@@ -173,7 +173,26 @@ const AnkenTab = () => {
                 }
             );
         }}>更新</_Button>
-        <_Button isDisable={focus !== -1}>削除</_Button>
+        <_Button isDisable={focus !== -1} onClick={() => {
+            setConfirmDialogProps(
+                {
+                    cancelName: 'キャンセル',
+                    enterName: '削除',
+                    message: '削除しますか？',
+                    execute: () => {
+                        deleteJisseki(ankenList[focus].ankenid).then(() => {
+                            deleteRireki(ankenList[focus].ankenid).then(() => {
+                                deleteAnken(ankenList[focus].ankenid).then(() => {
+                                    setFocus(-1);
+                                    setAnkenList([]);
+                                });
+                            });
+                        });
+
+                    }
+                }
+            )
+        }}>削除</_Button>
     </>;
 
     let contentsJsx = <></>;
@@ -186,16 +205,30 @@ const AnkenTab = () => {
             }
             break;
         case 'rireki':
-            contentsJsx = <AnkenRireki selectAnken={ankenList[focus]} focus={focus} updateRireki={(rirekiList: RirekiInfo[]) => {
-                ankenList[focus].rirekiList = rirekiList;
-                setAnkenList(ankenList.slice());
-            }} />;
+            contentsJsx = <AnkenRireki
+                selectAnken={ankenList[focus]}
+                updateRireki={(rirekiList: RirekiInfo[]) => {
+                    ankenList[focus].rirekiList = rirekiList;
+                    setAnkenList(ankenList.slice());
+                }}
+                updateAnken={() => {
+                    setAnkenList(ankenList.slice());
+                }}
+                focus={focus}
+            />;
             break;
         case 'jisseki':
-            contentsJsx = <AnkenJisseki selectAnken={ankenList[focus]} focus={focus} updateJisseki={(jissekiList: JissekiInfo[]) => {
-                ankenList[focus].jissekiList = jissekiList;
-                setAnkenList(ankenList.slice());
-            }} />;
+            contentsJsx = <AnkenJisseki
+                selectAnken={ankenList[focus]}
+                updateJisseki={(jissekiList: JissekiInfo[]) => {
+                    ankenList[focus].jissekiList = jissekiList;
+                    setAnkenList(ankenList.slice());
+                }}
+                updateAnken={() => {
+                    setAnkenList(ankenList.slice());
+                }}
+                focus={focus}
+            />;
             break;
     }
 
@@ -280,6 +313,25 @@ const insertAnken = async (values: string[], nextAnkenId: number, customId: stri
 const updateAnken = async (values: string[], ankenId: number, customId: string) => {
     await sendQueryRequestToAPI('update',
         `UPDATE anken SET ankentype = '${values[0]}', customid = '${customId}', ankenno = '${values[2]}', title = '${values[3]}', detail = '${values[5]}', start_dy = '${values[4]}' where ankenid = '${ankenId}'`);
+};
+
+// 案件テーブルの削除
+const deleteAnken = async (ankenid: number) => {
+    await sendQueryRequestToAPI('update',
+        `DELETE from anken where ankenid = '${ankenid}'`);
+}
+
+// 履歴テーブルの削除
+const deleteRireki = async (ankenid: number) => {
+    await sendQueryRequestToAPI('update',
+        `DELETE from rireki where ankenid = '${ankenid}'`);
+
+}
+
+// 実績テーブルの削除
+const deleteJisseki = async (ankenid: number) => {
+    await sendQueryRequestToAPI('update',
+        `DELETE from jisseki where ankenid = '${ankenid}'`);
 };
 
 // システム日付の取得
