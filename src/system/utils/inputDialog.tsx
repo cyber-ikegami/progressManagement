@@ -4,7 +4,7 @@ import { GlobalContext } from "../mainFrame";
 import StylesUtil from "./stylesUtil";
 
 // 入力欄のタイプ
-type InputType = 'textField' | 'textArea' | 'comboBox';
+type InputType = 'textField' | 'number' | 'textArea' | 'comboBox';
 
 export type Option = {
     // コンボボックスのvalue
@@ -70,10 +70,19 @@ const InputDialog = (props: InputDialogProps) => {
                     }}></input>
                 </_InputArea>;
                 break;
+            // テキストフィールド(数値型)
+            case 'number':
+                typeJsx = <_InputArea isEmpty={value.isRequired == true && formValues[i] === ''}>
+                    <input type="number" value={formValues[i]} onChange={(e) => {
+                        formValues[i] = e.target.value;
+                        setFormValues(formValues.slice());
+                    }}></input>
+                </_InputArea>;
+                break;
             // テキストエリア
             case 'textArea':
                 typeJsx = <_InputArea isEmpty={value.isRequired == true && formValues[i] === ''}>
-                    <textarea  value={formValues[i]} onChange={(e) => {
+                    <textarea value={formValues[i]} onChange={(e) => {
                         formValues[i] = e.target.value;
                         setFormValues(formValues.slice());
                     }}></textarea>
@@ -84,7 +93,7 @@ const InputDialog = (props: InputDialogProps) => {
                 if (value.optionList !== undefined) {
                     const optionJsxList = value.optionList.map((value, i) => {
                         return (
-                            <option key={i}>{value.showValue}</option>
+                            <option value={value.optionValue} key={i}>{value.showValue}</option>
                         );
                     })
 
