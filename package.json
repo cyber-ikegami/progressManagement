@@ -1,5 +1,6 @@
 {
   "name": "progress_tool",
+  "homepage": "http://10.114.145.219:99/",
   "version": "0.1.0",
   "private": true,
   "dependencies": {
