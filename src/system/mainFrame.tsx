@@ -3,6 +3,7 @@ import styled from 'styled-components';
 import SystemUtil from './utils/systemUtil';
 import DaigakuTab, { DaigakuInfo } from './daigaku/daigakuTab';
 import AnkenTab from './anken/ankenTab';
+import KinouTab from './kinou/kinouTab';
 import InputDialog, { InputDialogProps } from './utils/inputDialog';
 import ConfirmDialog, { ConfirmDialogProps } from './utils/confirmDialog';
 import { sendQueryRequestToAPI } from './utils/dataBaseUtil';
@@ -17,7 +18,7 @@ export const GlobalContext = createContext({} as GlobalContextProps);
 
 const MainFrame = () => {
     // 画面遷移の管理(大学、案件)
-    type Mode = 'daigaku' | 'anken';
+    type Mode = 'daigaku' | 'anken' | 'kinou';
     // 画面遷移の管理
     const [mode, setMode] = useState<Mode>('daigaku');
     // inputダイアログを表示するか
@@ -45,6 +46,10 @@ const MainFrame = () => {
         case 'anken':
             contentsJsx = <AnkenTab></AnkenTab>;
             break;
+        case 'kinou':
+            contentsJsx = <KinouTab></KinouTab>;
+            break;
+
     }
 
     return (
@@ -59,6 +64,9 @@ const MainFrame = () => {
                     <_Tab isActive={mode === 'anken'} onClick={() => {
                         setMode('anken');
                     }} >案件</_Tab>
+                    <_Tab isActive={mode === 'kinou'} onClick={() => {
+                        setMode('kinou');
+                    }} >機能</_Tab>
                 </_TabArea>
                 <_Contents>{contentsJsx}</_Contents>
             </GlobalContext.Provider>
