@@ -91,6 +91,9 @@ const _DaigakuLabel = styled.div`
   margin-top: 5px;
   font-size: ${SystemUtil.CONTENTS_CHAR_SIZE}px;
   font-weight: bold;
+  &:hover {
+        opacity: 0.5;
+  }
 `;
 
 // カスタムID
