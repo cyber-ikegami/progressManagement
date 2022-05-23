@@ -5,48 +5,38 @@ import DownloadEEJisseki from '../function/downloadEEJisseki';
 import DownloadPKGJisseki from '../function/downloadPKGJisseki';
 import DownloadSEJisseki from '../function/downloadSEJisseki';
 import SystemUtil from '../utils/systemUtil';
-import KinouInput from './KinouInput';
+import KinouRight from './KinouRight';
 
 const KinouTab = () => {
-    // 現在選択している箇所
-    const [focus, setFocus] = useState<number>(-1);
+  // 現在選択している箇所
+  const [focus, setFocus] = useState<number>(-1);
 
-    const kinouList: AbstractFunctionBuilder[] = useMemo(() => {
-        return [new DownloadSEJisseki(), new DownloadEEJisseki(), new DownloadPKGJisseki()];
-    }, []);
+  const kinouList: AbstractFunctionBuilder[] = useMemo(() => {
+    return [new DownloadSEJisseki(), new DownloadEEJisseki(), new DownloadPKGJisseki()];
+  }, []);
 
-
-    const kinouJsxList = kinouList.map((kinou, i) => {
-        return (
-            <_KinouLabel key={i} onClick={() => {
-                setFocus(i);
-            }}>
-                <_SelectKinouLabel isSelect={focus === i} />
-                <_KinouNameLabel>{kinou.getFunctionName()}</_KinouNameLabel>
-            </_KinouLabel>
-        );
-    });
-
+  const kinouJsxList = kinouList.map((kinou, i) => {
     return (
-        <>
-            <_Header />
-            <_Left>
-                <_Frame>{kinouJsxList}</_Frame>
-            </_Left>
-            <_Right>
-                <_RightTop>
-                    <_Frame>
-                        <KinouInput kinouList={kinouList} focus={focus} />
-                    </_Frame>
-                </_RightTop>
-                <_RightBottom>
-                    <_TextArea>
-                        <textarea readOnly></textarea>
-                    </_TextArea>
-                </_RightBottom>
-            </_Right>
-        </>
+      <_KinouLabel key={i} onClick={() => {
+        setFocus(i);
+      }}>
+        <_SelectKinouLabel isSelect={focus === i} />
+        <_KinouNameLabel>{kinou.getFunctionName()}</_KinouNameLabel>
+      </_KinouLabel>
     );
+  });
+
+  return (
+    <>
+      <_Header />
+      <_Left>
+        <_Frame>{kinouJsxList}</_Frame>
+      </_Left>
+      <_Right>
+        <KinouRight selectKinouList={kinouList[focus]} focus={focus} />
+      </_Right>
+    </>
+  );
 }
 
 export default KinouTab;
@@ -107,7 +97,7 @@ const _KinouNameLabel = styled.div`
 
 // 機能名ラベル選択時
 const _SelectKinouLabel = styled.div<{
-    isSelect: boolean;
+  isSelect: boolean;
 }>`
     display: ${props => props.isSelect ? 'inline-block' : 'none'};
     background-color: #fcff4b9f;
@@ -127,43 +117,4 @@ const _Right = styled.div`
   height: calc(100% - ${SystemUtil.KENSAKU_AREA_HEIGTH}px);
   overflow: auto;
   overflow-x: hidden;
-`;
-
-// 画面右上
-const _RightTop = styled.div`
-  background-color: #e2e6e8;
-  display: inline-block;
-  margin-left: auto;
-  text-align: left;
-  width: 100%;
-  height: 50%;
-  overflow: auto;
-  overflow-x: hidden;
-  position: relative;
-`;
-
-// 画面右下
-const _RightBottom = styled.div`
-  background-color: #c0ceef;
-  display: inline-block;
-  margin-left: auto;
-  text-align: left;
-  width: 100%;
-  height: 50%;
-  overflow: auto;
-  overflow-x: hidden;
-`;
-
-// テキストエリア
-const _TextArea = styled.div`
-  width: 100%;
-  height: 100%;
-    & textarea {
-      width: calc(100% - 10px);
-      height: calc(100% - 10px);
-      resize: none;
-      margin-left: 5px;
-      margin-top: 5px;
-      box-sizing: border-box;
-    }
 `;

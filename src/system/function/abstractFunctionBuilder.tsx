@@ -1,5 +1,5 @@
 // 入力欄のタイプ
-type InputType = 'textField';
+// type InputType = 'textField';
 
 export type FormInfo = {
     // 項目名label
@@ -14,12 +14,13 @@ export type FunctionFormProps = {
     // ダイアログに関する情報
     formList: FormInfo[];
     // ボタン押下時の処理
-    // execute: (formValues: string[]) => void;
+    execute: (inputValues: string[]) => string;
+    // execute: Function;
 }
 
 abstract class AbstractFunctionBuilder {
     abstract getFunctionName(): string;
-    abstract getFunctionList(): FunctionFormProps;
+    abstract getFormProps(): FunctionFormProps;
 }
 
 export default AbstractFunctionBuilder;

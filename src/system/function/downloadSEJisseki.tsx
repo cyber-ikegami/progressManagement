@@ -4,13 +4,15 @@ class DownloadSEJisseki extends AbstractFunctionBuilder {
     getFunctionName(): string {
         return 'SE_CSVダウンロード';
     };
-    getFunctionList(): FunctionFormProps {
+    getFormProps(): FunctionFormProps {
         return {
             formList: [
                 { labelName: 'ラベル1', value: 'a' }, 
                 { labelName: 'ラベル2', value: 'b' }
-            ]
-            // execute: (values) => { console.log('a'); }
+            ],
+            execute: (values) => { 
+                return String(values);
+            }
         };
     }
 }
