@@ -7,8 +7,12 @@ class DownloadEEJisseki extends AbstractFunctionBuilder{
     getFormProps(): FunctionFormProps {
         return {
             formList: [
-                { labelName: 'ラベル3', value: 'c' }, 
-                { labelName: 'ラベル4', value: 'd' }
+                // 都市大 or 鎌女
+                { labelName: '大学', value: 'a' }, 
+                // 開始日
+                { labelName: '開始日', value: 'b' },
+                // 終了日
+                { labelName: '終了日', value: 'c' }
             ],
             execute: (values) => {
                 return String(values);

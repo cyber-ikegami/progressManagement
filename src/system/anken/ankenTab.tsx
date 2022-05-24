@@ -1,4 +1,4 @@
-import React, { useContext, useEffect, useMemo, useState } from 'react';
+import React, { useContext, useMemo, useState } from 'react';
 import styled, { css } from 'styled-components';
 import SystemUtil from '../utils/systemUtil';
 import { sendQueryRequestToAPI } from '../utils/dataBaseUtil';
@@ -67,7 +67,7 @@ const AnkenTab = () => {
     // 案件のリスト
     const [ankenList, setAnkenList] = useState<AnkenInfo[]>([]);
     // 検索欄に入力された案件緊急度
-    const [ankenStatus, setAnkenStatus] = useState<string>('');
+    const [ankenStatus, setAnkenStatus] = useState<string>('9');
     // 現在選択している箇所
     const [focus, setFocus] = useState<number>(-1);
     // ロード(検索中)管理のフラグ
@@ -146,8 +146,8 @@ const AnkenTab = () => {
 
             // daigakuInfoList(comboBoxItemList)をOption[]の型に変更
             const daigakuOptionList: Option[] = comboBoxItemList.map((value) => {
-                const isEmpty = value.customid === '' ? '' : `${value.customid}：${value.daigakunam}`;
-                return { optionValue: value.customid, showValue: isEmpty }
+                const itemValue = value.customid === '' ? '' : `${value.customid}：${value.daigakunam}`;
+                return { optionValue: value.customid, showValue: itemValue }
             });
 
             setInputDialogProps(
@@ -156,7 +156,7 @@ const AnkenTab = () => {
                         labelName: '案件種別', value: ankenList[focus].ankentype, type: 'comboBox', optionList: [{ optionValue: '', showValue: '' },
                         { optionValue: 'SE', showValue: 'SE' }, { optionValue: 'EE', showValue: 'EE' }, { optionValue: 'PKG連絡票', showValue: 'PKG連絡票' }], isRequired: true
                     },
-                    { labelName: 'カスタマID', value: `${ankenList[focus].customid}：${ankenList[focus].daigakunam}`, type: 'comboBox', optionList: daigakuOptionList, isRequired: false },
+                    { labelName: 'カスタマID', value: `${ankenList[focus].customid}`, type: 'comboBox', optionList: daigakuOptionList, isRequired: false },
                     { labelName: '案件番号', value: ankenList[focus].ankenno.toString(), isRequired: false },
                     { labelName: '案件タイトル', value: ankenList[focus].title, isRequired: true },
                     { labelName: '発生日', value: ankenList[focus].start_dy, isRequired: true },
@@ -234,7 +234,7 @@ const AnkenTab = () => {
     return (
         <>
             <_Header>
-                <input type="number" min='0' max='100' placeholder="条件(緊急度0～100)を入力" onChange={(e) => {
+                <input type="number" min='0' max='100' value={ankenStatus} onChange={(e) => {
                     setAnkenStatus(e.target.value);
                 }} />
                 <_DispButton isEnable={0 <= Number(ankenStatus) && Number(ankenStatus) <= 100} onClick={() => {

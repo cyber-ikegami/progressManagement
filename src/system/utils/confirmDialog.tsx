@@ -19,18 +19,24 @@ const ConfirmDialog = (props: ConfirmDialogProps) => {
 
     return (
         <>
-            <_Dialog isDisplay={true}>
-                <dialog>
+            <_Form isDisplay={true}>
+                <_Dialog>
                     <_Message>{props.message}</_Message>
-                    <button onClick={() => {
-                        props.execute();
-                        setConfirmDialogProps(null);
-                    }}>{props.enterName}</button>
-                    <button onClick={() => {
-                        setConfirmDialogProps(null);
-                    }}>{props.cancelName}</button>
-                </dialog>
-            </_Dialog>
+                    <_Fotter>
+                        <_Button>
+                            <button onClick={() => {
+                                props.execute();
+                                setConfirmDialogProps(null);
+                            }}>{props.enterName}</button>
+                        </_Button>
+                        <_Button>
+                            <button onClick={() => {
+                                setConfirmDialogProps(null);
+                            }}>{props.cancelName}</button>
+                        </_Button>
+                    </_Fotter>
+                </_Dialog>
+            </_Form>
         </>
     )
 }
@@ -38,7 +44,7 @@ const ConfirmDialog = (props: ConfirmDialogProps) => {
 export default ConfirmDialog;
 
 // ダイアログ
-const _Dialog = styled.div<{
+const _Form = styled.div<{
     isDisplay: boolean;
 }>`
     display: ${props => props.isDisplay ? 'block' : 'none'};
@@ -49,22 +55,38 @@ const _Dialog = styled.div<{
     top: 0;
     left: 0;
     z-index: 20;
-    & dialog {
-        background-color: #dbdcfc;
-        display: inline-block;
-        width: 50%;
-        height: 70px;
-        top: 50%;
-        left: 50%;
-        padding: 2%;
-        transform: translate(-50%,-50%);
-        border: 1px solid #3c3c3c;
-    }
+`;
+
+const _Dialog = styled.div`
+    background-color: #dbdcfc;
+    display: inline-block;
+    width: 300px;
+    height: 100px;
+    top: 50%;
+    left: 50%;
+    position: absolute;
+    transform: translate(-50%, -50%);
+    border: 1px solid #3c3c3c;
+`;
+
+// ボタンエリア
+const _Fotter = styled.div`
+    background-color: #979bfb;
+    display: inline-block;
+    position: absolute;
+    bottom: 0px;
+    width: 100%;
+    height: 40px;
+`;
+
+// ボタン
+const _Button = styled.div`
+    display: inline-block;
     & button {
         width: 100px;
         height: 30px;
         margin-top: 5px;
-        margin-right: 5px;
+        margin-left: 5px;
         bottom: 10px;
     }
 `;
@@ -72,5 +94,6 @@ const _Dialog = styled.div<{
 // 確認メッセージ
 const _Message = styled.div`
     font-size: 15px;
-    margin-left: 5px;
+    margin-left: 10px;
+    margin-top: 20px;
 `;

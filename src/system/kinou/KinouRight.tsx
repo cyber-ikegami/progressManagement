@@ -20,6 +20,12 @@ const KinouRight = (props: {
 
     let kinouInputJsxList: JSX.Element[] = [];
 
+    const callBack = () => {
+        setInputValues(props.selectKinouList.getFormProps().formList.map(kinou => kinou.value));
+        setResultValue('');
+        return '';
+    }
+
     if (props.focus !== -1) {
         kinouInputJsxList = inputValues.map((value, i) => {
             const kinou = props.selectKinouList.getFormProps().formList[i];
@@ -42,13 +48,11 @@ const KinouRight = (props: {
                 <_Fotter>
                     <_Button isDisable={props.focus !== -1}>
                         <button onClick={() => {
-                            setResultValue(props.selectKinouList.getFormProps().execute(inputValues));
+                            props.selectKinouList.getFormProps().execute(inputValues, setResultValue);
                         }}>確定</button>
                     </_Button>
                     <_Button isDisable={props.focus !== -1}>
-                        <button onClick={() => {
-                            setResultValue('');
-                        }}>クリア</button>
+                        <button onClick={callBack}>クリア</button>
                     </_Button>
                 </_Fotter>
             </_Frame>

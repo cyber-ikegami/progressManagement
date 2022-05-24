@@ -1,4 +1,4 @@
-export const API_DOMAIN = 'http://10.114.145.219:5000';
+export const API_DOMAIN = 'http://10.114.240.172:5000';
 
 export const createQueryRequestInit = (sql: string): RequestInit => {
     return {
