@@ -1,4 +1,5 @@
 import { sendQueryRequestToAPI } from "../utils/dataBaseUtil";
+import DefineUtil from "../utils/defineUtil";
 import AbstractFunctionBuilder, { FunctionFormProps } from "./abstractFunctionBuilder";
 
 class DownloadSEJisseki extends AbstractFunctionBuilder {
@@ -14,12 +15,8 @@ class DownloadSEJisseki extends AbstractFunctionBuilder {
             execute: (values, setResultValue) => {
                 const json = getJsonData(this.getTargetDate(values));
                 json.then((values) => {
-                    setResultValue(this.convertJsonToCsv(values))
+                    setResultValue(this.convertTable(values))
                 })
-                
-                // console.log(getJsonData(values));
-                // return this.convertJsonToCsv(getJsonData(this.getTargetDate(values)));
-                // return ('');
             }
         };
     };
@@ -27,32 +24,35 @@ class DownloadSEJisseki extends AbstractFunctionBuilder {
     // システム日付の取得
     getSystemDate = () => {
         let today = new Date();
-        const year = today.getFullYear();
-        const month = today.getMonth() + 1;
+        const year = ('0000' + today.getFullYear()).slice(-4);
+        const month = ('00' + (today.getMonth() + 1)).slice(-2);
         return [year, month];
     };
-    
+
     // 対象日の取得
     getTargetDate = (values: string[]) => {
-        let toYear = values[0];
-        let toMonth = String(Number(values[1]) - 1);
-        const fromYear = values[0];
-        const fromMonth = values[1].length === 1 ? `0${values[1]}` : values[1];
-    
+        let toYear = ('0000' + values[0]).slice(-4);
+        let toMonth = ('00' + (String(Number(values[1]) - 1))).slice(-2);
+        const fromYear = ('0000' + values[0]).slice(-4);
+        const fromMonth = ('00' + (values[1])).slice(-2);
+
         if (values[1] === '1') {
             toYear = String(Number(toYear) - 1);
             toMonth = '12';
         }
-    
-        toMonth = toMonth.length === 1 ? `0${toMonth}` : toMonth;
-    
+
         return (`'${toYear}/${toMonth}/21' and '${fromYear}/${fromMonth}/20'`);
     };
 };
 
 const getJsonData = async (values: string) => {
+    const kubunList = DefineUtil.SAGYOU_KUBUN_LIST.map((value => {
+        return `when '${value.key}' then '${value.key}.${value.value}'`;
+    }));
+
     const response = await sendQueryRequestToAPI('select',
-        `select j.sagyou_dy, a.customid, a.ankenno, a.title, j.user, j.worktype, j.time
+        `select j.sagyou_dy, (select customid ||'_'|| daigakunam from daigaku where customid = a.customid), a.ankenno, 
+        '' as kara1, '' as kara2, a.title, j.user, case j.worktype ${kubunList.join(' ')} else '' end, j.time
         from jisseki j
         inner join anken a on a.ankenid = j.ankenid
         where j.sagyou_dy between ${values} and a.ankentype = 'SE'

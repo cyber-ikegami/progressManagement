@@ -1,17 +1,11 @@
-// 入力欄のタイプ
-// type InputType = 'textField';
-
 export type FormInfo = {
     // 項目名label
     labelName: string;
     // 項目の値
     value: string;
-    // 入力欄のタイプ
-    // type?: InputType;
 }
 
 export type FunctionFormProps = {
-
     // ダイアログに関する情報
     formList: FormInfo[];
     // ボタン押下時の処理
@@ -22,23 +16,18 @@ abstract class AbstractFunctionBuilder {
     abstract getFunctionName(): string;
     abstract getFormProps(): FunctionFormProps;
 
-    convertJsonToCsv(objs: object[]): string {
-        const header: string[] = [];
+    convertTable(json: object[]): string {
         const records: string[] = [];
-        objs.forEach((obj, i) => {
+        json.forEach((obj) => {
             const record: string[] = [];
             Object.entries(obj).forEach(data => {
-                if (i === 0) {
-                    header.push(data[0]);
-                }
                 record.push(data[1]);
             });
-            records.push(record.join(', '));
+            records.push(record.join('\t'));
         });
-        console.log(header.join(', '));
-        console.log(records.join('\n'));
 
-        return '';
+        const resultTable = (records.join('\n'));
+        return resultTable;
     }
 }
 

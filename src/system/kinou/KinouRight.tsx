@@ -11,22 +11,18 @@ const KinouRight = (props: {
     const [inputValues, setInputValues] = useState<string[]>([]);
     // 検索結果に表示する値
     const [resultValue, setResultValue] = useState<string>('');
-    
-    useEffect(()=>{
+
+    //検索条件テキストボックスの初期値設定
+    useEffect(() => {
         if (props.focus !== -1) {
-            setInputValues(props.selectKinouList.getFormProps().formList.map(kinou => kinou.value)); 
-        }    
-    }, [props.focus]) 
+            console.log(props.selectKinouList.getFormProps().formList);
+            setInputValues(props.selectKinouList.getFormProps().formList.map(kinou => kinou.value));
+        }
+    }, [props.focus])
 
     let kinouInputJsxList: JSX.Element[] = [];
 
-    const callBack = () => {
-        setInputValues(props.selectKinouList.getFormProps().formList.map(kinou => kinou.value));
-        setResultValue('');
-        return '';
-    }
-
-    if (props.focus !== -1) {
+    if (props.focus !== -1 && inputValues.length === props.selectKinouList.getFormProps().formList.length) {
         kinouInputJsxList = inputValues.map((value, i) => {
             const kinou = props.selectKinouList.getFormProps().formList[i];
             return (
@@ -52,7 +48,11 @@ const KinouRight = (props: {
                         }}>確定</button>
                     </_Button>
                     <_Button isDisable={props.focus !== -1}>
-                        <button onClick={callBack}>クリア</button>
+                        <button onClick={() => {
+                            setInputValues(props.selectKinouList.getFormProps().formList.map(kinou => kinou.value));
+                            setResultValue('');
+                            return '';
+                        }}>クリア</button>
                     </_Button>
                 </_Fotter>
             </_Frame>

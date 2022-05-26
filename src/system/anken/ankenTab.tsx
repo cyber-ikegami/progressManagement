@@ -1,4 +1,4 @@
-import React, { useContext, useMemo, useState } from 'react';
+import React, { useContext, useEffect, useMemo, useState } from 'react';
 import styled, { css } from 'styled-components';
 import SystemUtil from '../utils/systemUtil';
 import { sendQueryRequestToAPI } from '../utils/dataBaseUtil';
@@ -62,6 +62,9 @@ export type JissekiInfo = {
 // 画面遷移の管理(詳細、履歴、実績)
 type AnkenMode = 'syosai' | 'rireki' | 'jisseki';
 
+// ソート順の管理(緊急度、日付、案件種別)
+type SortMode = 'kinkyu' | 'date' | 'ankenType';
+
 // 案件タブ
 const AnkenTab = () => {
     // 案件のリスト
@@ -74,8 +77,46 @@ const AnkenTab = () => {
     const [isLoad, setIsLoad] = useState<boolean>(false);
     // 画面遷移の管理
     const [ankenMode, setAnkenMode] = useState<AnkenMode>('syosai');
+    // ソート順の管理
+    const [selectSortMode, setSelectSortMode] = useState<SortMode>('kinkyu');
 
     const { setInputDialogProps, setConfirmDialogProps, daigakuInfoList } = useContext(GlobalContext);
+
+    // 画面切り替え
+    let contentsJsx = <></>;
+    switch (ankenMode) {
+        case 'syosai':
+            if (focus !== -1) {
+                contentsJsx = <AnkenSyosai selectAnken={ankenList[focus]} />;
+            }
+            break;
+        case 'rireki':
+            contentsJsx = <AnkenRireki
+                selectAnken={ankenList[focus]}
+                updateRireki={(rirekiList: RirekiInfo[]) => {
+                    ankenList[focus].rirekiList = rirekiList;
+                    setAnkenList(ankenList.slice());
+                }}
+                updateAnken={() => {
+                    setAnkenList(ankenList.slice());
+                }}
+                focus={focus}
+            />;
+            break;
+        case 'jisseki':
+            contentsJsx = <AnkenJisseki
+                selectAnken={ankenList[focus]}
+                updateJisseki={(jissekiList: JissekiInfo[]) => {
+                    ankenList[focus].jissekiList = jissekiList;
+                    setAnkenList(ankenList.slice());
+                }}
+                updateAnken={() => {
+                    setAnkenList(ankenList.slice());
+                }}
+                focus={focus}
+            />;
+            break;
+    }
 
     const ankenJsxList: JSX.Element[] = useMemo(() => {
         return ankenList.map((value, i) =>
@@ -98,6 +139,12 @@ const AnkenTab = () => {
             </_AnkenLabel>
         );
     }, [ankenList, focus]);
+
+    // 案件リスト並び替え
+    useEffect(() => {
+        setAnkenList(sortAnkenList(ankenList, selectSortMode));
+        setAnkenList(ankenList.slice());
+    }, [ankenList.length, selectSortMode]);
 
     // フッター項目
     const footerJsx = <>
@@ -130,6 +177,8 @@ const AnkenTab = () => {
                             const selectCustomId = values[1] === '' ? '' : (values[1].split('：'))[0];
                             insertAnken(values, nextAnkenId, selectCustomId).then(() => {
                                 findAnkenList('', nextAnkenId).then(value => {
+                                    setFocus(-1);
+                                    setAnkenStatus('9');
                                     setAnkenList([]);
                                     setAnkenList(value);
                                 });
@@ -165,7 +214,7 @@ const AnkenTab = () => {
                     execute: (values) => {
                         const selectCustomId = values[1] === '' ? '' : (values[1].split('：'))[0];
                         updateAnken(values, ankenList[focus].ankenid, selectCustomId).then(() => {
-                            findAnkenList('', '').then(value => {
+                            findAnkenList(ankenStatus, '').then(value => {
                                 setAnkenList(value);
                             });
                         });
@@ -194,54 +243,34 @@ const AnkenTab = () => {
         }}>削除</_Button>
     </>;
 
-    let contentsJsx = <></>;
-
-    // 画面切り替え
-    switch (ankenMode) {
-        case 'syosai':
-            if (focus !== -1) {
-                contentsJsx = <AnkenSyosai selectAnken={ankenList[focus]} />;
-            }
-            break;
-        case 'rireki':
-            contentsJsx = <AnkenRireki
-                selectAnken={ankenList[focus]}
-                updateRireki={(rirekiList: RirekiInfo[]) => {
-                    ankenList[focus].rirekiList = rirekiList;
-                    setAnkenList(ankenList.slice());
-                }}
-                updateAnken={() => {
-                    setAnkenList(ankenList.slice());
-                }}
-                focus={focus}
-            />;
-            break;
-        case 'jisseki':
-            contentsJsx = <AnkenJisseki
-                selectAnken={ankenList[focus]}
-                updateJisseki={(jissekiList: JissekiInfo[]) => {
-                    ankenList[focus].jissekiList = jissekiList;
-                    setAnkenList(ankenList.slice());
-                }}
-                updateAnken={() => {
-                    setAnkenList(ankenList.slice());
-                }}
-                focus={focus}
-            />;
-            break;
-    }
-
     return (
         <>
             <_Header>
-                <input type="number" min='0' max='100' value={ankenStatus} onChange={(e) => {
-                    setAnkenStatus(e.target.value);
-                }} />
+                <_HeaderItem isDisable={true}>
+                    <_HeaderLabel>緊急度:</_HeaderLabel>
+                    <input type="number" min='0' max='100' value={ankenStatus} onChange={(e) => {
+                        setAnkenStatus(e.target.value);
+                    }} />
+                </_HeaderItem>
+                <_HeaderItem isDisable={ankenList.length !== 0}>
+                    <_HeaderLabel>ソート順:</_HeaderLabel>
+                    <_RadioLabel>
+                        <input type="radio" value="kinkyu" checked={selectSortMode === 'kinkyu'} onChange={() => {
+                            setSelectSortMode('kinkyu');
+                        }} />緊急度
+                        <input type="radio" value="date" checked={selectSortMode === 'date'} onChange={() => {
+                            setSelectSortMode('date');
+                        }} />日付
+                        <input type="radio" value="ankenType" checked={selectSortMode === 'ankenType'} onChange={() => {
+                            setSelectSortMode('ankenType');
+                        }} />案件タイプ
+                    </_RadioLabel>
+                </_HeaderItem>
                 <_DispButton isEnable={0 <= Number(ankenStatus) && Number(ankenStatus) <= 100} onClick={() => {
                     setIsLoad(true);
                     findAnkenList(ankenStatus, '').then(value => {
-                        setIsLoad(false);
                         setAnkenList(value);
+                        setIsLoad(false);
                     });
                 }}>表示</_DispButton>
             </_Header>
@@ -288,8 +317,7 @@ const findAnkenList = async (ankenStatus: string, maxAnkenId: string) => {
         from anken a
         left outer join daigaku d
         on a.customid = d.customid
-        ${joken}
-        order by status`);
+        ${joken}`);
     const results = await response.json();
     return results as AnkenInfo[];
 };
@@ -336,11 +364,57 @@ const deleteJisseki = async (ankenid: number) => {
 // システム日付の取得
 const getSystemDate = () => {
     let today = new Date();
-    const year = today.getFullYear();
-    const month = today.getMonth() + 1;
-    const day = today.getDate();
+    const year = ('0000' + today.getFullYear()).slice(-4);
+    const month = ('00' + (today.getMonth() + 1)).slice(-2);
+    const day = ('00' + today.getDate()).slice(-2);
     return year + '/' + month + '/' + day;
 };
+
+// 案件リスト並び替え
+const sortAnkenList = (ankenList: AnkenInfo[], sortMode: string) => {
+    // 緊急度
+    if (sortMode === 'kinkyu') {
+        return ankenList.sort((a, b) => {
+            // 条件1：緊急度
+            if (a.status !== b.status) {
+                return (a.status - b.status);
+            }
+            // 条件2：開始日
+            if (a.start_dy !== b.start_dy) {
+                return (a.start_dy > b.start_dy ? -1 : 1);
+            }
+            return 0;
+        })
+        // 日付 
+    } else if (sortMode === 'date') {
+        return ankenList.sort((a, b) => {
+            // 条件1：開始日
+            if (a.start_dy !== b.start_dy) {
+                return (a.start_dy > b.start_dy ? -1 : 1);
+            }
+            // 条件2：緊急度
+            if (a.status !== b.status) {
+                return (a.status - b.status);
+            }
+            return 0;
+        })
+        // 案件種別
+    } else if (sortMode === 'ankenType') {
+        return ankenList.sort((a, b) => {
+            // 条件1：案件タイプ
+            if (a.ankentype !== b.ankentype) {
+                return (a.ankentype > b.ankentype ? -1 : 1);
+            }
+            // 条件2：緊急度
+            if (a.status !== b.status) {
+                return (a.status - b.status);
+            }
+            return 0;
+        })
+    } else {
+        return ankenList;
+    }
+}
 
 export default AnkenTab;
 
@@ -350,13 +424,39 @@ const _Header = styled.div`
     display: inline-block;
     width: 100%;
     height: ${SystemUtil.KENSAKU_AREA_HEIGTH}px;
+`;
+
+// ヘッダーの項目
+const _HeaderItem = styled.div<{
+    isDisable: boolean;
+}>`
+    // 非活性処理
+    ${props => props.isDisable ? '' : StylesUtil.IS_DISABLE};
+    height: 100%;
+    display: inline-block;
+    margin-right: 20px;
     & input {
-        width: ${SystemUtil.KENSAKU_JOKEN_TEXT_WIDTH}px;
+        font-size: 15px;
         height: ${SystemUtil.KENSAKU_JOKEN_TEXT_HEIGHT}px;
-        margin-left: 10px;
-        margin-top: 10px;
+        margin-top: 5px;
+        margin-left: 5px;
         box-sizing: border-box; 
-    }
+    }    
+`;
+
+// ヘッダー項目名ラベル
+const _HeaderLabel = styled.div`
+    font-size: 15px;
+    display: inline-block;
+    font-weight: bold;
+    margin-left: 5px;
+`;
+
+// ヘッダー項目名ラベル
+const _RadioLabel = styled.div`
+    font-size: 15px;
+    display: inline-block;
+    margin-left: 5px;
 `;
 
 // 表示ボタン

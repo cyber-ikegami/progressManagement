@@ -2,7 +2,6 @@ import React, { useMemo, useState } from 'react';
 import styled from 'styled-components';
 import AbstractFunctionBuilder from '../function/abstractFunctionBuilder';
 import DownloadEEJisseki from '../function/downloadEEJisseki';
-import DownloadPKGJisseki from '../function/downloadPKGJisseki';
 import DownloadSEJisseki from '../function/downloadSEJisseki';
 import SystemUtil from '../utils/systemUtil';
 import KinouRight from './KinouRight';
@@ -12,7 +11,7 @@ const KinouTab = () => {
   const [focus, setFocus] = useState<number>(-1);
 
   const kinouList: AbstractFunctionBuilder[] = useMemo(() => {
-    return [new DownloadSEJisseki(), new DownloadEEJisseki(), new DownloadPKGJisseki()];
+    return [new DownloadSEJisseki(), new DownloadEEJisseki()];
   }, []);
 
   const kinouJsxList = kinouList.map((kinou, i) => {
@@ -33,7 +32,7 @@ const KinouTab = () => {
         <_Frame>{kinouJsxList}</_Frame>
       </_Left>
       <_Right>
-        <KinouRight selectKinouList={kinouList[focus]} focus={focus} />
+        <KinouRight selectKinouList={kinouList[focus]} focus={focus}/>
       </_Right>
     </>
   );

@@ -111,9 +111,9 @@ const updateAnkenStatus = async (ankenid: number, values: string[], rirekiseq: n
 // システム日付の取得
 const getSystemDate = () => {
     let today = new Date();
-    const year = today.getFullYear();
-    const month = today.getMonth() + 1;
-    const day = today.getDate();
+    const year = ('0000' + today.getFullYear()).slice(-4);
+    const month = ('00' + (today.getMonth() + 1)).slice(-2);
+    const day = ('00' + today.getDate()).slice(-2);
     return year + '/' + month + '/' + day;
 };
 

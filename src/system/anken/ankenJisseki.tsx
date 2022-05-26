@@ -33,7 +33,6 @@ const AnkenJisseki = (props: {
     // 実績項目
     const detailJsx: JSX.Element[] = useMemo(() => {
         if (props.selectAnken.jissekiList != null) {
-            // console.log(DefineUtil.convertKubunValue('01'));
             return props.selectAnken.jissekiList.map((value, i) => {
                 const kubun = DefineUtil.convertKubun(value.worktype);
                 return (
@@ -46,7 +45,6 @@ const AnkenJisseki = (props: {
                         <_Black>{value.sagyou_dy}</_Black>
                         <_Gray>＞ </_Gray>
                         <_Red>{value.user}</_Red>
-                        {/* <_Gray>: {value.worktype} [</_Gray> */}
                         <_Gray>: {kubun == undefined ? 'null' : kubun.value} [</_Gray>
                         <_Blue>{value.time}</_Blue>
                         <_Gray>]</_Gray>
@@ -71,7 +69,7 @@ const AnkenJisseki = (props: {
                 {
                     formList: [
                         { labelName: '作業日', value: getSystemDate() },
-                        { labelName: '作業者', value: '', type: 'comboBox', optionList: [{ optionValue: '', showValue: '' }, { optionValue: '河野', showValue: '河野' }, { optionValue: '池上', showValue: '池上' }] },
+                        { labelName: '作業者', value: '', type: 'comboBox', optionList: [{ optionValue: '', showValue: '' }, { optionValue: '河野', showValue: '河野' }, { optionValue: '村田', showValue: '村田' }, { optionValue: '池上', showValue: '池上' }] },
                         { labelName: '作業種別', value: '', type: 'comboBox', optionList: sagyouKubunOptionList },
                         { labelName: '時間(m)', value: '', type: 'number' }
                     ],
@@ -79,7 +77,6 @@ const AnkenJisseki = (props: {
                     execute: (values) => {
                         findMaxJisekiseq(props.selectAnken.ankenid).then(value => {
                             const nextJisekiseq = value[0].maxSeq == null ? '0' : value[0].maxSeq + 1;
-                            console.log(values);
                             insertJisseki(props.selectAnken.ankenid, values, nextJisekiseq).then(() => {
                                 props.selectAnken.jissekiList = null;
                                 props.updateAnken();
@@ -89,7 +86,6 @@ const AnkenJisseki = (props: {
                 }
             );
         }}>追加</_Button>
-        {/* <_Button isDisable={focus !== -1}>更新</_Button> */}
         <_Button isDisable={focus !== -1} onClick={() => {
             setConfirmDialogProps(
                 {
@@ -147,9 +143,9 @@ const deleteJisseki = async (ankenid: number, jisekiseq: number) => {
 // システム日付の取得
 const getSystemDate = () => {
     let today = new Date();
-    const year = today.getFullYear();
-    const month = today.getMonth() + 1;
-    const day = today.getDate();
+    const year = ('0000' + today.getFullYear()).slice(-4);
+    const month = ('00' + (today.getMonth() + 1)).slice(-2);
+    const day = ('00' + today.getDate()).slice(-2);
     return year + '/' + month + '/' + day;
 };
 
