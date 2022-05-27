@@ -15,7 +15,6 @@ const KinouRight = (props: {
     //検索条件テキストボックスの初期値設定
     useEffect(() => {
         if (props.focus !== -1) {
-            console.log(props.selectKinouList.getFormProps().formList);
             setInputValues(props.selectKinouList.getFormProps().formList.map(kinou => kinou.value));
         }
     }, [props.focus])

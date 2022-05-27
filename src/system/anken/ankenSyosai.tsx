@@ -24,7 +24,9 @@ const AnkenSyosai = (props: {
         <_ItemLabel>{props.selectAnken.start_dy === '' ? '-' : props.selectAnken.start_dy}</_ItemLabel>
 
         <_ItemName>詳細</_ItemName>
-        <_ItemLabel>{props.selectAnken.detail === '' ? '-' : props.selectAnken.detail}</_ItemLabel>
+        <_ItemLabel>
+            <textarea value={props.selectAnken.detail === '' || props.selectAnken.detail == null ? '' : props.selectAnken.detail} readOnly />
+        </_ItemLabel>
     </>
 
     // フッター項目
@@ -49,4 +51,14 @@ const _ItemName = styled.div`
 const _ItemLabel = styled.div`
     font-size: 15px;
     margin-left: 20px;
+    & textarea {
+        width: calc(100% - 10px);
+        height: 200px;
+        resize: none;
+        margin-left: 5px;
+        margin-bottom: 5px;
+        box-sizing: border-box;
+    }
 `;
+
+

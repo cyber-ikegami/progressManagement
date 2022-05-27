@@ -142,9 +142,15 @@ const AnkenTab = () => {
 
     // 案件リスト並び替え
     useEffect(() => {
-        setAnkenList(sortAnkenList(ankenList, selectSortMode));
-        setAnkenList(ankenList.slice());
-    }, [ankenList.length, selectSortMode]);
+        // ソート前後のAnkenLis比較
+        const prev = JSON.stringify(ankenList);
+        const sortList = sortAnkenList(ankenList, selectSortMode);
+        const after = JSON.stringify(sortList);
+        if(prev !== after) {
+            setFocus(-1);
+            setAnkenList(sortList.slice());
+        }
+    }, [ankenList, selectSortMode]);
 
     // フッター項目
     const footerJsx = <>
@@ -209,7 +215,7 @@ const AnkenTab = () => {
                     { labelName: '案件番号', value: ankenList[focus].ankenno.toString(), isRequired: false },
                     { labelName: '案件タイトル', value: ankenList[focus].title, isRequired: true },
                     { labelName: '発生日', value: ankenList[focus].start_dy, isRequired: true },
-                    { labelName: '詳細', value: ankenList[focus].detail, type: 'textArea', isRequired: false }],
+                    { labelName: '詳細', value: ankenList[focus].detail == null ? '' : ankenList[focus].detail, type: 'textArea', isRequired: false }],
                     heightSize: SystemUtil.ANKEN_TUIKA_DIALOG_HEIGTH,
                     execute: (values) => {
                         const selectCustomId = values[1] === '' ? '' : (values[1].split('：'))[0];
@@ -246,13 +252,13 @@ const AnkenTab = () => {
     return (
         <>
             <_Header>
-                <_HeaderItem isDisable={true}>
+                <_HeaderItem>
                     <_HeaderLabel>緊急度:</_HeaderLabel>
                     <input type="number" min='0' max='100' value={ankenStatus} onChange={(e) => {
                         setAnkenStatus(e.target.value);
                     }} />
                 </_HeaderItem>
-                <_HeaderItem isDisable={ankenList.length !== 0}>
+                <_HeaderItem>
                     <_HeaderLabel>ソート順:</_HeaderLabel>
                     <_RadioLabel>
                         <input type="radio" value="kinkyu" checked={selectSortMode === 'kinkyu'} onChange={() => {
@@ -427,11 +433,7 @@ const _Header = styled.div`
 `;
 
 // ヘッダーの項目
-const _HeaderItem = styled.div<{
-    isDisable: boolean;
-}>`
-    // 非活性処理
-    ${props => props.isDisable ? '' : StylesUtil.IS_DISABLE};
+const _HeaderItem = styled.div`
     height: 100%;
     display: inline-block;
     margin-right: 20px;
