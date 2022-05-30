@@ -1,4 +1,4 @@
-import { sendQueryRequestToAPI } from "../utils/dataBaseUtil";
+import QueryUtil from "../utils/queryUtil";
 import AbstractFunctionBuilder, { FunctionFormProps } from "./abstractFunctionBuilder";
 
 class DownloadEEJisseki extends AbstractFunctionBuilder {
@@ -13,7 +13,7 @@ class DownloadEEJisseki extends AbstractFunctionBuilder {
                 { labelName: '終了日', value: this.getSystemDate() }
             ],
             execute: (values, setResultValue) => {
-                const json = getJsonData(values);
+                const json = QueryUtil.getEEJsonData(values[0], values[1], values[2]);
                 json.then((values) => {
                     setResultValue(this.convertTable(values))
                 })
@@ -29,16 +29,6 @@ class DownloadEEJisseki extends AbstractFunctionBuilder {
         const day = ('00' + today.getDate()).slice(-2);
         return year + '/' + month + '/' + day;
     };
-};
-
-const getJsonData = async (values: string[]) => {
-    const response = await sendQueryRequestToAPI('select',
-        `select j.sagyou_dy, a.title, j.user, round((cast(j.time as REAL)/60), 1)
-        from jisseki j inner join anken a on a.ankenid = j.ankenid
-        where j.sagyou_dy between '${values[1]}' and '${values[2]}' and a.customid = '${values[0]}'
-        order by j.sagyou_dy`);
-    const json = await response.json();
-    return json;
 };
 
 export default DownloadEEJisseki;

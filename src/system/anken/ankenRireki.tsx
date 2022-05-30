@@ -1,40 +1,36 @@
-import { useContext, useEffect, useMemo, useState } from "react";
+import { useContext, useEffect, useMemo } from "react";
 import styled from "styled-components";
 import { AnkenInfo } from "./ankenTab";
-import { sendQueryRequestToAPI } from "../utils/dataBaseUtil";
 import SystemUtil from "../utils/systemUtil";
 import AnkenChild from "./ankenChild";
 import StylesUtil from "../utils/stylesUtil";
 import { GlobalContext } from "../mainFrame";
+import QueryUtil from "../utils/queryUtil";
 
 // 案件履歴タブ
 const AnkenRireki = (props: {
     selectAnken: AnkenInfo;
     updateRireki: Function;
-    updateAnken: ()=>void;
+    updateAnken: () => void;
     focus: number;
 }) => {
-    // 現在選択している箇所
-    const [focus, setFocus] = useState<number>(-1);
-
     const { setInputDialogProps } = useContext(GlobalContext);
 
     useEffect(() => {
-        setFocus(-1);
         if (props.selectAnken.rirekiList == null) {
-            findRirekiList(props.selectAnken.ankenid).then(value => {
+            QueryUtil.findRirekiList(props.selectAnken.ankenid).then(value => {
                 props.updateRireki(value);
             });
         }
     }, [props.focus, props.selectAnken.rirekiList]);
 
+    // console.log(props.selectAnken);
+    // console.log(props.focus);
     // 履歴項目
     const detailJsx: JSX.Element[] = useMemo(() => {
         if (props.selectAnken.rirekiList != null) {
             return props.selectAnken.rirekiList.map((value, i) =>
-                <_RirekiLabel key={i} onClick={() => {
-                    setFocus(i);
-                }}>
+                <_RirekiLabel key={i}>
                     <_Red>{value.rirekiseq}</_Red>
                     <_Gray>: </_Gray>
                     <_Blue>{value.state} </_Blue>
@@ -53,11 +49,11 @@ const AnkenRireki = (props: {
                     formList: [{ labelName: '状態', value: '' }, { labelName: '備考', value: '' }, { labelName: '緊急度', value: '0', type: 'number' }],
                     heightSize: SystemUtil.ANKEN_RIREKI_TUIKA_DIALOG_HEIGTH,
                     execute: (values) => {
-                        findMaxRirekiseq(props.selectAnken.ankenid).then(value => {
+                        QueryUtil.findMaxRirekiseq(props.selectAnken.ankenid).then(value => {
                             const nextRirekiseq = value[0].maxSeq == null ? '0' : value[0].maxSeq + 1;
 
-                            insertRireki(props.selectAnken.ankenid, values, nextRirekiseq).then(() => {
-                                updateAnkenStatus(props.selectAnken.ankenid, values, nextRirekiseq);
+                            QueryUtil.insertRireki(props.selectAnken.ankenid, values[0], values[1], nextRirekiseq).then(() => {
+                                QueryUtil.updateAnkenStatus(props.selectAnken.ankenid, values[2], getSystemDate());
                                 props.selectAnken.rirekiList = null;
                                 props.selectAnken.status = Number(values[2]);
                                 props.selectAnken.update_dy = getSystemDate();
@@ -74,39 +70,6 @@ const AnkenRireki = (props: {
         <AnkenChild detailJsx={detailJsx} footerJsx={footerJsx}></AnkenChild>
     );
 }
-
-// SQL(履歴)取得
-const findRirekiList = async (ankenid: number) => {
-    const response = await sendQueryRequestToAPI('select',
-        `SELECT r.rirekiseq, r.state, r.detail
-    from rireki r
-    inner join anken a
-    on r.ankenid = a.ankenid
-    where a.ankenid = '${ankenid}'
-    order by r.ankenid, r.rirekiseq desc`);
-    const results = await response.json();
-    return results;
-};
-
-// 履歴連番の最大値を取得
-const findMaxRirekiseq = async (ankenid: number) => {
-    const response = await sendQueryRequestToAPI('select',
-        `SELECT max(rirekiseq) as maxSeq from rireki where ankenid = '${ankenid}'`);
-    const results = await response.json();
-    return results;
-};
-
-// 履歴の追加
-const insertRireki = async (ankenid: number, values: string[], rirekiseq: number) => {
-    await sendQueryRequestToAPI('update',
-        `INSERT INTO rireki values ('${ankenid}', '${rirekiseq}', '${values[0]}', '${values[1]}')`);
-};
-
-// 案件の緊急度の更新
-const updateAnkenStatus = async (ankenid: number, values: string[], rirekiseq: number) => {
-    await sendQueryRequestToAPI('update',
-        `UPDATE anken SET status = '${values[2]}', update_dy = '${getSystemDate()}' where ankenid = ${ankenid}`);
-};
 
 // システム日付の取得
 const getSystemDate = () => {

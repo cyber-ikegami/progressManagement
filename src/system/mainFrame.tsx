@@ -6,7 +6,7 @@ import AnkenTab from './anken/ankenTab';
 import KinouTab from './kinou/kinouTab';
 import InputDialog, { InputDialogProps } from './utils/inputDialog';
 import ConfirmDialog, { ConfirmDialogProps } from './utils/confirmDialog';
-import { sendQueryRequestToAPI } from './utils/dataBaseUtil';
+import QueryUtil from './utils/queryUtil';
 
 type GlobalContextProps = {
     setInputDialogProps: React.Dispatch<React.SetStateAction<InputDialogProps | null>>;
@@ -30,7 +30,7 @@ const MainFrame = () => {
 
     // カスタマID、大学名の取得
     useEffect(() => {
-        findDaigakuList().then(value => {
+        QueryUtil.findDaigakuList().then(value => {
             setDaigakuList(value);
         });
     }, []);
@@ -74,12 +74,6 @@ const MainFrame = () => {
     );
 }
 
-// SQL(大学名)取得
-export const findDaigakuList = async () => {
-    const response = await sendQueryRequestToAPI('select', `SELECT customid, daigakunam from daigaku  order by customid`);
-    const results = await response.json();
-    return results as DaigakuInfo[];
-};
 export default MainFrame;
 
 // フレーム

@@ -1,7 +1,7 @@
 import React, { useState } from 'react';
 import styled from 'styled-components';
 import SystemUtil from '../utils/systemUtil';
-import { sendQueryRequestToAPI } from '../utils/dataBaseUtil';
+import QueryUtil from '../utils/queryUtil';
 
 export type DaigakuInfo = {
     // カスタムID
@@ -25,7 +25,7 @@ const DaigakuTab = () => {
     return (
         <>
             <_Header><_DispButton onClick={() => {
-                findDaigakuList().then(value => {
+                QueryUtil.findDaigakuList().then(value => {
                     setDaigakuList(value);
                 });
             }}>表示</_DispButton></_Header>
@@ -34,13 +34,6 @@ const DaigakuTab = () => {
         </>
     );
 }
-
-// SQL(大学名)取得
-export const findDaigakuList = async () => {
-    const response = await sendQueryRequestToAPI('select', `SELECT customid, daigakunam from daigaku  order by customid`);
-    const results = await response.json();
-    return results as DaigakuInfo[];
-};
 
 export default DaigakuTab;
 

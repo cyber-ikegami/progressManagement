@@ -1,4 +1,7 @@
+// 本番用
 export const API_DOMAIN = 'http://10.114.240.172:5000';
+// テスト用
+// export const API_DOMAIN = 'http://10.114.240.172:4000';
 
 export const createQueryRequestInit = (sql: string): RequestInit => {
     return {

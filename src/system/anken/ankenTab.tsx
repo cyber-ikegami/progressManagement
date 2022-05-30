@@ -1,7 +1,6 @@
 import React, { useContext, useEffect, useMemo, useState } from 'react';
 import styled, { css } from 'styled-components';
 import SystemUtil from '../utils/systemUtil';
-import { sendQueryRequestToAPI } from '../utils/dataBaseUtil';
 import AnkenSyosai from './ankenSyosai';
 import AnkenRireki from './ankenRireki';
 import AnkenJisseki from './ankenJisseki';
@@ -9,6 +8,7 @@ import StylesUtil from '../utils/stylesUtil';
 import AnkenChild from './ankenChild';
 import { GlobalContext } from '../mainFrame';
 import { Option } from '../utils/inputDialog';
+import QueryUtil from '../utils/queryUtil';
 
 export type AnkenInfo = {
     // 案件ID
@@ -142,11 +142,11 @@ const AnkenTab = () => {
 
     // 案件リスト並び替え
     useEffect(() => {
-        // ソート前後のAnkenLis比較
+        // ソート前後のAnkenList比較
         const prev = JSON.stringify(ankenList);
         const sortList = sortAnkenList(ankenList, selectSortMode);
         const after = JSON.stringify(sortList);
-        if(prev !== after) {
+        if (prev !== after) {
             setFocus(-1);
             setAnkenList(sortList.slice());
         }
@@ -178,11 +178,12 @@ const AnkenTab = () => {
                     ],
                     heightSize: SystemUtil.ANKEN_TUIKA_DIALOG_HEIGTH,
                     execute: (values) => {
-                        findMaxAnkenId().then(value => {
+                        QueryUtil.findMaxAnkenId().then(value => {
                             const nextAnkenId = value[0].maxid + 1;
                             const selectCustomId = values[1] === '' ? '' : (values[1].split('：'))[0];
-                            insertAnken(values, nextAnkenId, selectCustomId).then(() => {
-                                findAnkenList('', nextAnkenId).then(value => {
+                            QueryUtil.insertAnken(values[0], values[2], values[3], values[4], values[5], nextAnkenId, selectCustomId).then(() => {
+                                QueryUtil.findAnkenList('', nextAnkenId).then(value => {
+                                    setAnkenMode('syosai');
                                     setFocus(-1);
                                     setAnkenStatus('9');
                                     setAnkenList([]);
@@ -219,8 +220,9 @@ const AnkenTab = () => {
                     heightSize: SystemUtil.ANKEN_TUIKA_DIALOG_HEIGTH,
                     execute: (values) => {
                         const selectCustomId = values[1] === '' ? '' : (values[1].split('：'))[0];
-                        updateAnken(values, ankenList[focus].ankenid, selectCustomId).then(() => {
-                            findAnkenList(ankenStatus, '').then(value => {
+                        QueryUtil.updateAnken(values[0], values[2], values[3], values[4], values[5], ankenList[focus].ankenid, selectCustomId).then(() => {
+                            QueryUtil.findAnkenList(ankenStatus, '').then(value => {
+                                setAnkenMode('syosai');
                                 setAnkenList(value);
                             });
                         });
@@ -235,9 +237,11 @@ const AnkenTab = () => {
                     enterName: '削除',
                     message: '削除しますか？',
                     execute: () => {
-                        deleteJisseki(ankenList[focus].ankenid).then(() => {
-                            deleteRireki(ankenList[focus].ankenid).then(() => {
-                                deleteAnken(ankenList[focus].ankenid).then(() => {
+                        QueryUtil.deleteAnkenJisseki(ankenList[focus].ankenid).then(() => {
+                            QueryUtil.deleteRireki(ankenList[focus].ankenid).then(() => {
+                                QueryUtil.deleteAnken(ankenList[focus].ankenid).then(() => {
+                                    console.log(ankenList);
+                                    setAnkenMode('syosai');
                                     setFocus(-1);
                                     setAnkenList([]);
                                 });
@@ -274,7 +278,9 @@ const AnkenTab = () => {
                 </_HeaderItem>
                 <_DispButton isEnable={0 <= Number(ankenStatus) && Number(ankenStatus) <= 100} onClick={() => {
                     setIsLoad(true);
-                    findAnkenList(ankenStatus, '').then(value => {
+                    setAnkenMode('syosai');
+                    setFocus(-1);
+                    QueryUtil.findAnkenList(ankenStatus, '').then(value => {
                         setAnkenList(value);
                         setIsLoad(false);
                     });
@@ -306,66 +312,6 @@ const AnkenTab = () => {
         </>
     );
 }
-
-// SQL(案件)取得
-const findAnkenList = async (ankenStatus: string, maxAnkenId: string) => {
-    // 条件が入力されていたらwhere句を追加
-    let joken = '';
-    if (ankenStatus != '') {
-        joken = `where a.status <= '${ankenStatus}'`;
-    } else if (maxAnkenId != '') {
-        joken = `where a.ankenid = '${maxAnkenId}'`;
-    }
-
-    const response = await sendQueryRequestToAPI('select',
-        `SELECT a.ankenid, a.status, a.ankentype, a.customid, d.daigakunam, a.start_dy, a.update_dy,
-        a.ankenno, a.title, a.detail, null as jissekiList
-        from anken a
-        left outer join daigaku d
-        on a.customid = d.customid
-        ${joken}`);
-    const results = await response.json();
-    return results as AnkenInfo[];
-};
-
-// 案件IDの最大値を取得
-const findMaxAnkenId = async () => {
-    const response = await sendQueryRequestToAPI('select',
-        `SELECT max(ankenid) as maxid from anken`);
-    const results = await response.json();
-    return results;
-};
-
-// 追加
-const insertAnken = async (values: string[], nextAnkenId: number, customId: string) => {
-    await sendQueryRequestToAPI('update',
-        `INSERT INTO anken values ('${nextAnkenId}', '${values[0]}', '${customId}', '${values[2]}', '${values[3]}', '${values[5]}', '0', '${values[4]}', '')`);
-};
-
-// 更新
-const updateAnken = async (values: string[], ankenId: number, customId: string) => {
-    await sendQueryRequestToAPI('update',
-        `UPDATE anken SET ankentype = '${values[0]}', customid = '${customId}', ankenno = '${values[2]}', title = '${values[3]}', detail = '${values[5]}', start_dy = '${values[4]}' where ankenid = '${ankenId}'`);
-};
-
-// 案件テーブルの削除
-const deleteAnken = async (ankenid: number) => {
-    await sendQueryRequestToAPI('update',
-        `DELETE from anken where ankenid = '${ankenid}'`);
-}
-
-// 履歴テーブルの削除
-const deleteRireki = async (ankenid: number) => {
-    await sendQueryRequestToAPI('update',
-        `DELETE from rireki where ankenid = '${ankenid}'`);
-
-}
-
-// 実績テーブルの削除
-const deleteJisseki = async (ankenid: number) => {
-    await sendQueryRequestToAPI('update',
-        `DELETE from jisseki where ankenid = '${ankenid}'`);
-};
 
 // システム日付の取得
 const getSystemDate = () => {

@@ -1,13 +1,13 @@
 import { useContext, useEffect, useMemo, useState } from "react";
 import styled from "styled-components";
 import { AnkenInfo, JissekiInfo } from "./ankenTab";
-import { sendQueryRequestToAPI } from "../utils/dataBaseUtil";
 import SystemUtil from "../utils/systemUtil";
 import AnkenChild from "./ankenChild";
 import { GlobalContext } from "../mainFrame";
 import StylesUtil from "../utils/stylesUtil";
 import DefineUtil from "../utils/defineUtil";
 import { Option } from '../utils/inputDialog';
+import QueryUtil from "../utils/queryUtil";
 
 // 案件実績タブ
 const AnkenJisseki = (props: {
@@ -24,7 +24,7 @@ const AnkenJisseki = (props: {
     useEffect(() => {
         setFocus(-1);
         if (props.selectAnken.jissekiList == null) {
-            findJissekiList(props.selectAnken.ankenid).then(value => {
+            QueryUtil.findJissekiList(props.selectAnken.ankenid).then(value => {
                 props.updateJisseki(value);
             });
         }
@@ -75,9 +75,9 @@ const AnkenJisseki = (props: {
                     ],
                     heightSize: SystemUtil.ANKEN_JISSEKI_TUIKA_DIALOG_HEIGTH,
                     execute: (values) => {
-                        findMaxJisekiseq(props.selectAnken.ankenid).then(value => {
+                        QueryUtil.findMaxJisekiseq(props.selectAnken.ankenid).then(value => {
                             const nextJisekiseq = value[0].maxSeq == null ? '0' : value[0].maxSeq + 1;
-                            insertJisseki(props.selectAnken.ankenid, values, nextJisekiseq).then(() => {
+                            QueryUtil.insertJisseki(props.selectAnken.ankenid, values[0], values[1], values[2], values[3], nextJisekiseq).then(() => {
                                 props.selectAnken.jissekiList = null;
                                 props.updateAnken();
                             });
@@ -94,7 +94,7 @@ const AnkenJisseki = (props: {
                     message: '削除しますか？',
                     execute: () => {
                         const jissekiList = props.selectAnken.jissekiList as JissekiInfo[];
-                        deleteJisseki(props.selectAnken.ankenid, jissekiList[focus].jisekiseq);
+                        QueryUtil.deleteJisseki(props.selectAnken.ankenid, jissekiList[focus].jisekiseq);
                         props.selectAnken.jissekiList = null;
                     }
                 }
@@ -106,39 +106,6 @@ const AnkenJisseki = (props: {
         <AnkenChild detailJsx={detailJsx} footerJsx={footerJsx}></AnkenChild>
     );
 }
-
-// SQL(実績)取得
-const findJissekiList = async (ankenid: number) => {
-    const response = await sendQueryRequestToAPI('select',
-        `SELECT j.jisekiseq, j.sagyou_dy, j.user, j.worktype, j.time
-    from jisseki j
-    inner join anken a
-    on j.ankenid = a.ankenid
-    where a.ankenid = '${ankenid}'
-    order by j.ankenid, j.sagyou_dy desc`);
-    const results = await response.json();
-    return results;
-};
-
-// 実績連番の最大値を取得
-const findMaxJisekiseq = async (ankenid: number) => {
-    const response = await sendQueryRequestToAPI('select',
-        `SELECT max(jisekiseq) as maxSeq from jisseki where ankenid = '${ankenid}'`);
-    const results = await response.json();
-    return results;
-};
-
-// 追加
-const insertJisseki = async (ankenid: number, values: string[], jisekiseq: number) => {
-    await sendQueryRequestToAPI('update',
-        `INSERT INTO jisseki values ('${ankenid}', '${jisekiseq}', '${values[0]}', '${values[1]}', '${values[2]}', '${values[3]}')`);
-};
-
-// 削除
-const deleteJisseki = async (ankenid: number, jisekiseq: number) => {
-    await sendQueryRequestToAPI('update',
-        `DELETE from jisseki where ankenid = '${ankenid}' and jisekiseq = '${jisekiseq}'`);
-};
 
 // システム日付の取得
 const getSystemDate = () => {
