@@ -6,42 +6,43 @@ import DownloadSEJisseki from '../function/downloadSEJisseki';
 import SystemUtil from '../utils/systemUtil';
 import KinouRight from './KinouRight';
 
-/**
- * 機能タブ
- * @returns 機能タブのJSX
- */
-const KinouTab = () => {
-  // 現在選択している箇所
-  const [focus, setFocus] = useState<number>(-1);
+namespace KinouTab {
+  /**
+   * 機能タブ
+   * @returns 機能タブのJSX
+   */
+  export const Component = () => {
+    // 現在選択している箇所
+    const [focus, setFocus] = useState<number>(-1);
 
-  const kinouList: AbstractFunctionBuilder[] = useMemo(() => {
-    return [new DownloadSEJisseki(), new DownloadEEJisseki()];
-  }, []);
+    const kinouList: AbstractFunctionBuilder.Component[] = useMemo(() => {
+      return [new DownloadSEJisseki.Component(), new DownloadEEJisseki.Component()];
+    }, []);
 
-  const kinouJsxList = kinouList.map((kinou, i) => {
+    const kinouJsxList = kinouList.map((kinou, i) => {
+      return (
+        <_KinouLabel key={i} onClick={() => {
+          setFocus(i);
+        }}>
+          <_SelectKinouLabel isSelect={focus === i} />
+          <_KinouNameLabel>{kinou.getFunctionName()}</_KinouNameLabel>
+        </_KinouLabel>
+      );
+    });
+
     return (
-      <_KinouLabel key={i} onClick={() => {
-        setFocus(i);
-      }}>
-        <_SelectKinouLabel isSelect={focus === i} />
-        <_KinouNameLabel>{kinou.getFunctionName()}</_KinouNameLabel>
-      </_KinouLabel>
+      <>
+        <_Header />
+        <_Left>
+          <_Frame>{kinouJsxList}</_Frame>
+        </_Left>
+        <_Right>
+          <KinouRight.Component selectKinouList={kinouList[focus]} focus={focus} />
+        </_Right>
+      </>
     );
-  });
-
-  return (
-    <>
-      <_Header />
-      <_Left>
-        <_Frame>{kinouJsxList}</_Frame>
-      </_Left>
-      <_Right>
-        <KinouRight selectKinouList={kinouList[focus]} focus={focus} />
-      </_Right>
-    </>
-  );
-}
-
+  }
+};
 export default KinouTab;
 
 // ヘッダー

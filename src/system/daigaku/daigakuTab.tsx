@@ -3,41 +3,43 @@ import styled from 'styled-components';
 import SystemUtil from '../utils/systemUtil';
 import QueryUtil from '../utils/queryUtil';
 
-export type DaigakuInfo = {
+namespace DaigakuTab {
+  export type DaigakuInfo = {
     // カスタムID
     customid: string;
     // 大学名
     daigakunam: string;
-}
+  }
 
-/**
- * 大学タブ
- * @returns 大学タブのJSX
- */
-const DaigakuTab = () => {
+  /**
+   * 大学タブ
+   * @returns 大学タブのJSX
+   */
+  export const Component = () => {
     // 大学名
     const [daigakuList, setDaigakuList] = useState<DaigakuInfo[]>([]);
 
     const daigakuJsxList: JSX.Element[] = [];
 
     daigakuList.forEach((value, i) => {
-        const customId = daigakuList[i].customid;
-        const daigakuName = daigakuList[i].daigakunam;
-        daigakuJsxList.push(<_DaigakuLabel key={i}><_Other>[</_Other><_CustomId>{customId}</_CustomId><_Other>]: </_Other><_DaigakuName>{daigakuName}</_DaigakuName></_DaigakuLabel>);
+      const customId = daigakuList[i].customid;
+      const daigakuName = daigakuList[i].daigakunam;
+      daigakuJsxList.push(<_DaigakuLabel key={i}><_Other>[</_Other><_CustomId>{customId}</_CustomId><_Other>]: </_Other><_DaigakuName>{daigakuName}</_DaigakuName></_DaigakuLabel>);
     });
 
     return (
-        <>
-            <_Header><_DispButton onClick={() => {
-                QueryUtil.findDaigakuList().then(value => {
-                    setDaigakuList(value);
-                });
-            }}>表示</_DispButton></_Header>
-            <_Left>{daigakuJsxList}</_Left>
-            <_Right></_Right>
-        </>
+      <>
+        <_Header><_DispButton onClick={() => {
+          QueryUtil.findDaigakuList().then(value => {
+            setDaigakuList(value);
+          });
+        }}>表示</_DispButton></_Header>
+        <_Left>{daigakuJsxList}</_Left>
+        <_Right></_Right>
+      </>
     );
-}
+  }
+};
 
 export default DaigakuTab;
 

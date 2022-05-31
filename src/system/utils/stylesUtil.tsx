@@ -6,6 +6,6 @@ namespace StylesUtil {
         opacity: 0.5;
         pointer-events: none;
     `;
-}
+};
 
 export default StylesUtil;

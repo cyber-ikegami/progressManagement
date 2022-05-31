@@ -1,6 +1,6 @@
-import { AnkenInfo } from "../anken/ankenTab";
-import { DaigakuInfo } from "../daigaku/daigakuTab";
-import { sendQueryRequestToAPI } from "./dataBaseUtil";
+import AnkenTab from "../anken/ankenTab";
+import DaigakuTab from "../daigaku/daigakuTab";
+import DataBaseUtil from "./dataBaseUtil";
 import DefineUtil from "./defineUtil";
 
 namespace QueryUtil {
@@ -13,9 +13,9 @@ namespace QueryUtil {
      * @returns DaigakuInfoの配列型の検索結果
      */
     export const findDaigakuList = async () => {
-        const response = await sendQueryRequestToAPI('select', `SELECT customid, daigakunam from daigaku  order by customid`);
+        const response = await DataBaseUtil.sendQueryRequestToAPI('select', `SELECT customid, daigakunam from daigaku  order by customid`);
         const results = await response.json();
-        return results as DaigakuInfo[];
+        return results as DaigakuTab.DaigakuInfo[];
     };
 
     ////////////////////////////////////////
@@ -37,7 +37,7 @@ namespace QueryUtil {
             joken = `where a.ankenid = '${maxAnkenId}'`;
         }
 
-        const response = await sendQueryRequestToAPI('select',
+        const response = await DataBaseUtil.sendQueryRequestToAPI('select',
             `SELECT a.ankenid, a.status, a.ankentype, a.customid, d.daigakunam, a.start_dy, a.update_dy,
             a.ankenno, a.title, a.detail, null as jissekiList
             from anken a
@@ -45,7 +45,7 @@ namespace QueryUtil {
             on a.customid = d.customid
             ${joken}`);
         const results = await response.json();
-        return results as AnkenInfo[];
+        return results as AnkenTab.AnkenInfo[];
     };
 
     /**
@@ -53,7 +53,7 @@ namespace QueryUtil {
      * @returns 案件IDの最大値
      */
     export const findMaxAnkenId = async () => {
-        const response = await sendQueryRequestToAPI('select',
+        const response = await DataBaseUtil.sendQueryRequestToAPI('select',
             `SELECT max(ankenid) as maxid from anken`);
         const results = await response.json();
         return results;
@@ -70,7 +70,7 @@ namespace QueryUtil {
      * @param customId カスタマID
      */
     export const insertAnken = async (ankenType: string, ankenno: string, title: string, start_dy: string, detail: string, nextAnkenId: number, customId: string) => {
-        await sendQueryRequestToAPI('update',
+        await DataBaseUtil.sendQueryRequestToAPI('update',
             `INSERT INTO anken values ('${nextAnkenId}', '${ankenType}', '${customId}', '${ankenno}', '${title}', '${detail}}', '0', '${start_dy}', '')`);
     };
 
@@ -85,7 +85,7 @@ namespace QueryUtil {
      * @param customId カスタマID
      */
     export const updateAnken = async (ankenType: string, ankenno: string, title: string, start_dy: string, detail: string, ankenId: number, customId: string) => {
-        await sendQueryRequestToAPI('update',
+        await DataBaseUtil.sendQueryRequestToAPI('update',
             `UPDATE anken SET ankentype = '${ankenType}', customid = '${customId}', ankenno = '${ankenno}', title = '${title}', detail = '${detail}', start_dy = '${start_dy}' where ankenid = '${ankenId}'`);
     };
 
@@ -94,7 +94,7 @@ namespace QueryUtil {
      * @param ankenid 案件ID
      */
     export const deleteAnken = async (ankenid: number) => {
-        await sendQueryRequestToAPI('update',
+        await DataBaseUtil.sendQueryRequestToAPI('update',
             `DELETE from anken where ankenid = '${ankenid}'`);
     }
 
@@ -103,7 +103,7 @@ namespace QueryUtil {
      * @param ankenid 案件ID
      */
     export const deleteRireki = async (ankenid: number) => {
-        await sendQueryRequestToAPI('update',
+        await DataBaseUtil.sendQueryRequestToAPI('update',
             `DELETE from rireki where ankenid = '${ankenid}'`);
     }
 
@@ -112,7 +112,7 @@ namespace QueryUtil {
      * @param ankenid 案件ID
      */
     export const deleteAnkenJisseki = async (ankenid: number) => {
-        await sendQueryRequestToAPI('update',
+        await DataBaseUtil.sendQueryRequestToAPI('update',
             `DELETE from jisseki where ankenid = '${ankenid}'`);
     };
 
@@ -122,7 +122,7 @@ namespace QueryUtil {
      * @returns 検索結果
      */
     export const findRirekiList = async (ankenid: number) => {
-        const response = await sendQueryRequestToAPI('select',
+        const response = await DataBaseUtil.sendQueryRequestToAPI('select',
             `SELECT r.rirekiseq, r.state, r.detail
     from rireki r
     inner join anken a
@@ -139,7 +139,7 @@ namespace QueryUtil {
      * @returns 履歴連番の最大値
      */
     export const findMaxRirekiseq = async (ankenid: number) => {
-        const response = await sendQueryRequestToAPI('select',
+        const response = await DataBaseUtil.sendQueryRequestToAPI('select',
             `SELECT max(rirekiseq) as maxSeq from rireki where ankenid = '${ankenid}'`);
         const results = await response.json();
         return results;
@@ -153,7 +153,7 @@ namespace QueryUtil {
      * @param rirekiseq 履歴連番
      */
     export const insertRireki = async (ankenid: number, state: string, detail: string, rirekiseq: number) => {
-        await sendQueryRequestToAPI('update',
+        await DataBaseUtil.sendQueryRequestToAPI('update',
             `INSERT INTO rireki values ('${ankenid}', '${rirekiseq}', '${state}', '${detail}')`);
     };
 
@@ -164,7 +164,7 @@ namespace QueryUtil {
      * @param update_dy 更新日(システム日付)
      */
     export const updateAnkenStatus = async (ankenid: number, status: string, update_dy: string) => {
-        await sendQueryRequestToAPI('update',
+        await DataBaseUtil.sendQueryRequestToAPI('update',
             `UPDATE anken SET status = '${status}', update_dy = '${update_dy}' where ankenid = ${ankenid}`);
     };
 
@@ -174,7 +174,7 @@ namespace QueryUtil {
      * @returns 検索結果
      */
     export const findJissekiList = async (ankenid: number) => {
-        const response = await sendQueryRequestToAPI('select',
+        const response = await DataBaseUtil.sendQueryRequestToAPI('select',
             `SELECT j.jisekiseq, j.sagyou_dy, j.user, j.worktype, j.time
     from jisseki j
     inner join anken a
@@ -191,7 +191,7 @@ namespace QueryUtil {
      * @returns 実績連番の最大値
      */
     export const findMaxJisekiseq = async (ankenid: number) => {
-        const response = await sendQueryRequestToAPI('select',
+        const response = await DataBaseUtil.sendQueryRequestToAPI('select',
             `SELECT max(jisekiseq) as maxSeq from jisseki where ankenid = '${ankenid}'`);
         const results = await response.json();
         return results;
@@ -207,7 +207,7 @@ namespace QueryUtil {
      * @param jisekiseq 実績連番
      */
     export const insertJisseki = async (ankenid: number, sagyou_dy: string, user: string, workType: string, time: string, jisekiseq: number) => {
-        await sendQueryRequestToAPI('update',
+        await DataBaseUtil.sendQueryRequestToAPI('update',
             `INSERT INTO jisseki values ('${ankenid}', '${jisekiseq}', '${sagyou_dy}', '${user}', '${workType}', '${time}')`);
     };
 
@@ -217,7 +217,7 @@ namespace QueryUtil {
      * @param jisekiseq 実績連番
      */
     export const deleteJisseki = async (ankenid: number, jisekiseq: number) => {
-        await sendQueryRequestToAPI('update',
+        await DataBaseUtil.sendQueryRequestToAPI('update',
             `DELETE from jisseki where ankenid = '${ankenid}' and jisekiseq = '${jisekiseq}'`);
     };
 
@@ -235,7 +235,7 @@ namespace QueryUtil {
             return `when '${value.key}' then '${value.key}.${value.value}'`;
         }));
 
-        const response = await sendQueryRequestToAPI('select',
+        const response = await DataBaseUtil.sendQueryRequestToAPI('select',
             `select j.sagyou_dy, (select customid ||'_'|| daigakunam from daigaku where customid = a.customid), a.ankenno, 
             '' as kara1, '' as kara2, a.title, j.user, case j.worktype ${kubunList.join(' ')} else '' end, j.time
             from jisseki j
@@ -254,7 +254,7 @@ namespace QueryUtil {
      * @returns 検索結果
      */
     export const getEEJsonData = async (customId: string, start_dy: string, end_dy: string) => {
-        const response = await sendQueryRequestToAPI('select',
+        const response = await DataBaseUtil.sendQueryRequestToAPI('select',
             `select j.sagyou_dy, a.title, j.user, round((cast(j.time as REAL)/60), 1)
             from jisseki j inner join anken a on a.ankenid = j.ankenid
             where j.sagyou_dy between '${start_dy}' and '${end_dy}' and a.customid = '${customId}'

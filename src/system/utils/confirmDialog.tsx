@@ -1,50 +1,52 @@
 import { useContext } from "react";
 import styled from "styled-components";
-import { GlobalContext } from "../mainFrame";
+import MainFrame from "../mainFrame";
 import SystemUtil from "./systemUtil";
 
-export type ConfirmDialogProps = {
-    // Cancelボタンのラベル名
-    cancelName: string;
-    // Enterボタンのラベル名
-    enterName: string;
-    // 確認メッセージ
-    message: string;
-    // ボタン押下時の処理
-    execute: () => void;
-}
+namespace ConfirmDialog {
+    export type Props = {
+        // Cancelボタンのラベル名
+        cancelName: string;
+        // Enterボタンのラベル名
+        enterName: string;
+        // 確認メッセージ
+        message: string;
+        // ボタン押下時の処理
+        execute: () => void;
+    }
 
-/**
- * 確認ダイアログ
- * @param props 
- * @returns 確認ダイアログのJSK
- */
-const ConfirmDialog = (props: ConfirmDialogProps) => {
-    const { setConfirmDialogProps } = useContext(GlobalContext);
+    /**
+     * 確認ダイアログ
+     * @param props 
+     * @returns 確認ダイアログのJSK
+     */
+    export const Component = (props: Props) => {
+        const { setConfirmDialogProps } = useContext(MainFrame.GlobalContext);
 
-    return (
-        <>
-            <_Form isDisplay={true}>
-                <_Dialog>
-                    <_Message>{props.message}</_Message>
-                    <_Fotter>
-                        <_Button>
-                            <button onClick={() => {
-                                props.execute();
-                                setConfirmDialogProps(null);
-                            }}>{props.enterName}</button>
-                        </_Button>
-                        <_Button>
-                            <button onClick={() => {
-                                setConfirmDialogProps(null);
-                            }}>{props.cancelName}</button>
-                        </_Button>
-                    </_Fotter>
-                </_Dialog>
-            </_Form>
-        </>
-    )
-}
+        return (
+            <>
+                <_Form isDisplay={true}>
+                    <_Dialog>
+                        <_Message>{props.message}</_Message>
+                        <_Fotter>
+                            <_Button>
+                                <button onClick={() => {
+                                    props.execute();
+                                    setConfirmDialogProps(null);
+                                }}>{props.enterName}</button>
+                            </_Button>
+                            <_Button>
+                                <button onClick={() => {
+                                    setConfirmDialogProps(null);
+                                }}>{props.cancelName}</button>
+                            </_Button>
+                        </_Fotter>
+                    </_Dialog>
+                </_Form>
+            </>
+        )
+    }
+};
 
 export default ConfirmDialog;
 

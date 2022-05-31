@@ -1,22 +1,24 @@
 import styled from "styled-components";
 import SystemUtil from "../utils/systemUtil";
 
-/**
- * 案件(汎用部)
- * @param props 
- * @returns 案件(汎用部)のJSX
- */
-const AnkenChild = (props: {
-    detailJsx: JSX.Element | JSX.Element[];
-    footerJsx: JSX.Element;
-}) => {
-    return (
-        <_Frame>
-            <_Detail>{props.detailJsx}</_Detail>
-            <_footer>{props.footerJsx}</_footer>
-        </_Frame>
-    );
-}
+namespace AnkenChild {
+    /**
+     * 案件(汎用部)
+     * @param props 
+     * @returns 案件(汎用部)のJSX
+     */
+    export const Component = (props: {
+        detailJsx: JSX.Element | JSX.Element[];
+        footerJsx: JSX.Element;
+    }) => {
+        return (
+            <_Frame>
+                <_Detail>{props.detailJsx}</_Detail>
+                <_footer>{props.footerJsx}</_footer>
+            </_Frame>
+        );
+    }
+};
 
 export default AnkenChild;
 

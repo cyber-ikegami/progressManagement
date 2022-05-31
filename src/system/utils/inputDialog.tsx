@@ -1,150 +1,152 @@
 import { useContext, useEffect, useState } from "react";
 import styled from "styled-components";
-import { GlobalContext } from "../mainFrame";
+import MainFrame from "../mainFrame";
 import StylesUtil from "./stylesUtil";
 import SystemUtil from "./systemUtil";
 
-// 入力欄のタイプ
-type InputType = 'textField' | 'number' | 'textArea' | 'comboBox';
-
-export type Option = {
-    // コンボボックスのvalue
-    optionValue: string;
-    // コンボボックスの表示する値
-    showValue: string;
-}
-
-export type FormInfo = {
-    // 項目名label
-    labelName: string;
-    // 項目の値
-    value: string;
+namespace InputDialog {
     // 入力欄のタイプ
-    type?: InputType;
-    // コンボボックスの選択肢のリスト
-    optionList?: Option[];
-    // 必須フラグ
-    isRequired?: boolean;
-}
+    type InputType = 'textField' | 'number' | 'textArea' | 'comboBox';
 
-export type InputDialogProps = {
-    // ダイアログに関する情報
-    formList: FormInfo[];
-    // ダイアログのheight
-    heightSize?: number;
-    // ボタン押下時の処理
-    execute: (formValues: string[]) => void;
-}
+    export type Option = {
+        // コンボボックスのvalue
+        optionValue: string;
+        // コンボボックスの表示する値
+        showValue: string;
+    }
 
-/**
- * 入力ダイアログ
- * @param props 
- * @returns 入力ダイアログのJSX
- */
-const InputDialog = (props: InputDialogProps) => {
-    // ダイアログに表示する値
-    const [formValues, setFormValues] = useState<string[]>(props.formList.map((form, i) => (form.value)));
-    // 必須項目をすべて入力しているか？
-    const [isClickOk, setIsClickOk] = useState<boolean>(false);
+    export type FormInfo = {
+        // 項目名label
+        labelName: string;
+        // 項目の値
+        value: string;
+        // 入力欄のタイプ
+        type?: InputType;
+        // コンボボックスの選択肢のリスト
+        optionList?: Option[];
+        // 必須フラグ
+        isRequired?: boolean;
+    }
 
-    const { setInputDialogProps } = useContext(GlobalContext);
+    export type Props = {
+        // ダイアログに関する情報
+        formList: FormInfo[];
+        // ダイアログのheight
+        heightSize?: number;
+        // ボタン押下時の処理
+        execute: (formValues: string[]) => void;
+    }
 
-    // 追加確定ボタンの活性・非活性
-    useEffect(() => {
-        const empty = formValues.find((value, i) => {
-            return props.formList[i].isRequired == true && value === '';
-        });
-        setIsClickOk(empty == undefined);
-    }, [formValues]);
+    /**
+     * 入力ダイアログ
+     * @param props 
+     * @returns 入力ダイアログのJSX
+     */
+    export const Component = (props: Props) => {
+        // ダイアログに表示する値
+        const [formValues, setFormValues] = useState<string[]>(props.formList.map((form, i) => (form.value)));
+        // 必須項目をすべて入力しているか？
+        const [isClickOk, setIsClickOk] = useState<boolean>(false);
 
-    // ダイアログの入力欄作成
-    const valueJsxList = props.formList.map((value, i) => {
-        // 入力欄のタイプ管理
-        let typeJsx = <></>;
+        const { setInputDialogProps } = useContext(MainFrame.GlobalContext);
 
-        // タイプがundefinedであれば、初期値にテキストフィールドを設定
-        value.type == undefined ? value.type = 'textField' : value.type = value.type;
+        // 追加確定ボタンの活性・非活性
+        useEffect(() => {
+            const empty = formValues.find((value, i) => {
+                return props.formList[i].isRequired == true && value === '';
+            });
+            setIsClickOk(empty == undefined);
+        }, [formValues]);
 
-        switch (value.type) {
-            // テキストフィールド
-            case 'textField':
-                typeJsx = <_InputArea isEmpty={value.isRequired == true && formValues[i] === ''}>
-                    <input type="text" value={formValues[i]} onChange={(e) => {
-                        formValues[i] = e.target.value;
-                        setFormValues(formValues.slice());
-                    }}></input>
-                </_InputArea>;
-                break;
-            // テキストフィールド(数値型)
-            case 'number':
-                typeJsx = <_InputArea isEmpty={value.isRequired == true && formValues[i] === ''}>
-                    <input type="number" value={formValues[i]} onChange={(e) => {
-                        formValues[i] = e.target.value;
-                        setFormValues(formValues.slice());
-                    }}></input>
-                </_InputArea>;
-                break;
-            // テキストエリア
-            case 'textArea':
-                typeJsx = <_InputArea isEmpty={value.isRequired == true && formValues[i] === ''}>
-                    <textarea value={formValues[i]} onChange={(e) => {
-                        formValues[i] = e.target.value;
-                        setFormValues(formValues.slice());
-                    }}></textarea>
-                </_InputArea>;
-                break;
-            // コンボボックス
-            case 'comboBox':
-                if (value.optionList !== undefined) {
-                    const optionJsxList = value.optionList.map((value, i) => {
-                        return (
-                            <option value={value.optionValue} key={i}>{value.showValue}</option>
-                        );
-                    })
+        // ダイアログの入力欄作成
+        const valueJsxList = props.formList.map((value, i) => {
+            // 入力欄のタイプ管理
+            let typeJsx = <></>;
 
+            // タイプがundefinedであれば、初期値にテキストフィールドを設定
+            value.type == undefined ? value.type = 'textField' : value.type = value.type;
+
+            switch (value.type) {
+                // テキストフィールド
+                case 'textField':
                     typeJsx = <_InputArea isEmpty={value.isRequired == true && formValues[i] === ''}>
-                        <select value={formValues[i]} onChange={(e) => {
+                        <input type="text" value={formValues[i]} onChange={(e) => {
                             formValues[i] = e.target.value;
                             setFormValues(formValues.slice());
-                        }}>
-                            {optionJsxList}
-                        </select>
+                        }}></input>
                     </_InputArea>;
-                }
-                break;
-        }
+                    break;
+                // テキストフィールド(数値型)
+                case 'number':
+                    typeJsx = <_InputArea isEmpty={value.isRequired == true && formValues[i] === ''}>
+                        <input type="number" value={formValues[i]} onChange={(e) => {
+                            formValues[i] = e.target.value;
+                            setFormValues(formValues.slice());
+                        }}></input>
+                    </_InputArea>;
+                    break;
+                // テキストエリア
+                case 'textArea':
+                    typeJsx = <_InputArea isEmpty={value.isRequired == true && formValues[i] === ''}>
+                        <textarea value={formValues[i]} onChange={(e) => {
+                            formValues[i] = e.target.value;
+                            setFormValues(formValues.slice());
+                        }}></textarea>
+                    </_InputArea>;
+                    break;
+                // コンボボックス
+                case 'comboBox':
+                    if (value.optionList !== undefined) {
+                        const optionJsxList = value.optionList.map((value, i) => {
+                            return (
+                                <option value={value.optionValue} key={i}>{value.showValue}</option>
+                            );
+                        })
+
+                        typeJsx = <_InputArea isEmpty={value.isRequired == true && formValues[i] === ''}>
+                            <select value={formValues[i]} onChange={(e) => {
+                                formValues[i] = e.target.value;
+                                setFormValues(formValues.slice());
+                            }}>
+                                {optionJsxList}
+                            </select>
+                        </_InputArea>;
+                    }
+                    break;
+            }
+
+            return (
+                <div key={i}>
+                    <_LabelName>{value.labelName}</_LabelName>
+                    {typeJsx}
+                </div>
+            );
+        });
 
         return (
-            <div key={i}>
-                <_LabelName>{value.labelName}</_LabelName>
-                {typeJsx}
-            </div>
-        );
-    });
-
-    return (
-        <>
-            <_Form isDisplay={true}>
-                <_Dialog dialogHeight={props.heightSize}>
-                    {valueJsxList}
-                    <_Fotter>
-                        <_Button isDisable={isClickOk}>
-                            <button onClick={() => {
-                                props.execute(formValues);
-                                setInputDialogProps(null);
-                            }}>確定</button>
-                        </_Button>
-                        <_Button isDisable={true}>
-                            <button onClick={() => {
-                                setInputDialogProps(null);
-                            }}>キャンセル</button>
-                        </_Button>
-                    </_Fotter>
-                </_Dialog>
-            </_Form>
-        </>
-    )
-}
+            <>
+                <_Form isDisplay={true}>
+                    <_Dialog dialogHeight={props.heightSize}>
+                        {valueJsxList}
+                        <_Fotter>
+                            <_Button isDisable={isClickOk}>
+                                <button onClick={() => {
+                                    props.execute(formValues);
+                                    setInputDialogProps(null);
+                                }}>確定</button>
+                            </_Button>
+                            <_Button isDisable={true}>
+                                <button onClick={() => {
+                                    setInputDialogProps(null);
+                                }}>キャンセル</button>
+                            </_Button>
+                        </_Fotter>
+                    </_Dialog>
+                </_Form>
+            </>
+        )
+    }
+};
 
 export default InputDialog;
 

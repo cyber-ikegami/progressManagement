@@ -6,379 +6,359 @@ import AnkenRireki from './ankenRireki';
 import AnkenJisseki from './ankenJisseki';
 import StylesUtil from '../utils/stylesUtil';
 import AnkenChild from './ankenChild';
-import { GlobalContext } from '../mainFrame';
-import { Option } from '../utils/inputDialog';
 import QueryUtil from '../utils/queryUtil';
+import InputDialog from '../utils/inputDialog';
+import MainFrame from '../mainFrame';
 
-export type AnkenInfo = {
-    // 案件ID
-    ankenid: number;
-    // 緊急度
-    status: number;
-    // 案件タイプ(SE/EE/PKG)
-    ankentype: string;
-    // カスタムID
-    customid: string;
-    // 大学名
-    daigakunam: string;
-    // 対応開始日
-    start_dy: string;
-    // 最終更新日
-    update_dy: string;
-    // 案件番号
-    ankenno: string;
-    // 案件タイトル
-    title: string;
-    // 詳細
-    detail: string;
-    // 履歴リスト
-    rirekiList: null | RirekiInfo[];
-    // 実績リスト
-    jissekiList: null | JissekiInfo[];
-}
-
-export type RirekiInfo = {
-    // 履歴管理番号
-    rirekiseq: number;
-    // 状態
-    state: string;
-    // 備考
-    detail: string;
-}
-
-export type JissekiInfo = {
-    // 実績番号
-    jisekiseq: number;
-    // 作業日
-    sagyou_dy: string;
-    // 作業者
-    user: string;
-    // 作業種別
-    worktype: string;
-    // 時間(m)
-    time: number;
-}
-
-// 画面遷移の管理(詳細、履歴、実績)
-type AnkenMode = 'syosai' | 'rireki' | 'jisseki';
-
-// ソート順の管理(緊急度、日付、案件種別)
-type SortMode = 'kinkyu' | 'date' | 'ankenType';
-
-/**
- * 案件タブ
- * @returns 案件タブのJSX
- */
-const AnkenTab = () => {
-    // 案件のリスト
-    const [ankenList, setAnkenList] = useState<AnkenInfo[]>([]);
-    // 検索欄に入力された案件緊急度
-    const [ankenStatus, setAnkenStatus] = useState<string>('9');
-    // 現在選択している箇所
-    const [focus, setFocus] = useState<number>(-1);
-    // ロード(検索中)管理のフラグ
-    const [isLoad, setIsLoad] = useState<boolean>(false);
-    // 画面遷移の管理
-    const [ankenMode, setAnkenMode] = useState<AnkenMode>('syosai');
-    // ソート順の管理
-    const [selectSortMode, setSelectSortMode] = useState<SortMode>('kinkyu');
-
-    const { setInputDialogProps, setConfirmDialogProps, daigakuInfoList } = useContext(GlobalContext);
-
-    // 画面切り替え
-    let contentsJsx = <></>;
-    switch (ankenMode) {
-        case 'syosai':
-            if (focus !== -1) {
-                contentsJsx = <AnkenSyosai selectAnken={ankenList[focus]} />;
-            }
-            break;
-        case 'rireki':
-            contentsJsx = <AnkenRireki
-                selectAnken={ankenList[focus]}
-                updateRireki={(rirekiList: RirekiInfo[]) => {
-                    ankenList[focus].rirekiList = rirekiList;
-                    setAnkenList(ankenList.slice());
-                }}
-                updateAnken={() => {
-                    setAnkenList(ankenList.slice());
-                }}
-                focus={focus}
-            />;
-            break;
-        case 'jisseki':
-            contentsJsx = <AnkenJisseki
-                selectAnken={ankenList[focus]}
-                updateJisseki={(jissekiList: JissekiInfo[]) => {
-                    ankenList[focus].jissekiList = jissekiList;
-                    setAnkenList(ankenList.slice());
-                }}
-                updateAnken={() => {
-                    setAnkenList(ankenList.slice());
-                }}
-                focus={focus}
-            />;
-            break;
+namespace AnkenTab {
+    export type AnkenInfo = {
+        // 案件ID
+        ankenid: number;
+        // 緊急度
+        status: number;
+        // 案件タイプ(SE/EE/PKG)
+        ankentype: string;
+        // カスタムID
+        customid: string;
+        // 大学名
+        daigakunam: string;
+        // 対応開始日
+        start_dy: string;
+        // 最終更新日
+        update_dy: string;
+        // 案件番号
+        ankenno: string;
+        // 案件タイトル
+        title: string;
+        // 詳細
+        detail: string;
+        // 履歴リスト
+        rirekiList: null | AnkenRireki.RirekiInfo[];
+        // 実績リスト
+        jissekiList: null | AnkenJisseki.JissekiInfo[];
     }
 
-    const ankenJsxList: JSX.Element[] = useMemo(() => {
-        return ankenList.map((value, i) =>
-            <_AnkenLabel key={i} ankenType={value.ankentype} onClick={() => {
-                setFocus(i);
-            }}>
-                <_SelectAnkenLabel isSelect={focus === i} />
-                <_TopAnkenLabel>
-                    <_Red>{value.status}</_Red>
-                    <_Gray> [</_Gray>
-                    <_Green>{value.ankentype}</_Green>
-                    <_Gray>](</_Gray>
-                    <_Blue>{value.customid === '' ? '---' : `${value.customid}:${value.daigakunam}`}</_Blue>
-                    <_Gray>): {value.start_dy}～{value.update_dy}</_Gray>
-                </_TopAnkenLabel>
-                <_BottomAnkenLabel>
-                    <_Gray>{value.ankenno} ) </_Gray>
-                    <_Black>{value.title}</_Black>
-                </_BottomAnkenLabel>
-            </_AnkenLabel>
-        );
-    }, [ankenList, focus]);
+    // 画面遷移の管理(詳細、履歴、実績)
+    type AnkenMode = 'syosai' | 'rireki' | 'jisseki';
 
-    // 案件リスト並び替え
-    useEffect(() => {
-        // ソート前後のAnkenList比較
-        const prev = JSON.stringify(ankenList);
-        const sortList = sortAnkenList(ankenList, selectSortMode);
-        const after = JSON.stringify(sortList);
-        if (prev !== after) {
-            setAnkenMode('syosai');
-            setFocus(-1);
-            setAnkenList(sortList.slice());
+    // ソート順の管理(緊急度、日付、案件種別)
+    type SortMode = 'kinkyu' | 'date' | 'ankenType';
+
+    /**
+     * 案件タブ
+     * @returns 案件タブのJSX
+     */
+    export const Component = () => {
+        // 案件のリスト
+        const [ankenList, setAnkenList] = useState<AnkenInfo[]>([]);
+        // 検索欄に入力された案件緊急度
+        const [ankenStatus, setAnkenStatus] = useState<string>('9');
+        // 現在選択している箇所
+        const [focus, setFocus] = useState<number>(-1);
+        // ロード(検索中)管理のフラグ
+        const [isLoad, setIsLoad] = useState<boolean>(false);
+        // 画面遷移の管理
+        const [ankenMode, setAnkenMode] = useState<AnkenMode>('syosai');
+        // ソート順の管理
+        const [selectSortMode, setSelectSortMode] = useState<SortMode>('kinkyu');
+
+        const { setInputDialogProps, setConfirmDialogProps, daigakuInfoList } = useContext(MainFrame.GlobalContext);
+
+        // 画面切り替え
+        let contentsJsx = <></>;
+        switch (ankenMode) {
+            case 'syosai':
+                if (focus !== -1) {
+                    contentsJsx = <AnkenSyosai.Component selectAnken={ankenList[focus]} />;
+                }
+                break;
+            case 'rireki':
+                contentsJsx = <AnkenRireki.Component
+                    selectAnken={ankenList[focus]}
+                    updateRireki={(rirekiList: AnkenRireki.RirekiInfo[]) => {
+                        ankenList[focus].rirekiList = rirekiList;
+                        setAnkenList(ankenList.slice());
+                    }}
+                    updateAnken={() => {
+                        setAnkenList(ankenList.slice());
+                    }}
+                    focus={focus}
+                />;
+                break;
+            case 'jisseki':
+                contentsJsx = <AnkenJisseki.Component
+                    selectAnken={ankenList[focus]}
+                    updateJisseki={(jissekiList: AnkenJisseki.JissekiInfo[]) => {
+                        ankenList[focus].jissekiList = jissekiList;
+                        setAnkenList(ankenList.slice());
+                    }}
+                    updateAnken={() => {
+                        setAnkenList(ankenList.slice());
+                    }}
+                    focus={focus}
+                />;
+                break;
         }
-    }, [ankenList, selectSortMode]);
 
-    // フッター項目
-    const footerJsx = <>
-        <_Button isDisable={true} onClick={() => {
-            // daigakuInfoListをOption[]の型に変更
-            const daigakuOptionList: Option[] = daigakuInfoList.map((value) => {
-                const customId = value.customid === '' ? '' : `${value.customid}：${value.daigakunam}`;
-                return { optionValue: value.customid, showValue: customId }
-            });
-            // 頭に空白追加
-            daigakuOptionList.unshift({ optionValue: '', showValue: '' });
+        const ankenJsxList: JSX.Element[] = useMemo(() => {
+            return ankenList.map((value, i) =>
+                <_AnkenLabel key={i} ankenType={value.ankentype} onClick={() => {
+                    setFocus(i);
+                }}>
+                    <_SelectAnkenLabel isSelect={focus === i} />
+                    <_TopAnkenLabel>
+                        <_Red>{value.status}</_Red>
+                        <_Gray> [</_Gray>
+                        <_Green>{value.ankentype}</_Green>
+                        <_Gray>](</_Gray>
+                        <_Blue>{value.customid === '' ? '---' : `${value.customid}:${value.daigakunam}`}</_Blue>
+                        <_Gray>): {value.start_dy}～{value.update_dy}</_Gray>
+                    </_TopAnkenLabel>
+                    <_BottomAnkenLabel>
+                        <_Gray>{value.ankenno} ) </_Gray>
+                        <_Black>{value.title}</_Black>
+                    </_BottomAnkenLabel>
+                </_AnkenLabel>
+            );
+        }, [ankenList, focus]);
 
-            setInputDialogProps(
-                {
-                    formList: [
-                        {
-                            labelName: '案件種別', value: '', type: 'comboBox', optionList: [{ optionValue: '', showValue: '' },
+        // 案件リスト並び替え
+        useEffect(() => {
+            // ソート前後のAnkenList比較
+            const prev = JSON.stringify(ankenList);
+            const sortList = sortAnkenList(ankenList, selectSortMode);
+            const after = JSON.stringify(sortList);
+            if (prev !== after) {
+                setAnkenMode('syosai');
+                setFocus(-1);
+                setAnkenList(sortList.slice());
+            }
+        }, [ankenList, selectSortMode]);
+
+        // フッター項目
+        const footerJsx = <>
+            <_Button isDisable={true} onClick={() => {
+                // daigakuInfoListをOption[]の型に変更
+                const daigakuOptionList: InputDialog.Option[] = daigakuInfoList.map((value) => {
+                    const customId = value.customid === '' ? '' : `${value.customid}：${value.daigakunam}`;
+                    return { optionValue: value.customid, showValue: customId }
+                });
+                // 頭に空白追加
+                daigakuOptionList.unshift({ optionValue: '', showValue: '' });
+
+                setInputDialogProps(
+                    {
+                        formList: [
+                            {
+                                labelName: '案件種別', value: '', type: 'comboBox', optionList: [{ optionValue: '', showValue: '' },
+                                { optionValue: 'SE', showValue: 'SE' }, { optionValue: 'EE', showValue: 'EE' }, { optionValue: 'PKG連絡票', showValue: 'PKG連絡票' }], isRequired: true
+                            },
+                            { labelName: 'カスタマID', value: '', type: 'comboBox', optionList: daigakuOptionList, isRequired: false },
+                            { labelName: '案件番号', value: '', isRequired: false },
+                            { labelName: '案件タイトル', value: '', isRequired: true },
+                            { labelName: '発生日', value: getSystemDate(), isRequired: true },
+                            { labelName: '詳細', value: '', type: 'textArea', isRequired: false }
+                        ],
+                        heightSize: SystemUtil.ANKEN_TUIKA_DIALOG_HEIGTH,
+                        execute: (values) => {
+                            QueryUtil.findMaxAnkenId().then(value => {
+                                const nextAnkenId = value[0].maxid + 1;
+                                const selectCustomId = values[1] === '' ? '' : (values[1].split('：'))[0];
+                                QueryUtil.insertAnken(values[0], values[2], values[3], values[4], values[5], nextAnkenId, selectCustomId).then(() => {
+                                    QueryUtil.findAnkenList('', nextAnkenId).then(value => {
+                                        setAnkenMode('syosai');
+                                        setFocus(-1);
+                                        setAnkenStatus('9');
+                                        setAnkenList([]);
+                                        setAnkenList(value);
+                                    });
+                                });
+                            });
+                        }
+                    }
+                );
+            }}>追加</_Button>
+            <_Button isDisable={focus !== -1} onClick={() => {
+                // 頭に空白追加
+                const comboBoxItemList = daigakuInfoList.slice();
+                comboBoxItemList.unshift({ customid: '', daigakunam: '' });
+
+                // daigakuInfoList(comboBoxItemList)をOption[]の型に変更
+                const daigakuOptionList: InputDialog.Option[] = comboBoxItemList.map((value) => {
+                    const itemValue = value.customid === '' ? '' : `${value.customid}：${value.daigakunam}`;
+                    return { optionValue: value.customid, showValue: itemValue }
+                });
+
+                setInputDialogProps(
+                    {
+                        formList: [{
+                            labelName: '案件種別', value: ankenList[focus].ankentype, type: 'comboBox', optionList: [{ optionValue: '', showValue: '' },
                             { optionValue: 'SE', showValue: 'SE' }, { optionValue: 'EE', showValue: 'EE' }, { optionValue: 'PKG連絡票', showValue: 'PKG連絡票' }], isRequired: true
                         },
-                        { labelName: 'カスタマID', value: '', type: 'comboBox', optionList: daigakuOptionList, isRequired: false },
-                        { labelName: '案件番号', value: '', isRequired: false },
-                        { labelName: '案件タイトル', value: '', isRequired: true },
-                        { labelName: '発生日', value: getSystemDate(), isRequired: true },
-                        { labelName: '詳細', value: '', type: 'textArea', isRequired: false }
-                    ],
-                    heightSize: SystemUtil.ANKEN_TUIKA_DIALOG_HEIGTH,
-                    execute: (values) => {
-                        QueryUtil.findMaxAnkenId().then(value => {
-                            const nextAnkenId = value[0].maxid + 1;
+                        { labelName: 'カスタマID', value: `${ankenList[focus].customid}`, type: 'comboBox', optionList: daigakuOptionList, isRequired: false },
+                        { labelName: '案件番号', value: ankenList[focus].ankenno.toString(), isRequired: false },
+                        { labelName: '案件タイトル', value: ankenList[focus].title, isRequired: true },
+                        { labelName: '発生日', value: ankenList[focus].start_dy, isRequired: true },
+                        { labelName: '詳細', value: ankenList[focus].detail == null ? '' : ankenList[focus].detail, type: 'textArea', isRequired: false }],
+                        heightSize: SystemUtil.ANKEN_TUIKA_DIALOG_HEIGTH,
+                        execute: (values) => {
                             const selectCustomId = values[1] === '' ? '' : (values[1].split('：'))[0];
-                            QueryUtil.insertAnken(values[0], values[2], values[3], values[4], values[5], nextAnkenId, selectCustomId).then(() => {
-                                QueryUtil.findAnkenList('', nextAnkenId).then(value => {
+                            QueryUtil.updateAnken(values[0], values[2], values[3], values[4], values[5], ankenList[focus].ankenid, selectCustomId).then(() => {
+                                QueryUtil.findAnkenList(ankenStatus, '').then(value => {
                                     setAnkenMode('syosai');
-                                    setFocus(-1);
-                                    setAnkenStatus('9');
-                                    setAnkenList([]);
                                     setAnkenList(value);
                                 });
                             });
-                        });
+                        }
                     }
-                }
-            );
-        }}>追加</_Button>
-        <_Button isDisable={focus !== -1} onClick={() => {
-            // 頭に空白追加
-            const comboBoxItemList = daigakuInfoList.slice();
-            comboBoxItemList.unshift({ customid: '', daigakunam: '' });
-
-            // daigakuInfoList(comboBoxItemList)をOption[]の型に変更
-            const daigakuOptionList: Option[] = comboBoxItemList.map((value) => {
-                const itemValue = value.customid === '' ? '' : `${value.customid}：${value.daigakunam}`;
-                return { optionValue: value.customid, showValue: itemValue }
-            });
-
-            setInputDialogProps(
-                {
-                    formList: [{
-                        labelName: '案件種別', value: ankenList[focus].ankentype, type: 'comboBox', optionList: [{ optionValue: '', showValue: '' },
-                        { optionValue: 'SE', showValue: 'SE' }, { optionValue: 'EE', showValue: 'EE' }, { optionValue: 'PKG連絡票', showValue: 'PKG連絡票' }], isRequired: true
-                    },
-                    { labelName: 'カスタマID', value: `${ankenList[focus].customid}`, type: 'comboBox', optionList: daigakuOptionList, isRequired: false },
-                    { labelName: '案件番号', value: ankenList[focus].ankenno.toString(), isRequired: false },
-                    { labelName: '案件タイトル', value: ankenList[focus].title, isRequired: true },
-                    { labelName: '発生日', value: ankenList[focus].start_dy, isRequired: true },
-                    { labelName: '詳細', value: ankenList[focus].detail == null ? '' : ankenList[focus].detail, type: 'textArea', isRequired: false }],
-                    heightSize: SystemUtil.ANKEN_TUIKA_DIALOG_HEIGTH,
-                    execute: (values) => {
-                        const selectCustomId = values[1] === '' ? '' : (values[1].split('：'))[0];
-                        QueryUtil.updateAnken(values[0], values[2], values[3], values[4], values[5], ankenList[focus].ankenid, selectCustomId).then(() => {
-                            QueryUtil.findAnkenList(ankenStatus, '').then(value => {
-                                setAnkenMode('syosai');
-                                setAnkenList(value);
-                            });
-                        });
-                    }
-                }
-            );
-        }}>更新</_Button>
-        <_Button isDisable={focus !== -1} onClick={() => {
-            setConfirmDialogProps(
-                {
-                    cancelName: 'キャンセル',
-                    enterName: '削除',
-                    message: '削除しますか？',
-                    execute: () => {
-                        QueryUtil.deleteAnkenJisseki(ankenList[focus].ankenid).then(() => {
-                            QueryUtil.deleteRireki(ankenList[focus].ankenid).then(() => {
-                                QueryUtil.deleteAnken(ankenList[focus].ankenid).then(() => {
-                                    console.log(ankenList);
-                                    setAnkenMode('syosai');
-                                    setFocus(-1);
-                                    setAnkenList([]);
+                );
+            }}>更新</_Button>
+            <_Button isDisable={focus !== -1} onClick={() => {
+                setConfirmDialogProps(
+                    {
+                        cancelName: 'キャンセル',
+                        enterName: '削除',
+                        message: '削除しますか？',
+                        execute: () => {
+                            QueryUtil.deleteAnkenJisseki(ankenList[focus].ankenid).then(() => {
+                                QueryUtil.deleteRireki(ankenList[focus].ankenid).then(() => {
+                                    QueryUtil.deleteAnken(ankenList[focus].ankenid).then(() => {
+                                        console.log(ankenList);
+                                        setAnkenMode('syosai');
+                                        setFocus(-1);
+                                        setAnkenList([]);
+                                    });
                                 });
                             });
-                        });
+                        }
                     }
-                }
-            )
-        }}>削除</_Button>
-    </>;
+                )
+            }}>削除</_Button>
+        </>;
 
-    return (
-        <>
-            <_Header>
-                <_HeaderItem>
-                    <_HeaderLabel>緊急度:</_HeaderLabel>
-                    <input type="number" min='0' max='100' value={ankenStatus} onChange={(e) => {
-                        setAnkenStatus(e.target.value);
-                    }} />
-                </_HeaderItem>
-                <_HeaderItem>
-                    <_HeaderLabel>ソート順:</_HeaderLabel>
-                    <_RadioLabel>
-                        <input type="radio" value="kinkyu" checked={selectSortMode === 'kinkyu'} onChange={() => {
-                            setSelectSortMode('kinkyu');
-                        }} />緊急度
-                        <input type="radio" value="date" checked={selectSortMode === 'date'} onChange={() => {
-                            setSelectSortMode('date');
-                        }} />日付
-                        <input type="radio" value="ankenType" checked={selectSortMode === 'ankenType'} onChange={() => {
-                            setSelectSortMode('ankenType');
-                        }} />案件タイプ
-                    </_RadioLabel>
-                </_HeaderItem>
-                <_DispButton isEnable={0 <= Number(ankenStatus) && Number(ankenStatus) <= 100} onClick={() => {
-                    setIsLoad(true);
-                    setAnkenMode('syosai');
-                    setFocus(-1);
-                    QueryUtil.findAnkenList(ankenStatus, '').then(value => {
-                        setAnkenList(value);
-                        setIsLoad(false);
-                    });
-                }}>表示</_DispButton>
-            </_Header>
-            <_Left>
-                <_Frame>
-                    {isLoad ? <_LoadLabel>NowLoding…</_LoadLabel> : <AnkenChild detailJsx={ankenJsxList} footerJsx={footerJsx}></AnkenChild>}
-                </_Frame>
-            </_Left>
-            <_Right isDisable={focus !== -1}>
-                <_Frame>
-                    <_TabArea>
-                        <_Tab isActive={ankenMode === 'syosai' && focus !== -1} onClick={() => {
-                            setAnkenMode('syosai');
-                        }} >詳細</_Tab>
-                        <_Tab isActive={ankenMode === 'rireki'} onClick={() => {
-                            setAnkenMode('rireki');
-                        }} >履歴</_Tab>
-                        <_Tab isActive={ankenMode === 'jisseki'} onClick={() => {
-                            setAnkenMode('jisseki');
-                        }} >実績</_Tab>
-                    </_TabArea>
-                    <_Contents>
-                        <_Frame>{contentsJsx}</_Frame>
-                    </_Contents>
-                </_Frame>
-            </_Right>
-        </>
-    );
-}
-
-/**
- * システム日付の取得
- * @returns システム日付(XXXX/XX/XX)
- */
-const getSystemDate = () => {
-    let today = new Date();
-    const year = ('0000' + today.getFullYear()).slice(-4);
-    const month = ('00' + (today.getMonth() + 1)).slice(-2);
-    const day = ('00' + today.getDate()).slice(-2);
-    return year + '/' + month + '/' + day;
-};
-
-/**
- * 案件一覧並び替え
- * @param ankenList 案件一覧
- * @param sortMode ソート順
- * @returns 並び替え後の案件一覧
- */
-const sortAnkenList = (ankenList: AnkenInfo[], sortMode: string) => {
-    // 緊急度
-    if (sortMode === 'kinkyu') {
-        return ankenList.sort((a, b) => {
-            // 条件1：緊急度
-            if (a.status !== b.status) {
-                return (a.status - b.status);
-            }
-            // 条件2：開始日
-            if (a.start_dy !== b.start_dy) {
-                return (a.start_dy > b.start_dy ? -1 : 1);
-            }
-            return 0;
-        })
-        // 日付 
-    } else if (sortMode === 'date') {
-        return ankenList.sort((a, b) => {
-            // 条件1：開始日
-            if (a.start_dy !== b.start_dy) {
-                return (a.start_dy > b.start_dy ? -1 : 1);
-            }
-            // 条件2：緊急度
-            if (a.status !== b.status) {
-                return (a.status - b.status);
-            }
-            return 0;
-        })
-        // 案件種別
-    } else if (sortMode === 'ankenType') {
-        return ankenList.sort((a, b) => {
-            // 条件1：案件タイプ
-            if (a.ankentype !== b.ankentype) {
-                return (a.ankentype > b.ankentype ? -1 : 1);
-            }
-            // 条件2：緊急度
-            if (a.status !== b.status) {
-                return (a.status - b.status);
-            }
-            return 0;
-        })
-    } else {
-        return ankenList;
+        return (
+            <>
+                <_Header>
+                    <_HeaderItem>
+                        <_HeaderLabel>緊急度:</_HeaderLabel>
+                        <input type="number" min='0' max='100' value={ankenStatus} onChange={(e) => {
+                            setAnkenStatus(e.target.value);
+                        }} />
+                    </_HeaderItem>
+                    <_HeaderItem>
+                        <_HeaderLabel>ソート順:</_HeaderLabel>
+                        <_RadioLabel>
+                            <input type="radio" value="kinkyu" checked={selectSortMode === 'kinkyu'} onChange={() => {
+                                setSelectSortMode('kinkyu');
+                            }} />緊急度
+                            <input type="radio" value="date" checked={selectSortMode === 'date'} onChange={() => {
+                                setSelectSortMode('date');
+                            }} />日付
+                            <input type="radio" value="ankenType" checked={selectSortMode === 'ankenType'} onChange={() => {
+                                setSelectSortMode('ankenType');
+                            }} />案件タイプ
+                        </_RadioLabel>
+                    </_HeaderItem>
+                    <_DispButton isEnable={0 <= Number(ankenStatus) && Number(ankenStatus) <= 100} onClick={() => {
+                        setIsLoad(true);
+                        setAnkenMode('syosai');
+                        setFocus(-1);
+                        QueryUtil.findAnkenList(ankenStatus, '').then(value => {
+                            setAnkenList(value);
+                            setIsLoad(false);
+                        });
+                    }}>表示</_DispButton>
+                </_Header>
+                <_Left>
+                    <_Frame>
+                        {isLoad ? <_LoadLabel>NowLoding…</_LoadLabel> : <AnkenChild.Component detailJsx={ankenJsxList} footerJsx={footerJsx} />}
+                    </_Frame>
+                </_Left>
+                <_Right isDisable={focus !== -1}>
+                    <_Frame>
+                        <_TabArea>
+                            <_Tab isActive={ankenMode === 'syosai' && focus !== -1} onClick={() => {
+                                setAnkenMode('syosai');
+                            }} >詳細</_Tab>
+                            <_Tab isActive={ankenMode === 'rireki'} onClick={() => {
+                                setAnkenMode('rireki');
+                            }} >履歴</_Tab>
+                            <_Tab isActive={ankenMode === 'jisseki'} onClick={() => {
+                                setAnkenMode('jisseki');
+                            }} >実績</_Tab>
+                        </_TabArea>
+                        <_Contents>
+                            <_Frame>{contentsJsx}</_Frame>
+                        </_Contents>
+                    </_Frame>
+                </_Right>
+            </>
+        );
     }
-}
+
+    /**
+     * システム日付の取得
+     * @returns システム日付(XXXX/XX/XX)
+     */
+    const getSystemDate = () => {
+        let today = new Date();
+        const year = ('0000' + today.getFullYear()).slice(-4);
+        const month = ('00' + (today.getMonth() + 1)).slice(-2);
+        const day = ('00' + today.getDate()).slice(-2);
+        return year + '/' + month + '/' + day;
+    };
+
+    /**
+     * 案件一覧並び替え
+     * @param ankenList 案件一覧
+     * @param sortMode ソート順
+     * @returns 並び替え後の案件一覧
+     */
+    const sortAnkenList = (ankenList: AnkenInfo[], sortMode: string) => {
+        // 緊急度
+        if (sortMode === 'kinkyu') {
+            return ankenList.sort((a, b) => {
+                // 条件1：緊急度
+                if (a.status !== b.status) {
+                    return (a.status - b.status);
+                }
+                // 条件2：開始日
+                if (a.start_dy !== b.start_dy) {
+                    return (a.start_dy > b.start_dy ? -1 : 1);
+                }
+                return 0;
+            })
+            // 日付 
+        } else if (sortMode === 'date') {
+            return ankenList.sort((a, b) => {
+                // 条件1：開始日
+                if (a.start_dy !== b.start_dy) {
+                    return (a.start_dy > b.start_dy ? -1 : 1);
+                }
+                // 条件2：緊急度
+                if (a.status !== b.status) {
+                    return (a.status - b.status);
+                }
+                return 0;
+            })
+            // 案件種別
+        } else if (sortMode === 'ankenType') {
+            return ankenList.sort((a, b) => {
+                // 条件1：案件タイプ
+                if (a.ankentype !== b.ankentype) {
+                    return (a.ankentype > b.ankentype ? -1 : 1);
+                }
+                // 条件2：緊急度
+                if (a.status !== b.status) {
+                    return (a.status - b.status);
+                }
+                return 0;
+            })
+        } else {
+            return ankenList;
+        }
+    }
+};
 
 export default AnkenTab;
 

@@ -1,128 +1,142 @@
 import { useContext, useEffect, useMemo, useState } from "react";
 import styled from "styled-components";
-import { AnkenInfo, JissekiInfo } from "./ankenTab";
 import SystemUtil from "../utils/systemUtil";
 import AnkenChild from "./ankenChild";
-import { GlobalContext } from "../mainFrame";
 import StylesUtil from "../utils/stylesUtil";
 import DefineUtil from "../utils/defineUtil";
-import { Option } from '../utils/inputDialog';
 import QueryUtil from "../utils/queryUtil";
+import InputDialog from "../utils/inputDialog";
+import AnkenTab from "./ankenTab";
+import MainFrame from "../mainFrame";
 
-/**
- * 案件実績タブ
- * @param props 
- * @returns 案件実績タブのJSX
- */
-const AnkenJisseki = (props: {
-    selectAnken: AnkenInfo;
-    updateJisseki: Function;
-    updateAnken: () => void;
-    focus: number;
-}) => {
-    // 現在選択している箇所
-    const [focus, setFocus] = useState<number>(-1);
+namespace AnkenJisseki {
+    export type JissekiInfo = {
+        // 実績番号
+        jisekiseq: number;
+        // 作業日
+        sagyou_dy: string;
+        // 作業者
+        user: string;
+        // 作業種別
+        worktype: string;
+        // 時間(m)
+        time: number;
+    }
 
-    const { setInputDialogProps, setConfirmDialogProps } = useContext(GlobalContext);
+    /**
+     * 案件実績タブ
+     * @param props 
+     * @returns 案件実績タブのJSX
+     */
+    export const Component = (props: {
+        selectAnken: AnkenTab.AnkenInfo;
+        updateJisseki: Function;
+        updateAnken: () => void;
+        focus: number;
+    }) => {
+        // 現在選択している箇所
+        const [focus, setFocus] = useState<number>(-1);
 
-    useEffect(() => {
-        setFocus(-1);
-        if (props.selectAnken.jissekiList == null) {
-            QueryUtil.findJissekiList(props.selectAnken.ankenid).then(value => {
-                props.updateJisseki(value);
-            });
-        }
-    }, [props.focus, props.selectAnken.jissekiList]);
+        const { setInputDialogProps, setConfirmDialogProps } = useContext(MainFrame.GlobalContext);
 
-    // 実績項目
-    const detailJsx: JSX.Element[] = useMemo(() => {
-        if (props.selectAnken.jissekiList != null) {
-            return props.selectAnken.jissekiList.map((value, i) => {
-                const kubun = DefineUtil.convertKubun(value.worktype);
-                return (
+        useEffect(() => {
+            setFocus(-1);
+            if (props.selectAnken.jissekiList == null) {
+                QueryUtil.findJissekiList(props.selectAnken.ankenid).then(value => {
+                    props.updateJisseki(value);
+                });
+            }
+        }, [props.focus, props.selectAnken.jissekiList]);
 
-                    <_JissekiLabel key={i} onClick={() => {
-                        setFocus(i);
-                    }}>
-                        <_SelectJissekiLabel isSelect={focus === i} />
-                        <_Gray>＜</_Gray>
-                        <_Black>{value.sagyou_dy}</_Black>
-                        <_Gray>＞ </_Gray>
-                        <_Red>{value.user}</_Red>
-                        <_Gray>: {kubun == undefined ? 'null' : kubun.value} [</_Gray>
-                        <_Blue>{value.time}</_Blue>
-                        <_Gray>]</_Gray>
-                    </_JissekiLabel>
-                );
-            });
-        }
-        return [];
-    }, [focus, props.selectAnken.jissekiList]);
+        // 実績項目
+        const detailJsx: JSX.Element[] = useMemo(() => {
+            if (props.selectAnken.jissekiList != null) {
+                return props.selectAnken.jissekiList.map((value, i) => {
+                    const kubun = DefineUtil.convertKubun(value.worktype);
+                    return (
 
-    // フッター項目
-    const footerJsx = <>
-        <_Button isDisable={true} onClick={() => {
-            // SAGYOU_KUBUNをOption[]の型に変更
-            const sagyouKubunOptionList: Option[] = DefineUtil.SAGYOU_KUBUN_LIST.map((value) => {
-                return { optionValue: value.key, showValue: value.value }
-            });
-            // 頭に空白追加
-            sagyouKubunOptionList.unshift({ optionValue: '', showValue: '' });
+                        <_JissekiLabel key={i} onClick={() => {
+                            setFocus(i);
+                        }}>
+                            <_SelectJissekiLabel isSelect={focus === i} />
+                            <_Gray>＜</_Gray>
+                            <_Black>{value.sagyou_dy}</_Black>
+                            <_Gray>＞ </_Gray>
+                            <_Red>{value.user}</_Red>
+                            <_Gray>: {kubun == undefined ? 'null' : kubun.value} [</_Gray>
+                            <_Blue>{value.time}</_Blue>
+                            <_Gray>]</_Gray>
+                        </_JissekiLabel>
+                    );
+                });
+            }
+            return [];
+        }, [focus, props.selectAnken.jissekiList]);
 
-            setInputDialogProps(
-                {
-                    formList: [
-                        { labelName: '作業日', value: getSystemDate() },
-                        { labelName: '作業者', value: '', type: 'comboBox', optionList: [{ optionValue: '', showValue: '' }, { optionValue: '河野', showValue: '河野' }, { optionValue: '村田', showValue: '村田' }, { optionValue: '池上', showValue: '池上' }] },
-                        { labelName: '作業種別', value: '', type: 'comboBox', optionList: sagyouKubunOptionList },
-                        { labelName: '時間(m)', value: '', type: 'number' }
-                    ],
-                    heightSize: SystemUtil.ANKEN_JISSEKI_TUIKA_DIALOG_HEIGTH,
-                    execute: (values) => {
-                        QueryUtil.findMaxJisekiseq(props.selectAnken.ankenid).then(value => {
-                            const nextJisekiseq = value[0].maxSeq == null ? '0' : value[0].maxSeq + 1;
-                            QueryUtil.insertJisseki(props.selectAnken.ankenid, values[0], values[1], values[2], values[3], nextJisekiseq).then(() => {
-                                props.selectAnken.jissekiList = null;
-                                props.updateAnken();
+        // フッター項目
+        const footerJsx = <>
+            <_Button isDisable={true} onClick={() => {
+                // SAGYOU_KUBUNをOption[]の型に変更
+                const sagyouKubunOptionList: InputDialog.Option[] = DefineUtil.SAGYOU_KUBUN_LIST.map((value) => {
+                    return { optionValue: value.key, showValue: value.value }
+                });
+                // 頭に空白追加
+                sagyouKubunOptionList.unshift({ optionValue: '', showValue: '' });
+
+                setInputDialogProps(
+                    {
+                        formList: [
+                            { labelName: '作業日', value: getSystemDate() },
+                            { labelName: '作業者', value: '', type: 'comboBox', optionList: [{ optionValue: '', showValue: '' }, { optionValue: '河野', showValue: '河野' }, { optionValue: '村田', showValue: '村田' }, { optionValue: '池上', showValue: '池上' }] },
+                            { labelName: '作業種別', value: '', type: 'comboBox', optionList: sagyouKubunOptionList },
+                            { labelName: '時間(m)', value: '', type: 'number' }
+                        ],
+                        heightSize: SystemUtil.ANKEN_JISSEKI_TUIKA_DIALOG_HEIGTH,
+                        execute: (values) => {
+                            QueryUtil.findMaxJisekiseq(props.selectAnken.ankenid).then(value => {
+                                const nextJisekiseq = value[0].maxSeq == null ? '0' : value[0].maxSeq + 1;
+                                QueryUtil.insertJisseki(props.selectAnken.ankenid, values[0], values[1], values[2], values[3], nextJisekiseq).then(() => {
+                                    props.selectAnken.jissekiList = null;
+                                    props.updateAnken();
+                                });
                             });
-                        });
+                        }
                     }
-                }
-            );
-        }}>追加</_Button>
-        <_Button isDisable={focus !== -1} onClick={() => {
-            setConfirmDialogProps(
-                {
-                    cancelName: 'キャンセル',
-                    enterName: '削除',
-                    message: '削除しますか？',
-                    execute: () => {
-                        const jissekiList = props.selectAnken.jissekiList as JissekiInfo[];
-                        QueryUtil.deleteJisseki(props.selectAnken.ankenid, jissekiList[focus].jisekiseq);
-                        props.selectAnken.jissekiList = null;
+                );
+            }}>追加</_Button>
+            <_Button isDisable={focus !== -1} onClick={() => {
+                setConfirmDialogProps(
+                    {
+                        cancelName: 'キャンセル',
+                        enterName: '削除',
+                        message: '削除しますか？',
+                        execute: () => {
+                            const jissekiList = props.selectAnken.jissekiList as JissekiInfo[];
+                            QueryUtil.deleteJisseki(props.selectAnken.ankenid, jissekiList[focus].jisekiseq);
+                            props.selectAnken.jissekiList = null;
+                        }
                     }
-                }
-            )
-        }}>削除</_Button>
-    </>;
+                )
+            }}>削除</_Button>
+        </>;
 
-    return (
-        <AnkenChild detailJsx={detailJsx} footerJsx={footerJsx}></AnkenChild>
-    );
-}
+        return (
+            <AnkenChild.Component detailJsx={detailJsx} footerJsx={footerJsx}/>
+        );
+    }
 
-/**
- * システム日付の取得
- * @returns システム日付(XXXX/XX/XX)
- */
-const getSystemDate = () => {
-    let today = new Date();
-    const year = ('0000' + today.getFullYear()).slice(-4);
-    const month = ('00' + (today.getMonth() + 1)).slice(-2);
-    const day = ('00' + today.getDate()).slice(-2);
-    return year + '/' + month + '/' + day;
+    /**
+     * システム日付の取得
+     * @returns システム日付(XXXX/XX/XX)
+     */
+    const getSystemDate = () => {
+        let today = new Date();
+        const year = ('0000' + today.getFullYear()).slice(-4);
+        const month = ('00' + (today.getMonth() + 1)).slice(-2);
+        const day = ('00' + today.getDate()).slice(-2);
+        return year + '/' + month + '/' + day;
+    };
 };
-
 export default AnkenJisseki;
 
 // 実績ラベル選択時
