@@ -1,8 +1,13 @@
 import styled from "styled-components";
 import { AnkenInfo } from "./ankenTab";
 import AnkenChild from "./ankenChild";
+import SystemUtil from "../utils/systemUtil";
 
-// 案件詳細タブ
+/**
+ * 案件詳細タブ
+ * @param props 
+ * @returns 案件詳細タブのJSX
+ */
 const AnkenSyosai = (props: {
     selectAnken: AnkenInfo;
 }) => {
@@ -43,20 +48,20 @@ export default AnkenSyosai;
 
 // 項目名
 const _ItemName = styled.div`
-    font-size: 15px;
-    margin-left: 5px;
+    font-size: ${SystemUtil.FONT_SIZE}px;
+    margin-left: ${SystemUtil.MARGIN_SIZE}px;
     font-weight: bold;
 `;
 
 const _ItemLabel = styled.div`
-    font-size: 15px;
+    font-size: ${SystemUtil.FONT_SIZE}px;
     margin-left: 20px;
     & textarea {
         width: calc(100% - 10px);
-        height: 200px;
+        height: ${SystemUtil.ANKEN_SYOSAI_TEXT_HEIGTH}px;
         resize: none;
-        margin-left: 5px;
-        margin-bottom: 5px;
+        margin-left: ${SystemUtil.MARGIN_SIZE}px;
+        margin-bottom: ${SystemUtil.MARGIN_SIZE}px;
         box-sizing: border-box;
     }
 `;

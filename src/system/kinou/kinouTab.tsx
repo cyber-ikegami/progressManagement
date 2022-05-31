@@ -36,7 +36,7 @@ const KinouTab = () => {
         <_Frame>{kinouJsxList}</_Frame>
       </_Left>
       <_Right>
-        <KinouRight selectKinouList={kinouList[focus]} focus={focus}/>
+        <KinouRight selectKinouList={kinouList[focus]} focus={focus} />
       </_Right>
     </>
   );
@@ -53,9 +53,9 @@ const _Header = styled.div`
 
 // フレーム
 const _Frame = styled.div`
-    margin-top: 5px;
-    margin-left: 5px;
-    margin-bottom: 5px;
+    margin-top: ${SystemUtil.MARGIN_SIZE}px;
+    margin-left: ${SystemUtil.MARGIN_SIZE}px;
+    margin-bottom: ${SystemUtil.MARGIN_SIZE}px;
     border: 1px solid;
     border-color: #b1bff5;
     overflow: auto;
@@ -83,8 +83,8 @@ const _KinouLabel = styled.div`
   position: relative;
   width: calc(100% - 10px);
   height: ${SystemUtil.KINOU_LABEL_HEIGTH}px;
-  margin-left: 5px;
-  margin-top: 5px;
+  margin-left: ${SystemUtil.MARGIN_SIZE}px;
+  margin-top: ${SystemUtil.MARGIN_SIZE}px;
   &:hover {
     opacity: 0.5;
   }

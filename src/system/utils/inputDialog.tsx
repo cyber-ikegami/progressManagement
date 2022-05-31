@@ -2,6 +2,7 @@ import { useContext, useEffect, useState } from "react";
 import styled from "styled-components";
 import { GlobalContext } from "../mainFrame";
 import StylesUtil from "./stylesUtil";
+import SystemUtil from "./systemUtil";
 
 // 入力欄のタイプ
 type InputType = 'textField' | 'number' | 'textArea' | 'comboBox';
@@ -181,14 +182,14 @@ const _Dialog = styled.div<{
 const _InputArea = styled.div<{
     isEmpty: boolean;
 }>`
-    margin-right: 5px;
+    margin-right: ${SystemUtil.MARGIN_SIZE}px;
     width: 100%;
     & input, select {
         background-color: ${props => props.isEmpty ? '#fffb7d' : ''};
         width: calc(100% - 10px);
         height: 20px;
-        margin-left: 5px;
-        margin-bottom: 5px;
+        margin-left: ${SystemUtil.MARGIN_SIZE}px;
+        margin-bottom: ${SystemUtil.MARGIN_SIZE}px;
         box-sizing: border-box;
     }
     & textarea {
@@ -196,8 +197,8 @@ const _InputArea = styled.div<{
         width: calc(100% - 10px);
         height: 150px;
         resize: none;
-        margin-left: 5px;
-        margin-bottom: 5px;
+        margin-left: ${SystemUtil.MARGIN_SIZE}px;
+        margin-bottom: ${SystemUtil.MARGIN_SIZE}px;
         box-sizing: border-box;
     }
     & option {
@@ -226,15 +227,15 @@ const _Button = styled.div<{
     & button {
         width: 100px;
         height: 30px;
-        margin-top: 5px;
-        margin-left: 5px;
+        margin-top: ${SystemUtil.MARGIN_SIZE}px;
+        margin-left: ${SystemUtil.MARGIN_SIZE}px;
         bottom: 10px;
     }
 `;
 
 // 項目名ラベル
 const _LabelName = styled.div`
-    font-size: 15px;
-    margin-left: 5px;
+    font-size: ${SystemUtil.FONT_SIZE}px;
+    margin-left: ${SystemUtil.MARGIN_SIZE}px;
     font-weight: bold;
 `;

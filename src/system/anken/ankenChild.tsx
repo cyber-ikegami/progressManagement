@@ -1,7 +1,11 @@
 import styled from "styled-components";
 import SystemUtil from "../utils/systemUtil";
 
-// 案件(汎用部)
+/**
+ * 案件(汎用部)
+ * @param props 
+ * @returns 案件(汎用部)のJSX
+ */
 const AnkenChild = (props: {
     detailJsx: JSX.Element | JSX.Element[];
     footerJsx: JSX.Element;
@@ -31,16 +35,16 @@ const _Detail = styled.div`
     & select, input {
         width: calc(100% - 10px);
         height: ${SystemUtil.KENSAKU_JOKEN_TEXT_HEIGHT}px;
-        margin-left: 5px;
-        margin-bottom: 5px;
+        margin-left: ${SystemUtil.MARGIN_SIZE}px;
+        margin-bottom: ${SystemUtil.MARGIN_SIZE}px;
         box-sizing: border-box;  
     }
     & textarea {
         width: calc(100% - 10px);
         height: 250px;
         resize: none;
-        margin-left: 5px;
-        margin-top: 5px;
+        margin-left: ${SystemUtil.MARGIN_SIZE}px;
+        margin-top: ${SystemUtil.MARGIN_SIZE}px;
         box-sizing: border-box; 
     }
 `;

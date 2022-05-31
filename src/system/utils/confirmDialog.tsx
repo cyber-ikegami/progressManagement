@@ -1,6 +1,7 @@
 import { useContext } from "react";
 import styled from "styled-components";
 import { GlobalContext } from "../mainFrame";
+import SystemUtil from "./systemUtil";
 
 export type ConfirmDialogProps = {
     // Cancelボタンのラベル名
@@ -89,15 +90,15 @@ const _Button = styled.div`
     & button {
         width: 100px;
         height: 30px;
-        margin-top: 5px;
-        margin-left: 5px;
+        margin-top: ${SystemUtil.MARGIN_SIZE}px;
+        margin-left: ${SystemUtil.MARGIN_SIZE}px;
         bottom: 10px;
     }
 `;
 
 // 確認メッセージ
 const _Message = styled.div`
-    font-size: 15px;
+    font-size: ${SystemUtil.FONT_SIZE}px;
     margin-left: 10px;
     margin-top: 20px;
 `;

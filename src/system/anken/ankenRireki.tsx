@@ -93,8 +93,8 @@ const _RirekiLabel = styled.div`
     display: inline-block;
     width: calc(100% - 10px);
     height: ${SystemUtil.ANKEN_RIREKI_LABEL_HEIGTH}px;
-    margin-left: 5px;
-    margin-top: 5px;
+    margin-left: ${SystemUtil.MARGIN_SIZE}px;
+    margin-top: ${SystemUtil.MARGIN_SIZE}px;
     font-size: ${SystemUtil.CONTENTS_CHAR_SIZE}px;
     font-weight: bold;
     position: relative;
@@ -111,15 +111,14 @@ const _Button = styled.div<{
     // 非活性処理
     ${props => props.isDisable ? '' : StylesUtil.IS_DISABLE};
 
-    /* pointer-events: auto; */
     background-color: #eef5ff;
     display: inline-block;
-    font-size: 15px;
+    font-size: ${SystemUtil.FONT_SIZE}px;
     width: 80px;
     height: calc(100% - 10px);
     text-align: center;
-    margin-top: 5px;
-    margin-left: 5px;
+    margin-top: ${SystemUtil.MARGIN_SIZE}px;
+    margin-left: ${SystemUtil.MARGIN_SIZE}px;
     border: 1px solid #919191;
     border-radius: 5px;
     &:hover {

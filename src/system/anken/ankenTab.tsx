@@ -395,27 +395,27 @@ const _HeaderItem = styled.div`
     display: inline-block;
     margin-right: 20px;
     & input {
-        font-size: 15px;
+        font-size: ${SystemUtil.FONT_SIZE}px;
         height: ${SystemUtil.KENSAKU_JOKEN_TEXT_HEIGHT}px;
-        margin-top: 5px;
-        margin-left: 5px;
+        margin-top: ${SystemUtil.MARGIN_SIZE}px;
+        margin-left: ${SystemUtil.MARGIN_SIZE}px;
         box-sizing: border-box; 
     }    
 `;
 
 // ヘッダー項目名ラベル
 const _HeaderLabel = styled.div`
-    font-size: 15px;
+    font-size: ${SystemUtil.FONT_SIZE}px;
     display: inline-block;
     font-weight: bold;
-    margin-left: 5px;
+    margin-left: ${SystemUtil.MARGIN_SIZE}px;
 `;
 
 // ヘッダー項目名ラベル
 const _RadioLabel = styled.div`
-    font-size: 15px;
+    font-size: ${SystemUtil.FONT_SIZE}px;
     display: inline-block;
-    margin-left: 5px;
+    margin-left: ${SystemUtil.MARGIN_SIZE}px;
 `;
 
 // 表示ボタン
@@ -432,13 +432,13 @@ const _DispButton = styled.div<{
     `}
 
     display: inline-block;
-    font-size: 15px;
+    font-size: ${SystemUtil.FONT_SIZE}px;
     width: 50px;
     height: calc(100% - 10px);
     text-align: center;
     line-height: 30px;
-    margin-top: 5px;
-    margin-left: 5px;
+    margin-top: ${SystemUtil.MARGIN_SIZE}px;
+    margin-left: ${SystemUtil.MARGIN_SIZE}px;
     border: 1px solid #919191;
     border-radius: 5px;
     &:hover {
@@ -448,9 +448,9 @@ const _DispButton = styled.div<{
 
 // フレーム
 const _Frame = styled.div`
-    margin-top: 5px;
-    margin-left: 5px;
-    margin-bottom: 5px;
+    margin-top: ${SystemUtil.MARGIN_SIZE}px;
+    margin-left: ${SystemUtil.MARGIN_SIZE}px;
+    margin-bottom: ${SystemUtil.MARGIN_SIZE}px;
     border: 1px solid;
     border-color: #b1bff5;
     overflow: auto;
@@ -497,8 +497,8 @@ const _AnkenLabel = styled.div<{
     display: inline-block;
     width: calc(100% - 10px);
     height: ${SystemUtil.ANKEN_LABEL_HEIGTH}px;
-    margin-left: 5px;
-    margin-top: 5px;
+    margin-left: ${SystemUtil.MARGIN_SIZE}px;
+    margin-top: ${SystemUtil.MARGIN_SIZE}px;
     font-size: ${SystemUtil.CONTENTS_CHAR_SIZE}px;
     font-weight: bold;
     position: relative;
@@ -534,12 +534,12 @@ const _Button = styled.div<{
     ${props => props.isDisable ? '' : StylesUtil.IS_DISABLE}
     background-color: #eef5ff;
     display: inline-block;
-    font-size: 15px;
+    font-size: ${SystemUtil.FONT_SIZE}px;
     width: 80px;
     height: calc(100% - 10px);
     text-align: center;
-    margin-top: 5px;
-    margin-left: 5px;
+    margin-top: ${SystemUtil.MARGIN_SIZE}px;
+    margin-left: ${SystemUtil.MARGIN_SIZE}px;
     border: 1px solid #919191;
     border-radius: 5px;
     &:hover {
@@ -578,12 +578,12 @@ const _Tab = styled.div<{
     cursor: pointer;
     background-color: ${props => props.isActive ? '#8b8ff8' : '#bcbefc'};
     display: inline-block;
-    font-size: ${SystemUtil.TAB_CHAR_SIZE}px;
+    font-size: ${SystemUtil.FONT_SIZE}px;
     text-align: center;
     width: ${SystemUtil.TAB_WEDTH}px;
     height: ${SystemUtil.TAB_HEIGTH}px;
-    margin-left: 5px;
-    margin-top: 5px;
+    margin-left: ${SystemUtil.MARGIN_SIZE}px;
+    margin-top: ${SystemUtil.MARGIN_SIZE}px;
 `;
 
 // コンテンツのエリア

@@ -16,6 +16,10 @@ type GlobalContextProps = {
 
 export const GlobalContext = createContext({} as GlobalContextProps);
 
+/**
+ * メインフレーム
+ * @returns メインフレームのJSX
+ */
 const MainFrame = () => {
     // 画面遷移の管理(大学、案件)
     type Mode = 'daigaku' | 'anken' | 'kinou';
@@ -99,12 +103,12 @@ const _Tab = styled.div<{
   cursor: pointer;
   background-color: ${props => props.isActive ? '#8b8ff8' : '#bcbefc'};
   display: inline-block;
-  font-size: ${SystemUtil.TAB_CHAR_SIZE}px;
+  font-size: ${SystemUtil.FONT_SIZE}px;
   text-align: center;
   width: ${SystemUtil.TAB_WEDTH}px;
   height: ${SystemUtil.TAB_HEIGTH}px;
-  margin-left: 5px;
-  margin-top: 5px;
+  margin-left: ${SystemUtil.MARGIN_SIZE}px;
+  margin-top: ${SystemUtil.MARGIN_SIZE}px;
 `;
 
 // コンテンツのエリア

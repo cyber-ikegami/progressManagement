@@ -1,8 +1,11 @@
 namespace SystemUtil {
+    // 共通文字サイズ
+    export const FONT_SIZE = 15;
+    // 共通margin
+    export const MARGIN_SIZE = 5;
+
     // タブのエリアの高さ
     export const TAB_AREA_HEIGTH = 30;
-    // タブの文字サイズ
-    export const TAB_CHAR_SIZE = 15;
     // タブの幅
     export const TAB_WEDTH = 100;
     // タブの高さ
@@ -25,6 +28,8 @@ namespace SystemUtil {
     export const ANKEN_LABEL_HEIGTH = 60;
     // 案件追加ダイアログの高さ
     export const ANKEN_TUIKA_DIALOG_HEIGTH = 460;
+    // 案件詳細の詳細テキストエリアの高さ
+    export const ANKEN_SYOSAI_TEXT_HEIGTH = 200;
     // 案件履歴ラベルの高さ
     export const ANKEN_RIREKI_LABEL_HEIGTH = 30;
     // 案件実績追加ダイアログの高さ

@@ -2,6 +2,7 @@ import { useEffect, useState } from "react";
 import styled from "styled-components";
 import AbstractFunctionBuilder from "../function/abstractFunctionBuilder";
 import StylesUtil from "../utils/stylesUtil";
+import SystemUtil from "../utils/systemUtil";
 
 /**
  * 機能タブ(画面右側)
@@ -73,22 +74,22 @@ export default KinouRight;
 
 // 入力エリア
 const _InputArea = styled.div`
-    margin-right: 5px;
+    margin-right: ${SystemUtil.MARGIN_SIZE}px;
     width: 100%;
     & input {
         width: calc(100% - 10px);
         height: 20px;
-        margin-left: 5px;
-        margin-bottom: 5px;
+        margin-left: ${SystemUtil.MARGIN_SIZE}px;
+        margin-bottom: ${SystemUtil.MARGIN_SIZE}px;
         box-sizing: border-box;
     }
 `;
 
 // フレーム
 const _Frame = styled.div`
-    margin-top: 5px;
-    margin-left: 5px;
-    margin-bottom: 5px;
+    margin-top: ${SystemUtil.MARGIN_SIZE}px;
+    margin-left: ${SystemUtil.MARGIN_SIZE}px;
+    margin-bottom: ${SystemUtil.MARGIN_SIZE}px;
     border: 1px solid;
     border-color: #b1bff5;
     overflow: auto;
@@ -130,16 +131,16 @@ const _Button = styled.div<{
     & button {
         width: 100px;
         height: 30px;
-        margin-top: 5px;
-        margin-left: 5px;
+        margin-top: ${SystemUtil.MARGIN_SIZE}px;
+        margin-left: ${SystemUtil.MARGIN_SIZE}px;
         bottom: 10px;
     }
 `;
 
 // 項目名ラベル
 const _LabelName = styled.div`
-    font-size: 15px;
-    margin-left: 5px;
+    font-size: ${SystemUtil.FONT_SIZE}px;
+    margin-left: ${SystemUtil.MARGIN_SIZE}px;
     font-weight: bold;
 `;
 
@@ -167,8 +168,8 @@ ${props => props.isDisable ? '' : StylesUtil.IS_DISABLE}
         width: calc(100% - 10px);
         height: calc(100% - 10px);
         resize: none;
-        margin-left: 5px;
-        margin-top: 5px;
+        margin-left: ${SystemUtil.MARGIN_SIZE}px;
+        margin-top: ${SystemUtil.MARGIN_SIZE}px;
         box-sizing: border-box;
       }
   `;
