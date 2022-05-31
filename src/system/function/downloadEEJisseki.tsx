@@ -21,7 +21,10 @@ class DownloadEEJisseki extends AbstractFunctionBuilder {
         };
     }
 
-    // システム日付の取得
+    /**
+     * システム日付の取得
+     * @returns システム日付(XXXX/XX/XX)
+     */
     getSystemDate = () => {
         let today = new Date();
         const year = ('0000' + today.getFullYear()).slice(-4);

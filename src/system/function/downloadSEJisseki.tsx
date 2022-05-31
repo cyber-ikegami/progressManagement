@@ -12,7 +12,7 @@ class DownloadSEJisseki extends AbstractFunctionBuilder {
                 { labelName: '対象月', value: String(this.getSystemDate()[1]) }
             ],
             execute: (values, setResultValue) => {
-                const json = QueryUtil.getJsonData(this.getTargetDate(values));
+                const json = QueryUtil.getSEJsonData(this.getTargetDate(values));
                 json.then((values) => {
                     setResultValue(this.convertTable(values))
                 })
@@ -20,7 +20,10 @@ class DownloadSEJisseki extends AbstractFunctionBuilder {
         };
     };
 
-    // システム日付の取得
+    /**
+     * システム日付の取得
+     * @returns システム日付(年月)
+     */
     getSystemDate = () => {
         let today = new Date();
         const year = ('0000' + today.getFullYear()).slice(-4);
@@ -28,14 +31,18 @@ class DownloadSEJisseki extends AbstractFunctionBuilder {
         return [year, month];
     };
 
-    // 対象日の取得
-    getTargetDate = (values: string[]) => {
-        let toYear = ('0000' + values[0]).slice(-4);
-        let toMonth = ('00' + (String(Number(values[1]) - 1))).slice(-2);
-        const fromYear = ('0000' + values[0]).slice(-4);
-        const fromMonth = ('00' + (values[1])).slice(-2);
+    /**
+     * 取得対象日の取得
+     * @param date 対象年月
+     * @returns 取得対象日('XXXX/XX/21' and 'XXXX/XX/20')
+     */
+    getTargetDate = (date: string[]) => {
+        let toYear = ('0000' + date[0]).slice(-4);
+        let toMonth = ('00' + (String(Number(date[1]) - 1))).slice(-2);
+        const fromYear = ('0000' + date[0]).slice(-4);
+        const fromMonth = ('00' + (date[1])).slice(-2);
 
-        if (values[1] === '1') {
+        if (date[1] === '1') {
             toYear = String(Number(toYear) - 1);
             toMonth = '12';
         }

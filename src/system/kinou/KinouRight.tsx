@@ -3,6 +3,11 @@ import styled from "styled-components";
 import AbstractFunctionBuilder from "../function/abstractFunctionBuilder";
 import StylesUtil from "../utils/stylesUtil";
 
+/**
+ * 機能タブ(画面右側)
+ * @param props 
+ * @returns 機能タブ(画面右側)のJSX
+ */
 const KinouRight = (props: {
     selectKinouList: AbstractFunctionBuilder;
     focus: number;

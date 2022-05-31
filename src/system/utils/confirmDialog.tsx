@@ -13,7 +13,11 @@ export type ConfirmDialogProps = {
     execute: () => void;
 }
 
-// 確認ダイアログ
+/**
+ * 確認ダイアログ
+ * @param props 
+ * @returns 確認ダイアログのJSK
+ */
 const ConfirmDialog = (props: ConfirmDialogProps) => {
     const { setConfirmDialogProps } = useContext(GlobalContext);
 

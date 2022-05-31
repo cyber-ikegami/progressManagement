@@ -1,5 +1,7 @@
 namespace DefineUtil {
-    // 作業区分
+    /**
+     * 作業区分
+     */
     export const SAGYOU_KUBUN_LIST = [
         { key: '01', value: '一次受付(メール回答・PJWeb記載)' },
         { key: '02', value: '仕様確認(mantis該当検索・プロジェクトWEB調査・設計書)' },
@@ -13,6 +15,11 @@ namespace DefineUtil {
         { key: '10', value: 'トラブル対応' }
     ];
 
+    /**
+     * 作業区分の変換
+     * @param key 
+     * @returns 作業区分
+     */
     export const convertKubun = (key: string) => {
         return SAGYOU_KUBUN_LIST.find(kubun => {
             if (kubun.key === key) {

@@ -9,7 +9,11 @@ import DefineUtil from "../utils/defineUtil";
 import { Option } from '../utils/inputDialog';
 import QueryUtil from "../utils/queryUtil";
 
-// 案件実績タブ
+/**
+ * 案件実績タブ
+ * @param props 
+ * @returns 案件実績タブのJSX
+ */
 const AnkenJisseki = (props: {
     selectAnken: AnkenInfo;
     updateJisseki: Function;
@@ -107,7 +111,10 @@ const AnkenJisseki = (props: {
     );
 }
 
-// システム日付の取得
+/**
+ * システム日付の取得
+ * @returns システム日付(XXXX/XX/XX)
+ */
 const getSystemDate = () => {
     let today = new Date();
     const year = ('0000' + today.getFullYear()).slice(-4);

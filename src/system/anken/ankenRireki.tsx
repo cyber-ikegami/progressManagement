@@ -7,7 +7,11 @@ import StylesUtil from "../utils/stylesUtil";
 import { GlobalContext } from "../mainFrame";
 import QueryUtil from "../utils/queryUtil";
 
-// 案件履歴タブ
+/**
+ * 案件履歴タブ
+ * @param props 
+ * @returns 案件履歴タブのJSX
+ */
 const AnkenRireki = (props: {
     selectAnken: AnkenInfo;
     updateRireki: Function;
@@ -24,8 +28,6 @@ const AnkenRireki = (props: {
         }
     }, [props.focus, props.selectAnken.rirekiList]);
 
-    // console.log(props.selectAnken);
-    // console.log(props.focus);
     // 履歴項目
     const detailJsx: JSX.Element[] = useMemo(() => {
         if (props.selectAnken.rirekiList != null) {
@@ -71,7 +73,10 @@ const AnkenRireki = (props: {
     );
 }
 
-// システム日付の取得
+/**
+ * システム日付の取得
+ * @returns システム日付(XXXX/XX/XX)
+ */
 const getSystemDate = () => {
     let today = new Date();
     const year = ('0000' + today.getFullYear()).slice(-4);

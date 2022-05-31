@@ -6,6 +6,10 @@ import DownloadSEJisseki from '../function/downloadSEJisseki';
 import SystemUtil from '../utils/systemUtil';
 import KinouRight from './KinouRight';
 
+/**
+ * 機能タブ
+ * @returns 機能タブのJSX
+ */
 const KinouTab = () => {
   // 現在選択している箇所
   const [focus, setFocus] = useState<number>(-1);

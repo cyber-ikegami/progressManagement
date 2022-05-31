@@ -65,7 +65,10 @@ type AnkenMode = 'syosai' | 'rireki' | 'jisseki';
 // ソート順の管理(緊急度、日付、案件種別)
 type SortMode = 'kinkyu' | 'date' | 'ankenType';
 
-// 案件タブ
+/**
+ * 案件タブ
+ * @returns 案件タブのJSX
+ */
 const AnkenTab = () => {
     // 案件のリスト
     const [ankenList, setAnkenList] = useState<AnkenInfo[]>([]);
@@ -313,7 +316,10 @@ const AnkenTab = () => {
     );
 }
 
-// システム日付の取得
+/**
+ * システム日付の取得
+ * @returns システム日付(XXXX/XX/XX)
+ */
 const getSystemDate = () => {
     let today = new Date();
     const year = ('0000' + today.getFullYear()).slice(-4);
@@ -322,7 +328,12 @@ const getSystemDate = () => {
     return year + '/' + month + '/' + day;
 };
 
-// 案件リスト並び替え
+/**
+ * 案件一覧並び替え
+ * @param ankenList 案件一覧
+ * @param sortMode ソート順
+ * @returns 並び替え後の案件一覧
+ */
 const sortAnkenList = (ankenList: AnkenInfo[], sortMode: string) => {
     // 緊急度
     if (sortMode === 'kinkyu') {

@@ -35,7 +35,11 @@ export type InputDialogProps = {
     execute: (formValues: string[]) => void;
 }
 
-// 入力ダイアログ
+/**
+ * 入力ダイアログ
+ * @param props 
+ * @returns 入力ダイアログのJSX
+ */
 const InputDialog = (props: InputDialogProps) => {
     // ダイアログに表示する値
     const [formValues, setFormValues] = useState<string[]>(props.formList.map((form, i) => (form.value)));
