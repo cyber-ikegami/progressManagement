@@ -150,6 +150,7 @@ const AnkenTab = () => {
         const sortList = sortAnkenList(ankenList, selectSortMode);
         const after = JSON.stringify(sortList);
         if (prev !== after) {
+            setAnkenMode('syosai');
             setFocus(-1);
             setAnkenList(sortList.slice());
         }
