@@ -1,26 +1,42 @@
 import styled from "styled-components";
+import StylesUtil from "../utils/stylesUtil";
 import SystemUtil from "../utils/systemUtil";
 
-namespace AnkenChild {
+namespace ListFrame {
+    export type ButtonProps = {
+        // ボタン名
+        labelName: string;
+        // 活性・非活性
+        isDisable: boolean;
+        // ボタン押下時の処理
+        execute: () => void;
+    }
+
     /**
      * 案件(汎用部)
      * @param props 
      * @returns 案件(汎用部)のJSX
      */
     export const Component = (props: {
-        detailJsx: JSX.Element;
-        footerJsx: JSX.Element;
+        ListJsx: JSX.Element[];
+        operationJsx: ButtonProps[];
     }) => {
+        const operationJsx = props.operationJsx.map((value, i) =>
+            <_Button key={i} isDisable={value.isDisable} onClick={() => {
+                value.execute();
+            }}>{value.labelName}</_Button>
+        );
+
         return (
             <_Frame>
-                <_Detail>{props.detailJsx}</_Detail>
-                <_footer>{props.footerJsx}</_footer>
+                <_Detail>{props.ListJsx}</_Detail>
+                <_footer>{operationJsx}</_footer>
             </_Frame>
         );
     }
 };
 
-export default AnkenChild;
+export default ListFrame;
 
 // フレーム
 const _Frame = styled.div`
@@ -59,5 +75,25 @@ const _footer = styled.div`
     height: ${SystemUtil.TAB_AREA_HEIGTH}px;
 `;
 
+// 追加・更新・削除ボタン
+const _Button = styled.div<{
+    isDisable: boolean;
+}>`
+    // 非活性処理
+    ${props => props.isDisable ? '' : StylesUtil.IS_DISABLE}
+    background-color: #eef5ff;
+    display: inline-block;
+    font-size: ${SystemUtil.FONT_SIZE}px;
+    width: 80px;
+    height: calc(100% - 10px);
+    text-align: center;
+    margin-top: ${SystemUtil.MARGIN_SIZE}px;
+    margin-left: ${SystemUtil.MARGIN_SIZE}px;
+    border: 1px solid #919191;
+    border-radius: 5px;
+    &:hover {
+        background-color:#b1bff5;
+    }
+`;
 
 

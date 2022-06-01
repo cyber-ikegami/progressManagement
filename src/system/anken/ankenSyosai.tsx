@@ -1,5 +1,4 @@
 import styled from "styled-components";
-import AnkenChild from "./ankenChild";
 import SystemUtil from "../utils/systemUtil";
 import AnkenTab from "./ankenTab";
 
@@ -13,35 +12,28 @@ namespace AnkenSyosai {
         selectAnken: AnkenTab.AnkenInfo;
     }) => {
         // 詳細項目
-        const detailJsx = <>
-            <_ItemName>案件種別</_ItemName>
-            <_ItemLabel>{props.selectAnken.ankentype === '' ? '-' : props.selectAnken.ankentype}</_ItemLabel>
-
-            <_ItemName>カスタマID</_ItemName>
-            <_ItemLabel>{props.selectAnken.customid === '' ? '-' : `${props.selectAnken.customid}:${props.selectAnken.daigakunam}`}</_ItemLabel>
-
-            <_ItemName>案件番号</_ItemName>
-            <_ItemLabel>{props.selectAnken.ankenno === '' ? '-' : props.selectAnken.ankenno}</_ItemLabel>
-
-            <_ItemName>案件タイトル</_ItemName>
-            <_ItemLabel>{props.selectAnken.title === '' ? '-' : props.selectAnken.title}</_ItemLabel>
-
-            <_ItemName>発生日</_ItemName>
-            <_ItemLabel>{props.selectAnken.start_dy === '' ? '-' : props.selectAnken.start_dy}</_ItemLabel>
-
-            <_ItemName>詳細</_ItemName>
-            <_ItemLabel>
-                <textarea value={props.selectAnken.detail === '' || props.selectAnken.detail == null ? '' : props.selectAnken.detail} readOnly />
-            </_ItemLabel>
-        </>
-
-        // フッター項目
-        const footerJsx = <>
-            {/* <_Button>更新</_Button> */}
-        </>;
-
         return (
-            <AnkenChild.Component detailJsx={detailJsx} footerJsx={footerJsx}/>
+            <>
+                <_ItemName>案件種別</_ItemName>
+                <_ItemLabel>{props.selectAnken.ankentype === '' ? '-' : props.selectAnken.ankentype}</_ItemLabel>
+
+                <_ItemName>カスタマID</_ItemName>
+                <_ItemLabel>{props.selectAnken.customid === '' ? '-' : `${props.selectAnken.customid}:${props.selectAnken.daigakunam}`}</_ItemLabel>
+
+                <_ItemName>案件番号</_ItemName>
+                <_ItemLabel>{props.selectAnken.ankenno === '' ? '-' : props.selectAnken.ankenno}</_ItemLabel>
+
+                <_ItemName>案件タイトル</_ItemName>
+                <_ItemLabel>{props.selectAnken.title === '' ? '-' : props.selectAnken.title}</_ItemLabel>
+
+                <_ItemName>発生日</_ItemName>
+                <_ItemLabel>{props.selectAnken.start_dy === '' ? '-' : props.selectAnken.start_dy}</_ItemLabel>
+
+                <_ItemName>詳細</_ItemName>
+                <_ItemLabel>
+                    <textarea value={props.selectAnken.detail === '' || props.selectAnken.detail == null ? '' : props.selectAnken.detail} readOnly />
+                </_ItemLabel>
+            </>
         );
     }
 };

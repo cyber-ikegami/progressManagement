@@ -2,8 +2,7 @@ import { useContext, useEffect, useMemo } from "react";
 import styled from "styled-components";
 import SystemUtil from "../utils/systemUtil";
 import AnkenTab from "./ankenTab";
-import AnkenChild from "./ankenChild";
-import StylesUtil from "../utils/stylesUtil";
+import ListFrame from "./ListFrame";
 import QueryUtil from "../utils/queryUtil";
 import MainFrame from "../mainFrame";
 import DialogUtil from "../utils/dialogUtil";
@@ -40,9 +39,9 @@ namespace AnkenRireki {
         }, [props.focus, props.selectAnken.rirekiList]);
 
         // 履歴項目
-        const detailJsx: JSX.Element = useMemo(() => {
+        const detailJsxList: JSX.Element[] = useMemo(() => {
             if (props.selectAnken.rirekiList != null) {
-                const detailJsxList: JSX.Element[] = props.selectAnken.rirekiList.map((value, i) =>
+                return props.selectAnken.rirekiList.map((value, i) =>
                     <_RirekiLabel key={i}>
                         <_Red>{value.rirekiseq}</_Red>
                         <_Gray>: </_Gray>
@@ -50,38 +49,41 @@ namespace AnkenRireki {
                         <_Gray>[{value.detail}]</_Gray>
                     </_RirekiLabel>
                 );
-                return <>{detailJsxList}</>;
             }
-            return <></>;
+            return [];
         }, [props.selectAnken.rirekiList]);
 
         // フッター項目
-        const footerJsx = <>
-            <_Button isDisable={true} onClick={() => {
-                // 履歴追加
-                setInputDialogProps(
-                    DialogUtil.createRirekiDialog(props.selectAnken, getSystemDate(), props.updateAnken)
-                );
-            }}>追加</_Button>
-        </>;
+        const operationJsxList: ListFrame.ButtonProps[] = [
+            {
+                labelName: '追加',
+                isDisable: true,
+                execute: () => {
+                    setInputDialogProps(
+                        DialogUtil.createRirekiDialog(props.selectAnken, getSystemDate(), props.updateAnken)
+                    );
+                }
+            }
+        ];
 
         return (
-            <AnkenChild.Component detailJsx={detailJsx} footerJsx={footerJsx} />
+            <ListFrame.Component ListJsx={detailJsxList} operationJsx={operationJsxList} />
         );
     }
+}
 
-    /**
-     * システム日付の取得
-     * @returns システム日付(XXXX/XX/XX)
-     */
-    const getSystemDate = () => {
-        let today = new Date();
-        const year = ('0000' + today.getFullYear()).slice(-4);
-        const month = ('00' + (today.getMonth() + 1)).slice(-2);
-        const day = ('00' + today.getDate()).slice(-2);
-        return year + '/' + month + '/' + day;
-    };
+/**
+ * システム日付の取得
+ * @returns システム日付(XXXX/XX/XX)
+ */
+const getSystemDate = () => {
+    let today = new Date();
+    const year = ('0000' + today.getFullYear()).slice(-4);
+    const month = ('00' + (today.getMonth() + 1)).slice(-2);
+    const day = ('00' + today.getDate()).slice(-2);
+    return year + '/' + month + '/' + day;
 };
+
 
 export default AnkenRireki;
 
@@ -99,28 +101,6 @@ const _RirekiLabel = styled.div`
     overflow: hidden;
     &:hover {
         opacity: 0.5;
-    }
-`;
-
-// 追加・更新・削除ボタン
-const _Button = styled.div<{
-    isDisable: boolean;
-}>`
-    // 非活性処理
-    ${props => props.isDisable ? '' : StylesUtil.IS_DISABLE};
-
-    background-color: #eef5ff;
-    display: inline-block;
-    font-size: ${SystemUtil.FONT_SIZE}px;
-    width: 80px;
-    height: calc(100% - 10px);
-    text-align: center;
-    margin-top: ${SystemUtil.MARGIN_SIZE}px;
-    margin-left: ${SystemUtil.MARGIN_SIZE}px;
-    border: 1px solid #919191;
-    border-radius: 5px;
-    &:hover {
-        background-color:#b1bff5;
     }
 `;
 

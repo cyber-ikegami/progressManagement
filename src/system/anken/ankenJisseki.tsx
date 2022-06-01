@@ -1,8 +1,7 @@
 import { useContext, useEffect, useMemo, useState } from "react";
 import styled from "styled-components";
 import SystemUtil from "../utils/systemUtil";
-import AnkenChild from "./ankenChild";
-import StylesUtil from "../utils/stylesUtil";
+import ListFrame from "./ListFrame";
 import DefineUtil from "../utils/defineUtil";
 import QueryUtil from "../utils/queryUtil";
 import InputDialog from "../utils/inputDialog";
@@ -74,33 +73,37 @@ namespace AnkenJisseki {
             return [];
         }, [focus, props.selectAnken.jissekiList]);
 
-        const detailJsx: JSX.Element = <>{detailJsxList}</>;
-
         // フッター項目
-        const footerJsx = <>
-            <_Button isDisable={true} onClick={() => {
-                // SAGYOU_KUBUNをOption[]の型に変更
-                const sagyouKubunOptionList: InputDialog.Option[] = DefineUtil.SAGYOU_KUBUN_LIST.map((value) => {
-                    return { optionValue: value.key, showValue: value.value }
-                });
-                // 頭に空白追加
-                sagyouKubunOptionList.unshift({ optionValue: '', showValue: '' });
+        const operationJsxList: ListFrame.ButtonProps[] = [
+            {
+                labelName: '追加',
+                isDisable: true,
+                execute: () => {
+                    const sagyouKubunOptionList: InputDialog.Option[] = DefineUtil.SAGYOU_KUBUN_LIST.map((value) => {
+                        return { optionValue: value.key, showValue: value.value }
+                    });
+                    // 頭に空白追加
+                    sagyouKubunOptionList.unshift({ optionValue: '', showValue: '' });
 
-                setInputDialogProps(
-                    // 実績追加
-                    DialogUtil.createJissekiDialog(getSystemDate(), props.selectAnken, sagyouKubunOptionList, props.updateAnken)
-                );
-            }}>追加</_Button>
-            <_Button isDisable={focus !== -1} onClick={() => {
-                setConfirmDialogProps(
-                    // 実績削除
-                    DialogUtil.deleteJissekiDialog(props.selectAnken, focus)
-                )
-            }}>削除</_Button>
-        </>;
+                    setInputDialogProps(
+                        // 実績追加
+                        DialogUtil.createJissekiDialog(getSystemDate(), props.selectAnken, sagyouKubunOptionList, props.updateAnken)
+                    );
+                }
+            }, {
+                labelName: '削除',
+                isDisable: focus !== -1,
+                execute: () => {
+                    setConfirmDialogProps(
+                        // 実績削除
+                        DialogUtil.deleteJissekiDialog(props.selectAnken, focus)
+                    )
+                }
+            }
+        ];
 
         return (
-            <AnkenChild.Component detailJsx={detailJsx} footerJsx={footerJsx} />
+            <ListFrame.Component ListJsx={detailJsxList} operationJsx={operationJsxList} />
         );
     }
 
@@ -144,28 +147,6 @@ const _JissekiLabel = styled.div`
     overflow: hidden;
     &:hover {
         opacity: 0.5;
-    }
-`;
-
-// 追加・更新・削除ボタン
-const _Button = styled.div<{
-    isDisable: boolean;
-}>`
-    // 非活性処理
-    ${props => props.isDisable ? '' : StylesUtil.IS_DISABLE};
-
-    background-color: #eef5ff;
-    display: inline-block;
-    font-size: ${SystemUtil.FONT_SIZE}px;
-    width: 80px;
-    height: calc(100% - 10px);
-    text-align: center;
-    margin-top: ${SystemUtil.MARGIN_SIZE}px;
-    margin-left: ${SystemUtil.MARGIN_SIZE}px;
-    border: 1px solid #919191;
-    border-radius: 5px;
-    &:hover {
-        background-color:#b1bff5;
     }
 `;
 

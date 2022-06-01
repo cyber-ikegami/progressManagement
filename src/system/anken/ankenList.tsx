@@ -3,9 +3,8 @@ import styled from "styled-components";
 import MainFrame from "../mainFrame";
 import DialogUtil from "../utils/dialogUtil";
 import InputDialog from "../utils/inputDialog";
-import StylesUtil from "../utils/stylesUtil";
 import SystemUtil from "../utils/systemUtil";
-import AnkenChild from "./ankenChild";
+import ListFrame from "./ListFrame";
 import AnkenTab from "./ankenTab";
 
 // 案件一覧Jsx作成
@@ -43,47 +42,57 @@ export const AnkenList = (props: {
     }, [props.ankenList, props.focus]);
 
     // フッター項目
-    const footerJsx = <>
-        <_Button isDisable={true} onClick={() => {
-            // daigakuInfoListをOption[]の型に変更
-            const daigakuOptionList: InputDialog.Option[] = daigakuInfoList.map((value) => {
-                const customId = value.customid === '' ? '' : `${value.customid}：${value.daigakunam}`;
-                return { optionValue: value.customid, showValue: customId }
-            });
-            // 頭に空白追加
-            daigakuOptionList.unshift({ optionValue: '', showValue: '' });
+    const operationJsxList: ListFrame.ButtonProps[] = [
+        {
+            labelName: '追加',
+            isDisable: true,
+            execute: () => {
+                // daigakuInfoListをOption[]の型に変更
+                const daigakuOptionList: InputDialog.Option[] = daigakuInfoList.map((value) => {
+                    const customId = value.customid === '' ? '' : `${value.customid}：${value.daigakunam}`;
+                    return { optionValue: value.customid, showValue: customId }
+                });
+                // 頭に空白追加
+                daigakuOptionList.unshift({ optionValue: '', showValue: '' });
 
-            // 案件追加
-            setInputDialogProps(
-                DialogUtil.createAnkenDialog(daigakuOptionList, getSystemDate(), props.setAnkenMode, props.setFocus, props.setAnkenStatus, props.setAnkenList)
-            );
-        }}>追加</_Button>
-        <_Button isDisable={props.focus !== -1} onClick={() => {
-            // 頭に空白追加
-            const comboBoxItemList = daigakuInfoList.slice();
-            comboBoxItemList.unshift({ customid: '', daigakunam: '' });
+                // 案件追加
+                setInputDialogProps(
+                    DialogUtil.createAnkenDialog(daigakuOptionList, getSystemDate(), props.setAnkenMode, props.setFocus, props.setAnkenStatus, props.setAnkenList)
+                );
+            }
+        }, {
+            labelName: '更新',
+            isDisable: props.focus !== -1,
+            execute: () => {
+                // 頭に空白追加
+                const comboBoxItemList = daigakuInfoList.slice();
+                comboBoxItemList.unshift({ customid: '', daigakunam: '' });
 
-            // daigakuInfoList(comboBoxItemList)をOption[]の型に変更
-            const daigakuOptionList: InputDialog.Option[] = comboBoxItemList.map((value) => {
-                const itemValue = value.customid === '' ? '' : `${value.customid}：${value.daigakunam}`;
-                return { optionValue: value.customid, showValue: itemValue }
-            });
+                // daigakuInfoList(comboBoxItemList)をOption[]の型に変更
+                const daigakuOptionList: InputDialog.Option[] = comboBoxItemList.map((value) => {
+                    const itemValue = value.customid === '' ? '' : `${value.customid}：${value.daigakunam}`;
+                    return { optionValue: value.customid, showValue: itemValue }
+                });
 
-            // 案件更新
-            setInputDialogProps(
-                DialogUtil.updateAnkenDialog(props.ankenList, props.focus, daigakuOptionList, props.ankenStatus, props.setAnkenMode, props.setAnkenList)
-            );
-        }}>更新</_Button>
-        <_Button isDisable={props.focus !== -1} onClick={() => {
-            // 案件削除
-            setConfirmDialogProps(
-                DialogUtil.deleteAnkenDialog(props.ankenList, props.focus, props.setAnkenMode, props.setFocus, props.setAnkenList)
-            )
-        }}>削除</_Button>
-    </>;
+                // 案件更新
+                setInputDialogProps(
+                    DialogUtil.updateAnkenDialog(props.ankenList, props.focus, daigakuOptionList, props.ankenStatus, props.setAnkenMode, props.setAnkenList)
+                );
+            }
+        }, {
+            labelName: '削除',
+            isDisable: props.focus !== -1,
+            execute: () => {
+                // 案件削除
+                setConfirmDialogProps(
+                    DialogUtil.deleteAnkenDialog(props.ankenList, props.focus, props.setAnkenMode, props.setFocus, props.setAnkenList)
+                )
+            }
+        }
+    ];
 
     return (
-        <AnkenChild.Component detailJsx={<>{ankenJsxList}</>} footerJsx={footerJsx} />
+        <ListFrame.Component ListJsx={ankenJsxList} operationJsx={operationJsxList} />
     );
 
 };
@@ -151,27 +160,6 @@ const _BottomAnkenLabel = styled.div`
     width: 100%;
     height: calc(50% - 3px);
     margin-bottom: 3px;
-`;
-
-// 追加・更新・削除ボタン
-const _Button = styled.div<{
-    isDisable: boolean;
-}>`
-    // 非活性処理
-    ${props => props.isDisable ? '' : StylesUtil.IS_DISABLE}
-    background-color: #eef5ff;
-    display: inline-block;
-    font-size: ${SystemUtil.FONT_SIZE}px;
-    width: 80px;
-    height: calc(100% - 10px);
-    text-align: center;
-    margin-top: ${SystemUtil.MARGIN_SIZE}px;
-    margin-left: ${SystemUtil.MARGIN_SIZE}px;
-    border: 1px solid #919191;
-    border-radius: 5px;
-    &:hover {
-        background-color:#b1bff5;
-    }
 `;
 
 // 赤文字(ステータス等)
