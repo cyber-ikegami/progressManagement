@@ -71,7 +71,7 @@ namespace QueryUtil {
      */
     export const insertAnken = async (ankenType: string, ankenno: string, title: string, start_dy: string, detail: string, nextAnkenId: number, customId: string) => {
         await DataBaseUtil.sendQueryRequestToAPI('update',
-            `INSERT INTO anken values ('${nextAnkenId}', '${ankenType}', '${customId}', '${ankenno}', '${title}', '${detail}}', '0', '${start_dy}', '')`);
+            `INSERT INTO anken values ('${nextAnkenId}', '${ankenType}', '${customId}', '${ankenno}', '${title}', '${detail}', '0', '${start_dy}', '')`);
     };
 
     /**

@@ -8,6 +8,7 @@ import QueryUtil from "../utils/queryUtil";
 import InputDialog from "../utils/inputDialog";
 import AnkenTab from "./ankenTab";
 import MainFrame from "../mainFrame";
+import DialogUtil from "../utils/dialogUtil";
 
 namespace AnkenJisseki {
     export type JissekiInfo = {
@@ -49,7 +50,7 @@ namespace AnkenJisseki {
         }, [props.focus, props.selectAnken.jissekiList]);
 
         // 実績項目
-        const detailJsx: JSX.Element[] = useMemo(() => {
+        const detailJsxList: JSX.Element[] = useMemo(() => {
             if (props.selectAnken.jissekiList != null) {
                 return props.selectAnken.jissekiList.map((value, i) => {
                     const kubun = DefineUtil.convertKubun(value.worktype);
@@ -73,6 +74,8 @@ namespace AnkenJisseki {
             return [];
         }, [focus, props.selectAnken.jissekiList]);
 
+        const detailJsx: JSX.Element = <>{detailJsxList}</>;
+
         // フッター項目
         const footerJsx = <>
             <_Button isDisable={true} onClick={() => {
@@ -84,44 +87,20 @@ namespace AnkenJisseki {
                 sagyouKubunOptionList.unshift({ optionValue: '', showValue: '' });
 
                 setInputDialogProps(
-                    {
-                        formList: [
-                            { labelName: '作業日', value: getSystemDate() },
-                            { labelName: '作業者', value: '', type: 'comboBox', optionList: [{ optionValue: '', showValue: '' }, { optionValue: '河野', showValue: '河野' }, { optionValue: '村田', showValue: '村田' }, { optionValue: '池上', showValue: '池上' }] },
-                            { labelName: '作業種別', value: '', type: 'comboBox', optionList: sagyouKubunOptionList },
-                            { labelName: '時間(m)', value: '', type: 'number' }
-                        ],
-                        heightSize: SystemUtil.ANKEN_JISSEKI_TUIKA_DIALOG_HEIGTH,
-                        execute: (values) => {
-                            QueryUtil.findMaxJisekiseq(props.selectAnken.ankenid).then(value => {
-                                const nextJisekiseq = value[0].maxSeq == null ? '0' : value[0].maxSeq + 1;
-                                QueryUtil.insertJisseki(props.selectAnken.ankenid, values[0], values[1], values[2], values[3], nextJisekiseq).then(() => {
-                                    props.selectAnken.jissekiList = null;
-                                    props.updateAnken();
-                                });
-                            });
-                        }
-                    }
+                    // 実績追加
+                    DialogUtil.createJissekiDialog(getSystemDate(), props.selectAnken, sagyouKubunOptionList, props.updateAnken)
                 );
             }}>追加</_Button>
             <_Button isDisable={focus !== -1} onClick={() => {
                 setConfirmDialogProps(
-                    {
-                        cancelName: 'キャンセル',
-                        enterName: '削除',
-                        message: '削除しますか？',
-                        execute: () => {
-                            const jissekiList = props.selectAnken.jissekiList as JissekiInfo[];
-                            QueryUtil.deleteJisseki(props.selectAnken.ankenid, jissekiList[focus].jisekiseq);
-                            props.selectAnken.jissekiList = null;
-                        }
-                    }
+                    // 実績削除
+                    DialogUtil.deleteJissekiDialog(props.selectAnken, focus)
                 )
             }}>削除</_Button>
         </>;
 
         return (
-            <AnkenChild.Component detailJsx={detailJsx} footerJsx={footerJsx}/>
+            <AnkenChild.Component detailJsx={detailJsx} footerJsx={footerJsx} />
         );
     }
 

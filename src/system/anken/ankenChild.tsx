@@ -8,7 +8,7 @@ namespace AnkenChild {
      * @returns 案件(汎用部)のJSX
      */
     export const Component = (props: {
-        detailJsx: JSX.Element | JSX.Element[];
+        detailJsx: JSX.Element;
         footerJsx: JSX.Element;
     }) => {
         return (

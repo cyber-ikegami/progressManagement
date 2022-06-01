@@ -6,6 +6,7 @@ import AnkenChild from "./ankenChild";
 import StylesUtil from "../utils/stylesUtil";
 import QueryUtil from "../utils/queryUtil";
 import MainFrame from "../mainFrame";
+import DialogUtil from "../utils/dialogUtil";
 
 namespace AnkenRireki {
     export type RirekiInfo = {
@@ -39,9 +40,9 @@ namespace AnkenRireki {
         }, [props.focus, props.selectAnken.rirekiList]);
 
         // 履歴項目
-        const detailJsx: JSX.Element[] = useMemo(() => {
+        const detailJsx: JSX.Element = useMemo(() => {
             if (props.selectAnken.rirekiList != null) {
-                return props.selectAnken.rirekiList.map((value, i) =>
+                const detailJsxList: JSX.Element[] = props.selectAnken.rirekiList.map((value, i) =>
                     <_RirekiLabel key={i}>
                         <_Red>{value.rirekiseq}</_Red>
                         <_Gray>: </_Gray>
@@ -49,37 +50,23 @@ namespace AnkenRireki {
                         <_Gray>[{value.detail}]</_Gray>
                     </_RirekiLabel>
                 );
+                return <>{detailJsxList}</>;
             }
-            return [];
+            return <></>;
         }, [props.selectAnken.rirekiList]);
 
         // フッター項目
         const footerJsx = <>
             <_Button isDisable={true} onClick={() => {
+                // 履歴追加
                 setInputDialogProps(
-                    {
-                        formList: [{ labelName: '状態', value: '' }, { labelName: '備考', value: '' }, { labelName: '緊急度', value: '0', type: 'number' }],
-                        heightSize: SystemUtil.ANKEN_RIREKI_TUIKA_DIALOG_HEIGTH,
-                        execute: (values) => {
-                            QueryUtil.findMaxRirekiseq(props.selectAnken.ankenid).then(value => {
-                                const nextRirekiseq = value[0].maxSeq == null ? '0' : value[0].maxSeq + 1;
-
-                                QueryUtil.insertRireki(props.selectAnken.ankenid, values[0], values[1], nextRirekiseq).then(() => {
-                                    QueryUtil.updateAnkenStatus(props.selectAnken.ankenid, values[2], getSystemDate());
-                                    props.selectAnken.rirekiList = null;
-                                    props.selectAnken.status = Number(values[2]);
-                                    props.selectAnken.update_dy = getSystemDate();
-                                    props.updateAnken();
-                                })
-                            });
-                        }
-                    }
+                    DialogUtil.createRirekiDialog(props.selectAnken, getSystemDate(), props.updateAnken)
                 );
             }}>追加</_Button>
         </>;
 
         return (
-            <AnkenChild.Component detailJsx={detailJsx} footerJsx={footerJsx}/>
+            <AnkenChild.Component detailJsx={detailJsx} footerJsx={footerJsx} />
         );
     }
 
