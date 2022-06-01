@@ -1,16 +1,12 @@
-import React, { useContext, useEffect, useState } from 'react';
+import React, { useEffect, useState } from 'react';
 import styled, { css } from 'styled-components';
 import SystemUtil from '../utils/systemUtil';
 import AnkenSyosai from './ankenSyosai';
 import AnkenRireki from './ankenRireki';
 import AnkenJisseki from './ankenJisseki';
 import StylesUtil from '../utils/stylesUtil';
-import AnkenChild from './ankenChild';
 import QueryUtil from '../utils/queryUtil';
-import InputDialog from '../utils/inputDialog';
-import MainFrame from '../mainFrame';
 import AnkenList from './ankenList';
-import DialogUtil from '../utils/dialogUtil';
 
 namespace AnkenTab {
     export type AnkenInfo = {
@@ -44,7 +40,7 @@ namespace AnkenTab {
     export type AnkenMode = 'syosai' | 'rireki' | 'jisseki';
 
     // ソート順の管理(緊急度、日付、案件種別)
-    type SortMode = 'kinkyu' | 'date' | 'ankenType';
+    export type SortMode = 'kinkyu' | 'date' | 'ankenType';
 
     /**
      * 案件タブ
@@ -63,8 +59,6 @@ namespace AnkenTab {
         const [ankenMode, setAnkenMode] = useState<AnkenMode>('syosai');
         // ソート順の管理
         const [selectSortMode, setSelectSortMode] = useState<SortMode>('kinkyu');
-
-        const { setInputDialogProps, setConfirmDialogProps, daigakuInfoList } = useContext(MainFrame.GlobalContext);
 
         // 画面切り替え
         let contentsJsx = <></>;
@@ -126,46 +120,6 @@ namespace AnkenTab {
             }
         }, [ankenList, selectSortMode]);
 
-        // フッター項目
-        const footerJsx = <>
-            <_Button isDisable={true} onClick={() => {
-                // daigakuInfoListをOption[]の型に変更
-                const daigakuOptionList: InputDialog.Option[] = daigakuInfoList.map((value) => {
-                    const customId = value.customid === '' ? '' : `${value.customid}：${value.daigakunam}`;
-                    return { optionValue: value.customid, showValue: customId }
-                });
-                // 頭に空白追加
-                daigakuOptionList.unshift({ optionValue: '', showValue: '' });
-
-                // 案件追加
-                setInputDialogProps(
-                    DialogUtil.createAnkenDialog(daigakuOptionList, getSystemDate(), setAnkenMode, setFocus, setAnkenStatus, setAnkenList)
-                );
-            }}>追加</_Button>
-            <_Button isDisable={focus !== -1} onClick={() => {
-                // 頭に空白追加
-                const comboBoxItemList = daigakuInfoList.slice();
-                comboBoxItemList.unshift({ customid: '', daigakunam: '' });
-
-                // daigakuInfoList(comboBoxItemList)をOption[]の型に変更
-                const daigakuOptionList: InputDialog.Option[] = comboBoxItemList.map((value) => {
-                    const itemValue = value.customid === '' ? '' : `${value.customid}：${value.daigakunam}`;
-                    return { optionValue: value.customid, showValue: itemValue }
-                });
-
-                // 案件更新
-                setInputDialogProps(
-                    DialogUtil.updateAnkenDialog(ankenList, focus, daigakuOptionList, ankenStatus, setAnkenMode, setAnkenList)
-                );
-            }}>更新</_Button>
-            <_Button isDisable={focus !== -1} onClick={() => {
-                // 案件削除
-                setConfirmDialogProps(
-                    DialogUtil.deleteAnkenDialog(ankenList, focus, setAnkenMode, setFocus, setAnkenList)
-                )
-            }}>削除</_Button>
-        </>;
-
         return (
             <>
                 <_Header>
@@ -195,7 +149,7 @@ namespace AnkenTab {
                 </_Header>
                 <_Left>
                     <_Frame>
-                        {isLoad ? <_LoadLabel>NowLoding…</_LoadLabel> : <AnkenChild.Component detailJsx={<AnkenList ankenList={ankenList} focus={focus} setFocus={setFocus} />} footerJsx={footerJsx} />}
+                        {isLoad ? <_LoadLabel>NowLoding…</_LoadLabel> : <AnkenList ankenList={ankenList} setAnkenList={setAnkenList} focus={focus} setFocus={setFocus} setAnkenMode={setAnkenMode} ankenStatus={ankenStatus} setAnkenStatus={setAnkenStatus} />}
                     </_Frame>
                 </_Left>
                 <_Right isDisable={focus !== -1}>
@@ -219,18 +173,6 @@ namespace AnkenTab {
             </>
         );
     }
-
-    /**
-     * システム日付の取得
-     * @returns システム日付(XXXX/XX/XX)
-     */
-    const getSystemDate = () => {
-        let today = new Date();
-        const year = ('0000' + today.getFullYear()).slice(-4);
-        const month = ('00' + (today.getMonth() + 1)).slice(-2);
-        const day = ('00' + today.getDate()).slice(-2);
-        return year + '/' + month + '/' + day;
-    };
 
     /**
      * 案件一覧並び替え
@@ -272,9 +214,13 @@ namespace AnkenTab {
                 if (a.ankentype !== b.ankentype) {
                     return (a.ankentype > b.ankentype ? -1 : 1);
                 }
-                // 条件2：緊急度
-                if (a.status !== b.status) {
-                    return (a.status - b.status);
+                // 条件2：カスタマID
+                if (a.customid !== b.customid) {
+                    return (a.customid > b.customid ? 1 : -1);
+                }
+                // 条件3：開始日
+                if (a.start_dy !== b.start_dy) {
+                    return (a.start_dy > b.start_dy ? -1 : 1);
                 }
                 return 0;
             })
@@ -378,27 +324,6 @@ const _Left = styled.div`
 const _LoadLabel = styled.div`
     font-size: 20px;
     color: #d80000;    
-`;
-
-// 追加・更新・削除ボタン
-const _Button = styled.div<{
-    isDisable: boolean;
-}>`
-    // 非活性処理
-    ${props => props.isDisable ? '' : StylesUtil.IS_DISABLE}
-    background-color: #eef5ff;
-    display: inline-block;
-    font-size: ${SystemUtil.FONT_SIZE}px;
-    width: 80px;
-    height: calc(100% - 10px);
-    text-align: center;
-    margin-top: ${SystemUtil.MARGIN_SIZE}px;
-    margin-left: ${SystemUtil.MARGIN_SIZE}px;
-    border: 1px solid #919191;
-    border-radius: 5px;
-    &:hover {
-        background-color:#b1bff5;
-    }
 `;
 
 // 画面右

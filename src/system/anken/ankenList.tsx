@@ -1,14 +1,25 @@
-import { useMemo } from "react";
+import { useContext, useMemo } from "react";
 import styled from "styled-components";
+import MainFrame from "../mainFrame";
+import DialogUtil from "../utils/dialogUtil";
+import InputDialog from "../utils/inputDialog";
+import StylesUtil from "../utils/stylesUtil";
 import SystemUtil from "../utils/systemUtil";
+import AnkenChild from "./ankenChild";
 import AnkenTab from "./ankenTab";
 
 // 案件一覧Jsx作成
 export const AnkenList = (props: {
     ankenList: AnkenTab.AnkenInfo[];
+    setAnkenList: React.Dispatch<React.SetStateAction<AnkenTab.AnkenInfo[]>>;
     focus: number;
     setFocus: React.Dispatch<React.SetStateAction<number>>;
+    setAnkenMode: React.Dispatch<React.SetStateAction<AnkenTab.AnkenMode>>;
+    ankenStatus: string;
+    setAnkenStatus: React.Dispatch<React.SetStateAction<string>>;
 }) => {
+    const { setInputDialogProps, setConfirmDialogProps, daigakuInfoList } = useContext(MainFrame.GlobalContext);
+
     const ankenJsxList = useMemo(() => {
         return props.ankenList.map((value, i) =>
             <_AnkenLabel key={i} ankenType={value.ankentype} onClick={() => {
@@ -30,7 +41,63 @@ export const AnkenList = (props: {
             </_AnkenLabel>
         );
     }, [props.ankenList, props.focus]);
-    return <>{ankenJsxList}</>;
+
+    // フッター項目
+    const footerJsx = <>
+        <_Button isDisable={true} onClick={() => {
+            // daigakuInfoListをOption[]の型に変更
+            const daigakuOptionList: InputDialog.Option[] = daigakuInfoList.map((value) => {
+                const customId = value.customid === '' ? '' : `${value.customid}：${value.daigakunam}`;
+                return { optionValue: value.customid, showValue: customId }
+            });
+            // 頭に空白追加
+            daigakuOptionList.unshift({ optionValue: '', showValue: '' });
+
+            // 案件追加
+            setInputDialogProps(
+                DialogUtil.createAnkenDialog(daigakuOptionList, getSystemDate(), props.setAnkenMode, props.setFocus, props.setAnkenStatus, props.setAnkenList)
+            );
+        }}>追加</_Button>
+        <_Button isDisable={props.focus !== -1} onClick={() => {
+            // 頭に空白追加
+            const comboBoxItemList = daigakuInfoList.slice();
+            comboBoxItemList.unshift({ customid: '', daigakunam: '' });
+
+            // daigakuInfoList(comboBoxItemList)をOption[]の型に変更
+            const daigakuOptionList: InputDialog.Option[] = comboBoxItemList.map((value) => {
+                const itemValue = value.customid === '' ? '' : `${value.customid}：${value.daigakunam}`;
+                return { optionValue: value.customid, showValue: itemValue }
+            });
+
+            // 案件更新
+            setInputDialogProps(
+                DialogUtil.updateAnkenDialog(props.ankenList, props.focus, daigakuOptionList, props.ankenStatus, props.setAnkenMode, props.setAnkenList)
+            );
+        }}>更新</_Button>
+        <_Button isDisable={props.focus !== -1} onClick={() => {
+            // 案件削除
+            setConfirmDialogProps(
+                DialogUtil.deleteAnkenDialog(props.ankenList, props.focus, props.setAnkenMode, props.setFocus, props.setAnkenList)
+            )
+        }}>削除</_Button>
+    </>;
+
+    return (
+        <AnkenChild.Component detailJsx={<>{ankenJsxList}</>} footerJsx={footerJsx} />
+    );
+
+};
+
+/**
+* システム日付の取得
+* @returns システム日付(XXXX/XX/XX)
+*/
+const getSystemDate = () => {
+    let today = new Date();
+    const year = ('0000' + today.getFullYear()).slice(-4);
+    const month = ('00' + (today.getMonth() + 1)).slice(-2);
+    const day = ('00' + today.getDate()).slice(-2);
+    return year + '/' + month + '/' + day;
 };
 
 export default AnkenList;
@@ -84,6 +151,27 @@ const _BottomAnkenLabel = styled.div`
     width: 100%;
     height: calc(50% - 3px);
     margin-bottom: 3px;
+`;
+
+// 追加・更新・削除ボタン
+const _Button = styled.div<{
+    isDisable: boolean;
+}>`
+    // 非活性処理
+    ${props => props.isDisable ? '' : StylesUtil.IS_DISABLE}
+    background-color: #eef5ff;
+    display: inline-block;
+    font-size: ${SystemUtil.FONT_SIZE}px;
+    width: 80px;
+    height: calc(100% - 10px);
+    text-align: center;
+    margin-top: ${SystemUtil.MARGIN_SIZE}px;
+    margin-left: ${SystemUtil.MARGIN_SIZE}px;
+    border: 1px solid #919191;
+    border-radius: 5px;
+    &:hover {
+        background-color:#b1bff5;
+    }
 `;
 
 // 赤文字(ステータス等)
