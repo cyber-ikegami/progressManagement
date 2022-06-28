@@ -1,7 +1,6 @@
 import React from 'react';
 import ReactDOM from 'react-dom';
 import './index.css';
-// import App from './App';
 import MainFrame from './system/mainFrame';
 import reportWebVitals from './reportWebVitals';
 

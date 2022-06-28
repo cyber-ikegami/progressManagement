@@ -119,13 +119,18 @@ namespace DialogUtil {
                 QueryUtil.findMaxRirekiseq(selectAnken.ankenid).then(value => {
                     const nextRirekiseq = value[0].maxSeq == null ? '0' : value[0].maxSeq + 1;
 
-                    QueryUtil.insertRireki(selectAnken.ankenid, values[0], values[1], nextRirekiseq).then(() => {
-                        QueryUtil.updateAnkenStatus(selectAnken.ankenid, values[2], systemDate);
-                        selectAnken.rirekiList = null;
-                        selectAnken.status = Number(values[2]);
-                        selectAnken.update_dy = systemDate;
-                        updateAnken();
-                    })
+                    // 排他制御
+                    if (selectAnken.rirekiList != null ? value[0].maxSeq === selectAnken.rirekiList[0].rirekiseq : value[0].maxSeq == null) {
+                        QueryUtil.insertRireki(selectAnken.ankenid, values[0], values[1], nextRirekiseq).then(() => {
+                            QueryUtil.updateAnkenStatus(selectAnken.ankenid, values[2], systemDate);
+                            selectAnken.rirekiList = null;
+                            selectAnken.status = Number(values[2]);
+                            selectAnken.update_dy = systemDate;
+                            updateAnken();
+                        })
+                    } else {
+                        alert('最新の状態で再度実行してください！');
+                    }
                 });
             }
         }
@@ -147,10 +152,10 @@ namespace DialogUtil {
     ): InputDialog.Props => {
         return {
             formList: [
-                { labelName: '作業日', value: systemDate },
-                { labelName: '作業者', value: '', type: 'comboBox', optionList: [{ optionValue: '', showValue: '' }, { optionValue: '河野', showValue: '河野' }, { optionValue: '村田', showValue: '村田' }, { optionValue: '池上', showValue: '池上' }] },
-                { labelName: '作業種別', value: '', type: 'comboBox', optionList: sagyouKubunOptionList },
-                { labelName: '時間(m)', value: '', type: 'number' }
+                { labelName: '作業日', value: systemDate, isRequired: true },
+                { labelName: '作業者', value: '', type: 'comboBox', optionList: [{ optionValue: '', showValue: '' }, { optionValue: '河野', showValue: '河野' }, { optionValue: '村田', showValue: '村田' }, { optionValue: '池上', showValue: '池上' }], isRequired: true },
+                { labelName: '作業種別', value: '', type: 'comboBox', optionList: sagyouKubunOptionList, isRequired: true },
+                { labelName: '時間(m)', value: '', type: 'number', isRequired: true }
             ],
             heightSize: SystemUtil.ANKEN_JISSEKI_TUIKA_DIALOG_HEIGTH,
             execute: (values) => {
