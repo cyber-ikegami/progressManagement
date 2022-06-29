@@ -120,16 +120,18 @@ namespace DialogUtil {
                     const nextRirekiseq = value[0].maxSeq == null ? '0' : value[0].maxSeq + 1;
 
                     // 排他制御
-                    if (selectAnken.rirekiList != null ? value[0].maxSeq === selectAnken.rirekiList[0].rirekiseq : value[0].maxSeq == null) {
-                        QueryUtil.insertRireki(selectAnken.ankenid, values[0], values[1], nextRirekiseq).then(() => {
-                            QueryUtil.updateAnkenStatus(selectAnken.ankenid, values[2], systemDate);
-                            selectAnken.rirekiList = null;
-                            selectAnken.status = Number(values[2]);
-                            selectAnken.update_dy = systemDate;
-                            updateAnken();
-                        })
-                    } else {
-                        alert('最新の状態で再度実行してください！');
+                    if (selectAnken.rirekiList != null) {
+                        if (selectAnken.rirekiList.length !== 0 ? value[0].maxSeq === selectAnken.rirekiList[0].rirekiseq : nextRirekiseq === '0') {
+                            QueryUtil.insertRireki(selectAnken.ankenid, values[0], values[1], nextRirekiseq).then(() => {
+                                QueryUtil.updateAnkenStatus(selectAnken.ankenid, values[2], systemDate);
+                                selectAnken.rirekiList = null;
+                                selectAnken.status = Number(values[2]);
+                                selectAnken.update_dy = systemDate;
+                                updateAnken();
+                            })
+                        } else {
+                            alert('最新の状態で再度実行してください！');
+                        }
                     }
                 });
             }
