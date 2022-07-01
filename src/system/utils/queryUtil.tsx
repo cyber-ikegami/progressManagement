@@ -262,6 +262,27 @@ namespace QueryUtil {
         const json = await response.json();
         return json;
     };
+
+    /**
+     * PKGのJSONデータの取得
+     * @param ankentype 案件種別
+     * @param start_dy 開始日
+     * @param end_dy 終了日
+     * @returns 検索結果
+     */
+     export const getPKGJsonData = async (ankentype: string, start_dy: string, end_dy: string) => {
+        const kubunList = DefineUtil.SAGYOU_KUBUN_LIST.map((value => {
+            return `when '${value.key}' then '${value.value}'`;
+        }));
+
+        const response = await DataBaseUtil.sendQueryRequestToAPI('select',
+            `select j.sagyou_dy, a.ankenno, a.title, j.user, case j.worktype ${kubunList.join(' ')} else '' end, j.time
+            from jisseki j inner join anken a on a.ankenid = j.ankenid
+            where j.sagyou_dy between '${start_dy}' and '${end_dy}' and a.ankentype = '${ankentype}'
+            order by j.sagyou_dy`);
+        const json = await response.json();
+        return json;
+    };
 };
 
 export default QueryUtil;

@@ -1,9 +1,23 @@
 namespace AbstractFunctionBuilder {
+    // 入力欄のタイプ
+    export type InputType = 'textField' | 'comboBox';
+
+    export type Option = {
+        // コンボボックスのvalue
+        optionValue: string;
+        // コンボボックスの表示する値
+        showValue: string;
+    }
+
     export type FormInfo = {
         // 項目名label
         labelName: string;
         // 項目の値
         value: string;
+        // 入力欄のタイプ
+        type? :InputType;
+        // コンボボックスの選択肢のリスト
+        optionList?: Option[];
     }
 
     export type FunctionFormProps = {
@@ -13,7 +27,6 @@ namespace AbstractFunctionBuilder {
         execute: (inputValues: string[], setResultValue: (value: string) => void) => void;
     }
 
-    // abstract class AbstractFunctionBuilder {
     export abstract class Component {
         abstract getFunctionName(): string;
         abstract getFormProps(): FunctionFormProps;

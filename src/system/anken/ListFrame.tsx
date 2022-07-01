@@ -30,7 +30,7 @@ namespace ListFrame {
         return (
             <_Frame>
                 <_Detail>{props.ListJsx}</_Detail>
-                <_footer>{operationJsx}</_footer>
+                <_Footer>{operationJsx}</_Footer>
             </_Frame>
         );
     }
@@ -68,7 +68,7 @@ const _Detail = styled.div`
 `;
 
 // フッター(下部ボタンエリア)
-const _footer = styled.div`
+const _Footer = styled.div`
     display: 'inline-block';
     background-color: #a2a7ff;
     width: 100%;

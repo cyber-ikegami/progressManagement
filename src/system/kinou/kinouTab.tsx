@@ -1,8 +1,9 @@
 import React, { useMemo, useState } from 'react';
 import styled from 'styled-components';
 import AbstractFunctionBuilder from '../function/abstractFunctionBuilder';
-import DownloadEEJisseki from '../function/downloadEEJisseki';
 import DownloadSEJisseki from '../function/downloadSEJisseki';
+import DownloadEEJisseki from '../function/downloadEEJisseki';
+import DownloadPKGJisseki from '../function/downloadPKGJisseki';
 import SystemUtil from '../utils/systemUtil';
 import KinouRight from './KinouRight';
 
@@ -16,7 +17,7 @@ namespace KinouTab {
     const [focus, setFocus] = useState<number>(-1);
 
     const kinouList: AbstractFunctionBuilder.Component[] = useMemo(() => {
-      return [new DownloadSEJisseki.Component(), new DownloadEEJisseki.Component()];
+      return [new DownloadSEJisseki.Component(), new DownloadEEJisseki.Component(), new DownloadPKGJisseki.Component()];
     }, []);
 
     const kinouJsxList = kinouList.map((kinou, i) => {

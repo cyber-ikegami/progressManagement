@@ -32,7 +32,8 @@ namespace DialogUtil {
             formList: [
                 {
                     labelName: '案件種別', value: '', type: 'comboBox', optionList: [{ optionValue: '', showValue: '' },
-                    { optionValue: 'SE', showValue: 'SE' }, { optionValue: 'EE', showValue: 'EE' }, { optionValue: 'PKG連絡票', showValue: 'PKG連絡票' }], isRequired: true
+                    { optionValue: 'SE', showValue: 'SE' }, { optionValue: 'EE', showValue: 'EE' }, 
+                    { optionValue: 'PKG連絡票', showValue: 'PKG連絡票' }, { optionValue: 'PKG連絡票(Xs)', showValue: 'PKG連絡票(Xs)' }], isRequired: true
                 },
                 { labelName: 'カスタマID', value: '', type: 'comboBox', optionList: daigakuOptionList, isRequired: false },
                 { labelName: '案件番号', value: '', isRequired: false },
@@ -80,7 +81,8 @@ namespace DialogUtil {
         return {
             formList: [{
                 labelName: '案件種別', value: ankenList[focus].ankentype, type: 'comboBox', optionList: [{ optionValue: '', showValue: '' },
-                { optionValue: 'SE', showValue: 'SE' }, { optionValue: 'EE', showValue: 'EE' }, { optionValue: 'PKG連絡票', showValue: 'PKG連絡票' }], isRequired: true
+                { optionValue: 'SE', showValue: 'SE' }, { optionValue: 'EE', showValue: 'EE' }, 
+                { optionValue: 'PKG連絡票', showValue: 'PKG連絡票' }, { optionValue: 'PKG連絡票(Xs)', showValue: 'PKG連絡票(Xs)' }], isRequired: true
             },
             { labelName: 'カスタマID', value: `${ankenList[focus].customid}`, type: 'comboBox', optionList: daigakuOptionList, isRequired: false },
             { labelName: '案件番号', value: ankenList[focus].ankenno.toString(), isRequired: false },

@@ -31,13 +31,45 @@ namespace KinouRight {
         if (props.focus !== -1 && inputValues.length === props.selectKinouList.getFormProps().formList.length) {
             kinouInputJsxList = inputValues.map((value, i) => {
                 const kinou = props.selectKinouList.getFormProps().formList[i];
+
+                // 入力欄のタイプ管理
+                let typeJsx = <></>;
+
+                // タイプがundefinedであれば、初期値にテキストフィールドを設定
+                kinou.type == undefined ? kinou.type = 'textField' : kinou.type = kinou.type;
+
+                switch (kinou.type) {
+                    // テキストフィールド
+                    case 'textField':
+                        typeJsx = <input type="text" value={value} onChange={(e) => {
+                            inputValues[i] = e.target.value;
+                            setInputValues(inputValues.slice());
+                        }}></input>;
+                        break;
+
+                    // コンボボックス
+                    case 'comboBox':
+                        if (kinou.optionList !== undefined) {
+                            const optionJsxList = kinou.optionList.map((value, i) => {
+                                return (
+                                    <option value={value.optionValue} key={i}>{value.showValue}</option>
+                                );
+                            })
+
+                            typeJsx = <select value={value} onChange={(e) => {
+                                inputValues[i] = e.target.value;
+                                setInputValues(inputValues.slice());
+                            }}>
+                                {optionJsxList}
+                            </select>;
+                        }
+                        break;
+                }
+
                 return (
                     <_InputArea key={i}>
                         <_LabelName>{kinou.labelName}</_LabelName>
-                        <input type="text" value={value} onChange={(e) => {
-                            inputValues[i] = e.target.value;
-                            setInputValues(inputValues.slice());
-                        }}></input>
+                        {typeJsx}
                     </_InputArea>
                 );
             });
@@ -78,7 +110,7 @@ export default KinouRight;
 const _InputArea = styled.div`
     margin-right: ${SystemUtil.MARGIN_SIZE}px;
     width: 100%;
-    & input {
+    & input, select {
         width: calc(100% - 10px);
         height: 20px;
         margin-left: ${SystemUtil.MARGIN_SIZE}px;

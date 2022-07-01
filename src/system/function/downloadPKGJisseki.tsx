@@ -1,20 +1,23 @@
 import QueryUtil from "../utils/queryUtil";
 import AbstractFunctionBuilder from "./abstractFunctionBuilder";
 
-namespace DownloadEEJisseki {
+namespace DownloadPKGJisseki {
     export class Component extends AbstractFunctionBuilder.Component {
         getFunctionName(): string {
-            return 'EE_CSVダウンロード';
+            return 'PKG連絡票_CSVダウンロード';
         };
         getFormProps(): AbstractFunctionBuilder.FunctionFormProps {
             return {
                 formList: [
-                    { labelName: 'カスタマID', value: '032', type: 'comboBox', optionList: [{ optionValue: '032', showValue: '032:都市大' }, { optionValue: '074', showValue: '074:鎌女' }] },
+                    {
+                        labelName: '案件種別', value: 'PKG連絡票', type: 'comboBox',
+                        optionList: [{ optionValue: 'PKG連絡票', showValue: 'PKG連絡票' }, { optionValue: 'PKG連絡票(Xs)', showValue: 'PKG連絡票(Xs)' }]
+                    },
                     { labelName: '開始日', value: this.getSystemDate() },
                     { labelName: '終了日', value: this.getSystemDate() }
                 ],
                 execute: (values, setResultValue) => {
-                    const json = QueryUtil.getEEJsonData(values[0], values[1], values[2]);
+                    const json = QueryUtil.getPKGJsonData(values[0], values[1], values[2]);
                     json.then((values) => {
                         setResultValue(this.convertTable(values))
                     })
@@ -36,4 +39,4 @@ namespace DownloadEEJisseki {
     };
 };
 
-export default DownloadEEJisseki;
+export default DownloadPKGJisseki;

@@ -130,6 +130,7 @@ const _AnkenLabel = styled.div<{
     ${props => props.ankenType !== 'SE' ? '' : `background-color: #caccff;`}
     ${props => props.ankenType !== 'EE' ? '' : `background-color: #ffd2ca;`}
     ${props => props.ankenType !== 'PKG連絡票' ? '' : `background-color: #bbefb9;`}
+    ${props => props.ankenType !== 'PKG連絡票(Xs)' ? '' : `background-color: #ffdb9e;`}
     display: inline-block;
     width: calc(100% - 10px);
     height: ${SystemUtil.ANKEN_LABEL_HEIGTH}px;

@@ -14,7 +14,7 @@ namespace AnkenTab {
         ankenid: number;
         // 緊急度
         status: number;
-        // 案件タイプ(SE/EE/PKG)
+        // 案件タイプ(SE/EE/PKG/XS)
         ankentype: string;
         // カスタムID
         customid: string;
@@ -262,7 +262,7 @@ const _HeaderLabel = styled.div`
     margin-left: ${SystemUtil.MARGIN_SIZE}px;
 `;
 
-// ヘッダー項目名ラベル
+// ヘッダー項目名(ラジオボタン)ラベル
 const _RadioLabel = styled.div`
     font-size: ${SystemUtil.FONT_SIZE}px;
     display: inline-block;
